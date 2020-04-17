@@ -2,9 +2,10 @@ package main
 
 import (
 	"flag"
-	"github.com/Necoro/feed2imap-go/internal/config"
 	"log"
 	"os"
+
+	"github.com/Necoro/feed2imap-go/internal/config"
 )
 
 var cfgFile = flag.String("f", "config.yml", "configuration file")
