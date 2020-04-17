@@ -2,6 +2,7 @@ package config
 
 import (
 	"fmt"
+
 	"gopkg.in/yaml.v3"
 )
 
@@ -72,7 +73,7 @@ func buildFeeds(cfg []configGroupFeed, target string, feeds Feeds) error {
 
 		case f.isFeed():
 			name := f.Feed.Name
-			if _, ok := feeds[name]; !ok {
+			if _, ok := feeds[name]; ok {
 				return fmt.Errorf("Duplicate Feed Name '%s'", name)
 			}
 			f.Feed.Target = target
