@@ -1,6 +1,14 @@
 package config
 
-import "fmt"
+import (
+	"fmt"
+	"gopkg.in/yaml.v3"
+)
+
+type config struct {
+	GlobalConfig Map `yaml:",inline"`
+	Feeds        []configGroupFeed
+}
 
 type Group struct {
 	Group string
@@ -30,6 +38,16 @@ func (grpFeed *configGroupFeed) target() string {
 	}
 
 	return grpFeed.Group.Group
+}
+
+func parse(buf []byte) (config, error) {
+	var parsedCfg config
+	if err := yaml.Unmarshal(buf, &parsedCfg); err != nil {
+		return parsedCfg, fmt.Errorf("while unmarshalling: %w", err)
+	}
+	fmt.Printf("--- parsedCfg:\n%+v\n\n", parsedCfg)
+
+	return parsedCfg, nil
 }
 
 func appTarget(target, app string) string {
