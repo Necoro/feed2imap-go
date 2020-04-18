@@ -46,7 +46,7 @@ func parse(buf []byte) (config, error) {
 	if err := yaml.Unmarshal(buf, &parsedCfg); err != nil {
 		return parsedCfg, fmt.Errorf("while unmarshalling: %w", err)
 	}
-	fmt.Printf("--- parsedCfg:\n%+v\n\n", parsedCfg)
+	//fmt.Printf("--- parsedCfg:\n%+v\n\n", parsedCfg)
 
 	return parsedCfg, nil
 }
