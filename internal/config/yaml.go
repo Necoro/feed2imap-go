@@ -73,6 +73,10 @@ func buildFeeds(cfg []configGroupFeed, target string, feeds Feeds) error {
 
 		case f.isFeed():
 			name := f.Feed.Name
+			if name == "" {
+				return fmt.Errorf("Unnamed feed")
+			}
+
 			if _, ok := feeds[name]; ok {
 				return fmt.Errorf("Duplicate Feed Name '%s'", name)
 			}
