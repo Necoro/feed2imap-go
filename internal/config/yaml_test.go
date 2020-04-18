@@ -8,6 +8,117 @@ import (
 func s(s string) *string { return &s }
 func b(b bool) *bool     { return &b }
 
+func TestBuildFeeds(t *testing.T) {
+	tests := []struct {
+		name    string
+		wantErr bool
+		target  string
+		feeds   []configGroupFeed
+		result  Feeds
+	}{
+		{name: "Empty input", wantErr: false, target: "", feeds: nil, result: Feeds{}},
+		{name: "Empty Feed", wantErr: true, target: "",
+			feeds: []configGroupFeed{
+				{Target: s("foo"), Feed: Feed{Url: "google.de"}},
+			}, result: Feeds{}},
+		{name: "Empty Feed", wantErr: true, target: "",
+			feeds: []configGroupFeed{
+				{Target: nil, Feed: Feed{Url: "google.de"}},
+			}, result: Feeds{}},
+		{name: "Duplicate Feed Name", wantErr: true, target: "",
+			feeds: []configGroupFeed{
+				{Target: nil, Feed: Feed{Name: "Dup"}},
+				{Target: nil, Feed: Feed{Name: "Dup"}},
+			}, result: Feeds{}},
+		{name: "Simple", wantErr: false, target: "",
+			feeds: []configGroupFeed{
+				{Target: s("foo"), Feed: Feed{Name: "muh"}},
+			},
+			result: Feeds{"muh": &Feed{Name: "muh", Target: "foo"}},
+		},
+		{name: "Simple With Target", wantErr: false, target: "moep",
+			feeds: []configGroupFeed{
+				{Target: s("foo"), Feed: Feed{Name: "muh"}},
+			},
+			result: Feeds{"muh": &Feed{Name: "muh", Target: "moep.foo"}},
+		},
+		{name: "Simple With Nil Target", wantErr: false, target: "moep",
+			feeds: []configGroupFeed{
+				{Target: nil, Feed: Feed{Name: "muh"}},
+			},
+			result: Feeds{"muh": &Feed{Name: "muh", Target: "moep.muh"}},
+		},
+		{name: "Simple With Empty Target", wantErr: false, target: "moep",
+			feeds: []configGroupFeed{
+				{Target: s(""), Feed: Feed{Name: "muh"}},
+			},
+			result: Feeds{"muh": &Feed{Name: "muh", Target: "moep"}},
+		},
+		{name: "Multiple Feeds", wantErr: false, target: "moep",
+			feeds: []configGroupFeed{
+				{Target: s("foo"), Feed: Feed{Name: "muh"}},
+				{Target: nil, Feed: Feed{Name: "bar"}},
+			},
+			result: Feeds{
+				"muh": &Feed{Name: "muh", Target: "moep.foo"},
+				"bar": &Feed{Name: "bar", Target: "moep.bar"},
+			},
+		},
+		{name: "Empty Group", wantErr: false, target: "",
+			feeds: []configGroupFeed{
+				{Target: nil, Group: Group{Group: "G1"}},
+			},
+			result: Feeds{},
+		},
+		{name: "Simple Group", wantErr: false, target: "",
+			feeds: []configGroupFeed{
+				{Target: nil, Group: Group{Group: "G1", Feeds: []configGroupFeed{
+					{Target: s("bar"), Feed: Feed{Name: "F1"}},
+					{Target: s(""), Feed: Feed{Name: "F2"}},
+					{Target: nil, Feed: Feed{Name: "F3"}},
+				}}},
+			},
+			result: Feeds{
+				"F1": &Feed{Name: "F1", Target: "G1.bar"},
+				"F2": &Feed{Name: "F2", Target: "G1"},
+				"F3": &Feed{Name: "F3", Target: "G1.F3"},
+			},
+		},
+		{name: "Nested Groups", wantErr: false, target: "",
+			feeds: []configGroupFeed{
+				{Target: nil, Group: Group{Group: "G1", Feeds: []configGroupFeed{
+					{Target: nil, Feed: Feed{Name: "F0"}},
+					{Target: s("bar"), Group: Group{Group: "G2",
+						Feeds: []configGroupFeed{{Target: nil, Feed: Feed{Name: "F1"}}}}},
+					{Target: s(""), Group: Group{Group: "G3",
+						Feeds: []configGroupFeed{{Target: s("baz"), Feed: Feed{Name: "F2"}}}}},
+					{Target: nil, Group: Group{Group: "G4",
+						Feeds: []configGroupFeed{{Target: nil, Feed: Feed{Name: "F3"}}}}},
+				}}},
+			},
+			result: Feeds{
+				"F0": &Feed{Name: "F0", Target: "G1.F0"},
+				"F1": &Feed{Name: "F1", Target: "G1.bar.F1"},
+				"F2": &Feed{Name: "F2", Target: "G1.baz"},
+				"F3": &Feed{Name: "F3", Target: "G1.G4.F3"},
+			},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			var feeds Feeds = Feeds{}
+			err := buildFeeds(tt.feeds, tt.target, feeds)
+			if (err != nil) != tt.wantErr {
+				t.Errorf("buildFeeds() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+			if !tt.wantErr && !reflect.DeepEqual(feeds, tt.result) {
+				t.Errorf("buildFeeds() got = %v, want %v", feeds, tt.result)
+			}
+		})
+	}
+}
+
 //noinspection GoNilness,GoNilness
 func TestParse(t *testing.T) {
 	tests := []struct {

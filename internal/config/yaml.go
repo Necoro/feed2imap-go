@@ -27,7 +27,7 @@ func (grpFeed *configGroupFeed) isGroup() bool {
 }
 
 func (grpFeed *configGroupFeed) isFeed() bool {
-	return grpFeed.Name != ""
+	return grpFeed.Feed != Feed{}
 }
 
 func (grpFeed *configGroupFeed) target() string {
@@ -60,12 +60,13 @@ func appTarget(target, app string) string {
 		return target
 	}
 
-	return target + "/" + app
+	return target + "." + app
 }
 
 // Parse the group structure and populate the `Target` fields in the feeds
 func buildFeeds(cfg []configGroupFeed, target string, feeds Feeds) error {
-	for _, f := range cfg {
+	for idx := range cfg {
+		f := &cfg[idx] // cannot use `_, f := range cfg` as it returns copies(!), but we need the originals
 		target := appTarget(target, f.target())
 		switch {
 		case f.isFeed() && f.isGroup():
