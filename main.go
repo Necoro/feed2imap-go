@@ -6,6 +6,8 @@ import (
 	"os"
 
 	"github.com/Necoro/feed2imap-go/internal/config"
+	"github.com/Necoro/feed2imap-go/internal/parse"
+	"github.com/Necoro/feed2imap-go/internal/util"
 )
 
 var cfgFile = flag.String("f", "config.yml", "configuration file")
@@ -15,17 +17,19 @@ func run() error {
 	flag.Parse()
 
 	log.Printf("Reading configuration file '%s'", *cfgFile)
-	if _, err := config.Load(*cfgFile); err != nil {
+	cfg, err := config.Load(*cfgFile)
+	if err != nil {
 		return err
 	}
+
+	parse.Parse(cfg.Feeds)
 
 	return nil
 }
 
 func main() {
 	if err := run(); err != nil {
-		log.SetOutput(os.Stderr)
-		log.Print("Error: ", err)
+		util.Error(err)
 		os.Exit(1)
 	}
 }
