@@ -11,8 +11,9 @@ import (
 )
 
 type config struct {
-	GlobalConfig C.Map `yaml:",inline"`
-	Feeds        []configGroupFeed
+	C.GlobalOptions `yaml:",inline"`
+	GlobalConfig    C.Map `yaml:",inline"`
+	Feeds           []configGroupFeed
 }
 
 type group struct {
@@ -52,9 +53,10 @@ func (grpFeed *configGroupFeed) target() string {
 }
 
 func parse(buf []byte) (config, error) {
-	var parsedCfg config
+	parsedCfg := config{GlobalOptions: C.DefaultGlobalOptions}
+
 	if err := yaml.Unmarshal(buf, &parsedCfg); err != nil {
-		return parsedCfg, fmt.Errorf("while unmarshalling: %w", err)
+		return config{}, fmt.Errorf("while unmarshalling: %w", err)
 	}
 	//fmt.Printf("--- parsedCfg:\n%+v\n\n", parsedCfg)
 

@@ -129,20 +129,34 @@ func TestBuildFeeds(tst *testing.T) {
 	}
 }
 
+func defaultConfig(feeds []configGroupFeed, global C.Map) config {
+	return config{
+		GlobalOptions: C.DefaultGlobalOptions,
+		GlobalConfig:  global,
+		Feeds:         feeds,
+	}
+}
+
 //noinspection GoNilness,GoNilness
 func TestParse(tst *testing.T) {
 	tests := []struct {
-		name         string
-		inp          string
-		wantErr      bool
-		feeds        []configGroupFeed
-		globalConfig C.Map
+		name    string
+		inp     string
+		wantErr bool
+		config  config
 	}{
 		{name: "Empty",
-			inp: "", wantErr: false, feeds: nil, globalConfig: nil},
+			inp: "", wantErr: false, config: defaultConfig(nil, nil)},
 		{name: "Trash", inp: "Something", wantErr: true},
 		{name: "Simple config",
-			inp: "something: 1\nsomething_else: 2", wantErr: false, feeds: nil, globalConfig: C.Map{"something": 1, "something_else": 2}},
+			inp: "something: 1\nsomething_else: 2", wantErr: false, config: defaultConfig(nil, C.Map{"something": 1, "something_else": 2})},
+		{name: "Known config",
+			inp: "whatever: 2\ndefault-email: foo@foobar.de\ntimeout: 60\nsomething: 1", wantErr: false, config: func() config {
+				c := defaultConfig(nil, C.Map{"something": 1, "whatever": 2})
+				c.Timeout = 60
+				c.DefaultEmail = "foo@foobar.de"
+				return c
+			}()},
 		{name: "Config with feed",
 			inp: `
 something: 1
@@ -153,9 +167,8 @@ feeds:
      include-images: true
      unknown-option: foo
 `,
-			wantErr:      false,
-			globalConfig: C.Map{"something": 1},
-			feeds: []configGroupFeed{
+			wantErr: false,
+			config: defaultConfig([]configGroupFeed{
 				{Target: s("bar"), Feed: feed{
 					Name: "Foo",
 					Url:  "whatever",
@@ -163,7 +176,7 @@ feeds:
 						MinFreq:    0,
 						InclImages: b(true),
 					},
-				}}}},
+				}}}, C.Map{"something": 1})},
 
 		{name: "Feeds",
 			inp: `
@@ -177,7 +190,7 @@ feeds:
      include-images: false
 `,
 			wantErr: false,
-			feeds: []configGroupFeed{
+			config: defaultConfig([]configGroupFeed{
 				{Target: nil, Feed: feed{
 					Name: "Foo",
 					Url:  "whatever",
@@ -194,7 +207,7 @@ feeds:
 						InclImages: b(false),
 					},
 				}},
-			},
+			}, nil),
 		},
 		{name: "Empty Group",
 			inp: `
@@ -203,7 +216,7 @@ feeds:
      target: bla
 `,
 			wantErr: false,
-			feeds:   []configGroupFeed{{Target: s("bla"), Group: group{"Foo", nil}}},
+			config:  defaultConfig([]configGroupFeed{{Target: s("bla"), Group: group{"Foo", nil}}}, nil),
 		},
 		{name: "Feeds and Groups",
 			inp: `
@@ -222,7 +235,7 @@ feeds:
       - group: G3
 `,
 			wantErr: false,
-			feeds: []configGroupFeed{
+			config: defaultConfig([]configGroupFeed{
 				{Target: nil, Feed: feed{
 					Name: "Foo",
 					Url:  "whatever",
@@ -240,7 +253,7 @@ feeds:
 						{Target: nil, Group: group{Group: "G3"}},
 					}},
 				},
-			},
+			}, nil),
 		},
 	}
 
@@ -252,11 +265,8 @@ feeds:
 				tst.Errorf("parse() error = %v, wantErr %v", err, tt.wantErr)
 				return
 			}
-			if !reflect.DeepEqual(got.Feeds, tt.feeds) {
-				tst.Errorf("parse() got = %v, want %v", got.Feeds, tt.feeds)
-			}
-			if !reflect.DeepEqual(got.GlobalConfig, tt.globalConfig) {
-				tst.Errorf("parse() got = %v, want %v", got.GlobalConfig, tt.globalConfig)
+			if err == nil && !reflect.DeepEqual(got, tt.config) {
+				tst.Errorf("parse() got = %#v, want %#v", got, tt.config)
 			}
 		})
 	}
