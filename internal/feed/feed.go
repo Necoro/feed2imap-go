@@ -14,7 +14,13 @@ type Feed struct {
 	Target []string
 	Url    string
 	config.Options
-	feed gofeed.Feed
+	feed  *gofeed.Feed
+	items []feeditem
+}
+
+type feeditem struct {
+	*gofeed.Feed
+	*gofeed.Item
 }
 
 type Feeds map[string]*Feed

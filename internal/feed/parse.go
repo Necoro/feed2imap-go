@@ -19,10 +19,16 @@ func parseFeed(feed *Feed) error {
 	ctx, cancel := context()
 	defer cancel()
 	fp := gofeed.NewParser()
-	if _, err := fp.ParseURLWithContext(feed.Url, ctx); err != nil {
+	parsedFeed, err := fp.ParseURLWithContext(feed.Url, ctx)
+	if err != nil {
 		return fmt.Errorf("while fetching %s from %s: %w", feed.Name, feed.Url, err)
 	}
 
+	feed.feed = parsedFeed
+	feed.items = make([]feeditem, len(parsedFeed.Items))
+	for _, item := range parsedFeed.Items {
+		feed.items = append(feed.items, feeditem{parsedFeed, item})
+	}
 	return nil
 }
 
