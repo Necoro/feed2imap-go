@@ -2,19 +2,21 @@ package main
 
 import (
 	"flag"
-	"log"
 	"os"
 
 	"github.com/Necoro/feed2imap-go/internal/config"
+	"github.com/Necoro/feed2imap-go/internal/log"
 	"github.com/Necoro/feed2imap-go/internal/parse"
-	"github.com/Necoro/feed2imap-go/internal/util"
 )
 
 var cfgFile = flag.String("f", "config.yml", "configuration file")
+var verbose = flag.Bool("v", false, "enable verbose output")
 
 func run() error {
-	log.Print("Starting up...")
 	flag.Parse()
+	log.SetDebug(*verbose)
+
+	log.Print("Starting up...")
 
 	log.Printf("Reading configuration file '%s'", *cfgFile)
 	cfg, err := config.Load(*cfgFile)
@@ -29,7 +31,7 @@ func run() error {
 
 func main() {
 	if err := run(); err != nil {
-		util.Error(err)
+		log.Error(err)
 		os.Exit(1)
 	}
 }

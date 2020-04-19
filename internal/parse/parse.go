@@ -3,14 +3,13 @@ package parse
 import (
 	ctxt "context"
 	"fmt"
-	"log"
 	"sync"
 	"time"
 
 	"github.com/mmcdole/gofeed"
 
 	"github.com/Necoro/feed2imap-go/internal/config"
-	"github.com/Necoro/feed2imap-go/internal/util"
+	"github.com/Necoro/feed2imap-go/internal/log"
 )
 
 func context() (ctxt.Context, ctxt.CancelFunc) {
@@ -33,7 +32,7 @@ func handleFeed(feed *config.Feed, wg *sync.WaitGroup) {
 	log.Printf("Fetching %s from %s", feed.Name, feed.Url)
 
 	if err := parseFeed(feed); err != nil {
-		util.Error(err)
+		log.Error(err)
 	}
 }
 
