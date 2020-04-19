@@ -84,16 +84,6 @@ func (client *Client) list(folder string) (*imap.MailboxInfo, int, error) {
 	return mbox, found, nil
 }
 
-func (client *Client) selectToplevel() (err error) {
-	err = client.EnsureFolder(client.toplevel)
-
-	if err == nil {
-		_, err = client.c.Select(client.toplevel, false)
-	}
-
-	return
-}
-
 func (client *Client) fetchDelimiter() error {
 	mbox, _, err := client.list("")
 	if err != nil {

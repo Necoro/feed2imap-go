@@ -120,8 +120,7 @@ func Connect(url *url.URL) (*Client, error) {
 
 	log.Printf("Determined '%s' as toplevel, with '%s' as delimiter", client.toplevel, client.delimiter)
 
-	// Go to toplevel folder by default, so that the rest is relative
-	if err = client.selectToplevel(); err != nil {
+	if err = client.EnsureFolder(client.toplevel); err != nil {
 		return nil, err
 	}
 
