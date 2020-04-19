@@ -2,9 +2,12 @@ package main
 
 import (
 	"flag"
+	"fmt"
+	"net/url"
 	"os"
 
 	"github.com/Necoro/feed2imap-go/internal/config"
+	"github.com/Necoro/feed2imap-go/internal/imap"
 	"github.com/Necoro/feed2imap-go/internal/log"
 	"github.com/Necoro/feed2imap-go/internal/parse"
 )
@@ -25,6 +28,18 @@ func run() error {
 	}
 
 	parse.Parse(cfg.Feeds)
+
+	imapUrl, err := url.Parse(cfg.GlobalConfig["target"].(string))
+	if err != nil {
+		return fmt.Errorf("parsing 'target': %w", err)
+	}
+
+	c, err := imap.Connect(imapUrl)
+	if err != nil {
+		return err
+	}
+
+	defer c.Disconnect()
 
 	return nil
 }
