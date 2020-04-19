@@ -6,6 +6,7 @@ import (
 	"os"
 )
 
+var debugLogger = log.New(os.Stdout, "", log.LstdFlags)
 var errorLogger = log.New(os.Stderr, "ERROR ", log.LstdFlags|log.Lmsgprefix)
 var warnLogger = log.New(os.Stdout, "WARN ", log.LstdFlags|log.Lmsgprefix)
 var enableDebug = false
@@ -16,13 +17,13 @@ func SetDebug(state bool) {
 
 func Print(v ...interface{}) {
 	if enableDebug {
-		_ = log.Output(2, fmt.Sprint(v...))
+		_ = debugLogger.Output(2, fmt.Sprint(v...))
 	}
 }
 
 func Printf(format string, v ...interface{}) {
 	if enableDebug {
-		_ = log.Output(2, fmt.Sprintf(format, v...))
+		_ = debugLogger.Output(2, fmt.Sprintf(format, v...))
 	}
 }
 
