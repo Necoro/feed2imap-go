@@ -6,10 +6,10 @@ import (
 	"net/url"
 	"os"
 
-	"github.com/Necoro/feed2imap-go/internal/config"
 	"github.com/Necoro/feed2imap-go/internal/feed"
 	"github.com/Necoro/feed2imap-go/internal/imap"
 	"github.com/Necoro/feed2imap-go/internal/log"
+	"github.com/Necoro/feed2imap-go/internal/yaml"
 )
 
 var cfgFile = flag.String("f", "config.yml", "configuration file")
@@ -22,12 +22,12 @@ func run() error {
 	log.Print("Starting up...")
 
 	log.Printf("Reading configuration file '%s'", *cfgFile)
-	cfg, err := config.Load(*cfgFile)
+	cfg, feeds, err := yaml.Load(*cfgFile)
 	if err != nil {
 		return err
 	}
 
-	feed.Parse(cfg.Feeds)
+	feed.Parse(feeds)
 
 	imapUrl, err := url.Parse(cfg.GlobalConfig["target"].(string))
 	if err != nil {

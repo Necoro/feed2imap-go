@@ -1,25 +1,35 @@
-package config
+package yaml
 
 import (
 	"fmt"
+	"io/ioutil"
 
 	"gopkg.in/yaml.v3"
+
+	C "github.com/Necoro/feed2imap-go/internal/config"
+	F "github.com/Necoro/feed2imap-go/internal/feed"
 )
 
 type config struct {
-	GlobalConfig Map `yaml:",inline"`
+	GlobalConfig C.Map `yaml:",inline"`
 	Feeds        []configGroupFeed
 }
 
-type Group struct {
+type group struct {
 	Group string
 	Feeds []configGroupFeed
 }
 
+type feed struct {
+	Name      string
+	Url       string
+	C.Options `yaml:",inline"`
+}
+
 type configGroupFeed struct {
 	Target *string
-	Feed   `yaml:",inline"`
-	Group  `yaml:",inline"`
+	Feed   feed  `yaml:",inline"`
+	Group  group `yaml:",inline"`
 }
 
 func (grpFeed *configGroupFeed) isGroup() bool {
@@ -34,8 +44,8 @@ func (grpFeed *configGroupFeed) target() string {
 	if grpFeed.Target != nil {
 		return *grpFeed.Target
 	}
-	if grpFeed.Name != "" {
-		return grpFeed.Name
+	if grpFeed.Feed.Name != "" {
+		return grpFeed.Feed.Name
 	}
 
 	return grpFeed.Group.Group
@@ -65,7 +75,7 @@ func appTarget(target []string, app string) []string {
 }
 
 // Parse the group structure and populate the `Target` fields in the feeds
-func buildFeeds(cfg []configGroupFeed, target []string, feeds Feeds) error {
+func buildFeeds(cfg []configGroupFeed, target []string, feeds F.Feeds) error {
 	for idx := range cfg {
 		f := &cfg[idx] // cannot use `_, f := range cfg` as it returns copies(!), but we need the originals
 		target := appTarget(target, f.target())
@@ -82,8 +92,12 @@ func buildFeeds(cfg []configGroupFeed, target []string, feeds Feeds) error {
 			if _, ok := feeds[name]; ok {
 				return fmt.Errorf("Duplicate Feed Name '%s'", name)
 			}
-			f.Feed.Target = target
-			feeds[name] = &f.Feed
+			feeds[name] = &F.Feed{
+				Name:    f.Feed.Name,
+				Target:  target,
+				Url:     f.Feed.Url,
+				Options: f.Feed.Options,
+			}
 
 		case f.isGroup():
 			if err := buildFeeds(f.Group.Feeds, target, feeds); err != nil {
@@ -93,4 +107,24 @@ func buildFeeds(cfg []configGroupFeed, target []string, feeds Feeds) error {
 	}
 
 	return nil
+}
+
+func Load(path string) (C.Config, F.Feeds, error) {
+	buf, err := ioutil.ReadFile(path)
+	if err != nil {
+		return C.Config{}, nil, fmt.Errorf("while reading '%s': %w", path, err)
+	}
+
+	var parsedCfg config
+	if parsedCfg, err = parse(buf); err != nil {
+		return C.Config{}, nil, err
+	}
+
+	feeds := F.Feeds{}
+
+	if err := buildFeeds(parsedCfg.Feeds, []string{}, feeds); err != nil {
+		return C.Config{}, nil, fmt.Errorf("while parsing: %w", err)
+	}
+
+	return C.Config{GlobalConfig: parsedCfg.GlobalConfig}, feeds, nil
 }

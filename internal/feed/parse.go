@@ -8,7 +8,6 @@ import (
 
 	"github.com/mmcdole/gofeed"
 
-	"github.com/Necoro/feed2imap-go/internal/config"
 	"github.com/Necoro/feed2imap-go/internal/log"
 )
 
@@ -16,7 +15,7 @@ func context() (ctxt.Context, ctxt.CancelFunc) {
 	return ctxt.WithTimeout(ctxt.Background(), 60*time.Second)
 }
 
-func parseFeed(feed *config.Feed) error {
+func parseFeed(feed *Feed) error {
 	ctx, cancel := context()
 	defer cancel()
 	fp := gofeed.NewParser()
@@ -27,7 +26,7 @@ func parseFeed(feed *config.Feed) error {
 	return nil
 }
 
-func handleFeed(feed *config.Feed, wg *sync.WaitGroup) {
+func handleFeed(feed *Feed, wg *sync.WaitGroup) {
 	defer wg.Done()
 	log.Printf("Fetching %s from %s", feed.Name, feed.Url)
 
@@ -36,7 +35,7 @@ func handleFeed(feed *config.Feed, wg *sync.WaitGroup) {
 	}
 }
 
-func Parse(feeds config.Feeds) {
+func Parse(feeds Feeds) {
 	var wg sync.WaitGroup
 	wg.Add(len(feeds))
 
