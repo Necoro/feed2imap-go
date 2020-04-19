@@ -15,9 +15,23 @@ const (
 	imapPort  = "143"
 )
 
+type folders map[string]*imap.MailboxInfo
+
+func (f folders) contains(elem string) bool {
+	_, ok := f[elem]
+	return ok
+}
+
+func (f folders) add(elem *imap.MailboxInfo) {
+	name := elem.Name
+	f[name] = elem
+}
+
 type Client struct {
-	c    *imapClient.Client
-	host string
+	c         *imapClient.Client
+	host      string
+	folders   folders
+	delimiter string
 }
 
 func forceTLS(url *url.URL) bool {
@@ -70,6 +84,69 @@ func (client *Client) Disconnect() {
 	}
 }
 
+func (client *Client) createFolder(folder string) error {
+	return nil
+}
+
+func (client *Client) list(folder string) (*imap.MailboxInfo, int, error) {
+	mailboxes := make(chan *imap.MailboxInfo, 10)
+	done := make(chan error, 1)
+	go func() {
+		done <- client.c.List("", folder, mailboxes)
+	}()
+
+	found := 0
+	var mbox *imap.MailboxInfo
+	for m := range mailboxes {
+		if found == 0 {
+			mbox = m
+		}
+		found++
+	}
+
+	if err := <-done; err != nil {
+		return nil, 0, fmt.Errorf("while listing '%s': %w", folder, err)
+	}
+
+	return mbox, found, nil
+}
+
+func (client *Client) fetchDelimiter() error {
+	mbox, _, err := client.list("")
+	if err != nil {
+		return err
+	}
+
+	client.delimiter = mbox.Delimiter
+	return nil
+}
+
+func (client *Client) EnsureFolder(folder string) error {
+	if folder[0] == '/' {
+		folder = folder[1:]
+	}
+
+	if client.folders.contains(folder) {
+		return nil
+	}
+
+	log.Printf("Checking for folder '%s'", folder)
+
+	mbox, found, err := client.list(folder)
+
+	switch {
+	case err != nil:
+		return err
+	case found == 0:
+		return client.createFolder(folder)
+	case found == 1:
+		client.folders.add(mbox)
+		return nil
+	default:
+		return fmt.Errorf("Found multiple folders matching '%s'.", folder)
+	}
+}
+
 func Connect(url *url.URL) (*Client, error) {
 	var c *imapClient.Client
 	var err error
@@ -91,7 +168,7 @@ func Connect(url *url.URL) (*Client, error) {
 		}
 	}
 
-	var client = Client{c, url.Host}
+	var client = Client{c: c, host: url.Host, folders: folders{}}
 
 	defer func() {
 		if err != nil {
@@ -120,6 +197,14 @@ func Connect(url *url.URL) (*Client, error) {
 	pwd, _ := url.User.Password()
 	if err = c.Login(url.User.Username(), pwd); err != nil {
 		return nil, fmt.Errorf("login to %s: %w", url.Host, err)
+	}
+
+	if err = client.fetchDelimiter(); err != nil {
+		return nil, fmt.Errorf("fetching delimiter: %w", err)
+	}
+
+	if err = client.EnsureFolder(url.Path); err != nil {
+		return nil, err
 	}
 
 	return &client, nil
