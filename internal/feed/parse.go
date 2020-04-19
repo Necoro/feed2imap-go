@@ -1,4 +1,4 @@
-package parse
+package feed
 
 import (
 	ctxt "context"

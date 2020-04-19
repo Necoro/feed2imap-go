@@ -7,9 +7,9 @@ import (
 	"os"
 
 	"github.com/Necoro/feed2imap-go/internal/config"
+	"github.com/Necoro/feed2imap-go/internal/feed"
 	"github.com/Necoro/feed2imap-go/internal/imap"
 	"github.com/Necoro/feed2imap-go/internal/log"
-	"github.com/Necoro/feed2imap-go/internal/parse"
 )
 
 var cfgFile = flag.String("f", "config.yml", "configuration file")
@@ -27,7 +27,7 @@ func run() error {
 		return err
 	}
 
-	parse.Parse(cfg.Feeds)
+	feed.Parse(cfg.Feeds)
 
 	imapUrl, err := url.Parse(cfg.GlobalConfig["target"].(string))
 	if err != nil {
