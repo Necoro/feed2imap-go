@@ -2,13 +2,20 @@ package config
 
 import (
 	"reflect"
+	"strings"
 	"testing"
 )
 
 func s(s string) *string { return &s }
 func b(b bool) *bool     { return &b }
+func t(s string) []string {
+	if s == "" {
+		return []string{}
+	}
+	return strings.Split(s, ".")
+}
 
-func TestBuildFeeds(t *testing.T) {
+func TestBuildFeeds(tst *testing.T) {
 	tests := []struct {
 		name    string
 		wantErr bool
@@ -34,25 +41,25 @@ func TestBuildFeeds(t *testing.T) {
 			feeds: []configGroupFeed{
 				{Target: s("foo"), Feed: Feed{Name: "muh"}},
 			},
-			result: Feeds{"muh": &Feed{Name: "muh", Target: "foo"}},
+			result: Feeds{"muh": &Feed{Name: "muh", Target: t("foo")}},
 		},
 		{name: "Simple With Target", wantErr: false, target: "moep",
 			feeds: []configGroupFeed{
 				{Target: s("foo"), Feed: Feed{Name: "muh"}},
 			},
-			result: Feeds{"muh": &Feed{Name: "muh", Target: "moep.foo"}},
+			result: Feeds{"muh": &Feed{Name: "muh", Target: t("moep.foo")}},
 		},
 		{name: "Simple With Nil Target", wantErr: false, target: "moep",
 			feeds: []configGroupFeed{
 				{Target: nil, Feed: Feed{Name: "muh"}},
 			},
-			result: Feeds{"muh": &Feed{Name: "muh", Target: "moep.muh"}},
+			result: Feeds{"muh": &Feed{Name: "muh", Target: t("moep.muh")}},
 		},
 		{name: "Simple With Empty Target", wantErr: false, target: "moep",
 			feeds: []configGroupFeed{
 				{Target: s(""), Feed: Feed{Name: "muh"}},
 			},
-			result: Feeds{"muh": &Feed{Name: "muh", Target: "moep"}},
+			result: Feeds{"muh": &Feed{Name: "muh", Target: t("moep")}},
 		},
 		{name: "Multiple Feeds", wantErr: false, target: "moep",
 			feeds: []configGroupFeed{
@@ -60,8 +67,8 @@ func TestBuildFeeds(t *testing.T) {
 				{Target: nil, Feed: Feed{Name: "bar"}},
 			},
 			result: Feeds{
-				"muh": &Feed{Name: "muh", Target: "moep.foo"},
-				"bar": &Feed{Name: "bar", Target: "moep.bar"},
+				"muh": &Feed{Name: "muh", Target: t("moep.foo")},
+				"bar": &Feed{Name: "bar", Target: t("moep.bar")},
 			},
 		},
 		{name: "Empty Group", wantErr: false, target: "",
@@ -79,9 +86,9 @@ func TestBuildFeeds(t *testing.T) {
 				}}},
 			},
 			result: Feeds{
-				"F1": &Feed{Name: "F1", Target: "G1.bar"},
-				"F2": &Feed{Name: "F2", Target: "G1"},
-				"F3": &Feed{Name: "F3", Target: "G1.F3"},
+				"F1": &Feed{Name: "F1", Target: t("G1.bar")},
+				"F2": &Feed{Name: "F2", Target: t("G1")},
+				"F3": &Feed{Name: "F3", Target: t("G1.F3")},
 			},
 		},
 		{name: "Nested Groups", wantErr: false, target: "",
@@ -97,30 +104,30 @@ func TestBuildFeeds(t *testing.T) {
 				}}},
 			},
 			result: Feeds{
-				"F0": &Feed{Name: "F0", Target: "G1.F0"},
-				"F1": &Feed{Name: "F1", Target: "G1.bar.F1"},
-				"F2": &Feed{Name: "F2", Target: "G1.baz"},
-				"F3": &Feed{Name: "F3", Target: "G1.G4.F3"},
+				"F0": &Feed{Name: "F0", Target: t("G1.F0")},
+				"F1": &Feed{Name: "F1", Target: t("G1.bar.F1")},
+				"F2": &Feed{Name: "F2", Target: t("G1.baz")},
+				"F3": &Feed{Name: "F3", Target: t("G1.G4.F3")},
 			},
 		},
 	}
 	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
+		tst.Run(tt.name, func(tst *testing.T) {
 			var feeds Feeds = Feeds{}
-			err := buildFeeds(tt.feeds, tt.target, feeds)
+			err := buildFeeds(tt.feeds, t(tt.target), feeds)
 			if (err != nil) != tt.wantErr {
-				t.Errorf("buildFeeds() error = %v, wantErr %v", err, tt.wantErr)
+				tst.Errorf("buildFeeds() error = %v, wantErr %v", err, tt.wantErr)
 				return
 			}
 			if !tt.wantErr && !reflect.DeepEqual(feeds, tt.result) {
-				t.Errorf("buildFeeds() got = %v, want %v", feeds, tt.result)
+				tst.Errorf("buildFeeds() got = %v, want %v", feeds, tt.result)
 			}
 		})
 	}
 }
 
 //noinspection GoNilness,GoNilness
-func TestParse(t *testing.T) {
+func TestParse(tst *testing.T) {
 	tests := []struct {
 		name         string
 		inp          string
@@ -148,7 +155,7 @@ feeds:
 			feeds: []configGroupFeed{
 				{Target: s("bar"), Feed: Feed{
 					Name:       "Foo",
-					Target:     "",
+					Target:     nil,
 					Url:        "whatever",
 					MinFreq:    0,
 					InclImages: b(true),
@@ -230,18 +237,18 @@ feeds:
 	}
 
 	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
+		tst.Run(tt.name, func(tst *testing.T) {
 			var buf = []byte(tt.inp)
 			got, err := parse(buf)
 			if (err != nil) != tt.wantErr {
-				t.Errorf("parse() error = %v, wantErr %v", err, tt.wantErr)
+				tst.Errorf("parse() error = %v, wantErr %v", err, tt.wantErr)
 				return
 			}
 			if !reflect.DeepEqual(got.Feeds, tt.feeds) {
-				t.Errorf("parse() got = %v, want %v", got.Feeds, tt.feeds)
+				tst.Errorf("parse() got = %v, want %v", got.Feeds, tt.feeds)
 			}
 			if !reflect.DeepEqual(got.GlobalConfig, tt.globalConfig) {
-				t.Errorf("parse() got = %v, want %v", got.GlobalConfig, tt.globalConfig)
+				tst.Errorf("parse() got = %v, want %v", got.GlobalConfig, tt.globalConfig)
 			}
 		})
 	}

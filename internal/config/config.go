@@ -41,7 +41,7 @@ type Config struct {
 
 type Feed struct {
 	Name       string
-	Target     string `yaml:"-"`
+	Target     []string `yaml:"-"`
 	Url        string
 	MinFreq    int   `yaml:"min-frequency"`
 	InclImages *bool `yaml:"include-images"`
@@ -65,7 +65,7 @@ func Load(path string) (Config, error) {
 		Feeds:        make(Feeds),
 	}
 
-	if err := buildFeeds(parsedCfg.Feeds, "", finishedCfg.Feeds); err != nil {
+	if err := buildFeeds(parsedCfg.Feeds, []string{}, finishedCfg.Feeds); err != nil {
 		return finishedCfg, fmt.Errorf("while parsing: %w", err)
 	}
 
