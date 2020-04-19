@@ -3,6 +3,7 @@ package imap
 import (
 	"fmt"
 	"net/url"
+	"strings"
 
 	"github.com/emersion/go-imap"
 	imapClient "github.com/emersion/go-imap/client"
@@ -32,6 +33,7 @@ type Client struct {
 	host      string
 	folders   folders
 	delimiter string
+	toplevel  string
 }
 
 func forceTLS(url *url.URL) bool {
@@ -84,7 +86,23 @@ func (client *Client) Disconnect() {
 	}
 }
 
+func (client *Client) FolderName(path []string) string {
+	return strings.Join(path, client.delimiter)
+}
+
 func (client *Client) createFolder(folder string) error {
+	err := client.c.Create(folder)
+	if err != nil {
+		return fmt.Errorf("creating folder '%s': %w", folder, err)
+	}
+
+	err = client.c.Subscribe(folder)
+	if err != nil {
+		return fmt.Errorf("subscribing to folder '%s': %w", folder, err)
+	}
+
+	log.Printf("Created folder '%s'", folder)
+
 	return nil
 }
 
@@ -111,6 +129,16 @@ func (client *Client) list(folder string) (*imap.MailboxInfo, int, error) {
 	return mbox, found, nil
 }
 
+func (client *Client) selectToplevel() (err error) {
+	err = client.EnsureFolder(client.toplevel)
+
+	if err == nil {
+		_, err = client.c.Select(client.toplevel, false)
+	}
+
+	return
+}
+
 func (client *Client) fetchDelimiter() error {
 	mbox, _, err := client.list("")
 	if err != nil {
@@ -122,9 +150,6 @@ func (client *Client) fetchDelimiter() error {
 }
 
 func (client *Client) EnsureFolder(folder string) error {
-	if folder[0] == '/' {
-		folder = folder[1:]
-	}
 
 	if client.folders.contains(folder) {
 		return nil
@@ -203,7 +228,16 @@ func Connect(url *url.URL) (*Client, error) {
 		return nil, fmt.Errorf("fetching delimiter: %w", err)
 	}
 
-	if err = client.EnsureFolder(url.Path); err != nil {
+	client.toplevel = url.Path
+	if client.toplevel[0] == '/' {
+		client.toplevel = client.toplevel[1:]
+	}
+	client.toplevel = client.FolderName(strings.Split(client.toplevel, "/"))
+
+	log.Printf("Determined '%s' as toplevel, with '%s' as delimiter", client.toplevel, client.delimiter)
+
+	// Go to toplevel folder by default, so that the rest is relative
+	if err = client.selectToplevel(); err != nil {
 		return nil, err
 	}
 
