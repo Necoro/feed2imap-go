@@ -15,13 +15,13 @@ func SetDebug(state bool) {
 }
 
 func Print(v ...interface{}) {
-	if !enableDebug {
+	if enableDebug {
 		_ = log.Output(2, fmt.Sprint(v...))
 	}
 }
 
 func Printf(format string, v ...interface{}) {
-	if !enableDebug {
+	if enableDebug {
 		_ = log.Output(2, fmt.Sprintf(format, v...))
 	}
 }
