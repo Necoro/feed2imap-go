@@ -99,8 +99,9 @@ func Connect(url *url.URL) (*Client, error) {
 			}
 
 			log.Print("Connected to ", url.Host, " (STARTTLS)")
+		} else {
+			log.Print("Connected to ", url.Host, " (Plain)")
 		}
-		log.Print("Connected to ", url.Host, " (Plain)")
 	}
 
 	pwd, _ := url.User.Password()

@@ -1,6 +1,7 @@
 package config
 
 import (
+	"fmt"
 	"os"
 	"os/user"
 	"runtime"
@@ -31,6 +32,14 @@ type Config struct {
 type Options struct {
 	MinFreq    int   `yaml:"min-frequency"`
 	InclImages *bool `yaml:"include-images"`
+}
+
+func (c *Config) Validate() error {
+	if c.Target == "" {
+		return fmt.Errorf("No target set!")
+	}
+
+	return nil
 }
 
 func (c *Config) WithPartText() bool {

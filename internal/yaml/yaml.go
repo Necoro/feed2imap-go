@@ -128,5 +128,8 @@ func Load(path string) (C.Config, F.Feeds, error) {
 		return C.Config{}, nil, fmt.Errorf("while parsing: %w", err)
 	}
 
-	return C.Config{GlobalConfig: parsedCfg.GlobalConfig}, feeds, nil
+	return C.Config{
+		GlobalOptions: parsedCfg.GlobalOptions,
+		GlobalConfig:  parsedCfg.GlobalConfig,
+	}, feeds, nil
 }

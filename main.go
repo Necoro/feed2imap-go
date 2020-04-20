@@ -27,9 +27,13 @@ func run() error {
 		return err
 	}
 
+	if err = cfg.Validate(); err != nil {
+		return fmt.Errorf("Configuration invalid: %w", err)
+	}
+
 	feed.Parse(feeds)
 
-	imapUrl, err := url.Parse(cfg.GlobalConfig["target"].(string))
+	imapUrl, err := url.Parse(cfg.Target)
 	if err != nil {
 		return fmt.Errorf("parsing 'target': %w", err)
 	}
