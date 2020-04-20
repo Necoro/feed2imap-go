@@ -116,7 +116,7 @@ func TestBuildFeeds(tst *testing.T) {
 	}
 	for _, tt := range tests {
 		tst.Run(tt.name, func(tst *testing.T) {
-			var feeds F.Feeds = F.Feeds{}
+			var feeds = F.Feeds{}
 			err := buildFeeds(tt.feeds, t(tt.target), feeds)
 			if (err != nil) != tt.wantErr {
 				tst.Errorf("buildFeeds() error = %v, wantErr %v", err, tt.wantErr)

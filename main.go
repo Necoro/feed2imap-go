@@ -33,6 +33,15 @@ func run() error {
 
 	feed.Parse(feeds)
 
+	for _, f := range feeds {
+		mails, err := f.ToMails(cfg)
+		if err != nil {
+			return err
+		}
+		_ = mails
+		break
+	}
+
 	imapUrl, err := url.Parse(cfg.Target)
 	if err != nil {
 		return fmt.Errorf("parsing 'target': %w", err)

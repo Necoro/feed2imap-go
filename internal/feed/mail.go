@@ -2,19 +2,21 @@ package feed
 
 import (
 	"bytes"
+	"fmt"
 	"io"
 	"time"
 
 	"github.com/emersion/go-message/mail"
 
 	"github.com/Necoro/feed2imap-go/internal/config"
+	"github.com/Necoro/feed2imap-go/internal/template"
 )
 
 func address(name, address string) []*mail.Address {
 	return []*mail.Address{{Name: name, Address: address}}
 }
 
-func fromAdress(feed Feed, item feeditem, cfg config.Config) []*mail.Address {
+func fromAdress(feed *Feed, item feeditem, cfg config.Config) []*mail.Address {
 	switch {
 	case item.Item.Author != nil && item.Item.Author.Email != "":
 		return address(item.Item.Author.Name, item.Item.Author.Email)
@@ -29,9 +31,13 @@ func fromAdress(feed Feed, item feeditem, cfg config.Config) []*mail.Address {
 	}
 }
 
-func asMail(feed Feed, item feeditem, cfg config.Config) (string, error) {
-	var b bytes.Buffer
+var htmlTemplate = template.ForFile("internal/feed/feed.tpl")
 
+func writeHtml(writer io.Writer, item feeditem) error {
+	return htmlTemplate.Execute(writer, item)
+}
+
+func writeToBuffer(b *bytes.Buffer, feed *Feed, item feeditem, cfg config.Config) error {
 	var h mail.Header
 	h.SetAddressList("From", fromAdress(feed, item, cfg))
 	h.SetAddressList("To", address(feed.Name, cfg.DefaultEmail))
@@ -55,31 +61,69 @@ func asMail(feed Feed, item feeditem, cfg config.Config) (string, error) {
 		h.SetSubject(subject)
 	}
 
-	mw, err := mail.CreateWriter(&b, h)
+	mw, err := mail.CreateWriter(b, h)
 	if err != nil {
-		return "", err
+		return err
 	}
+	defer mw.Close()
 
-	if cfg.WithPartText() {
-		tw, err := mw.CreateInline()
-		if err != nil {
-			return "", err
-		}
+	tw, err := mw.CreateInline()
+	if err != nil {
+		return err
+	}
+	defer tw.Close()
 
+	if false /* cfg.WithPartText() */ {
 		var th mail.InlineHeader
 		th.SetContentType("text/plain", map[string]string{"charset": "utf-8", "format": "flowed"})
 
 		w, err := tw.CreatePart(th)
 		if err != nil {
-			return "", err
+			return err
 		}
-		_, _ = io.WriteString(w, "Who are you?")
+		defer w.Close()
 
-		_ = w.Close()
-		_ = tw.Close()
+		_, _ = io.WriteString(w, "Who are you?")
 	}
 
-	_ = mw.Close()
+	if cfg.WithPartHtml() {
+		var th mail.InlineHeader
+		th.SetContentType("text/html", map[string]string{"charset": "utf-8"})
+
+		w, err := tw.CreatePart(th)
+		if err != nil {
+			return err
+		}
+
+		if err = writeHtml(w, item); err != nil {
+			return fmt.Errorf("writing html part: %w", err)
+		}
+
+		w.Close()
+	}
+
+	return nil
+}
+
+func asMail(feed *Feed, item feeditem, cfg config.Config) (string, error) {
+	var b bytes.Buffer
+
+	if err := writeToBuffer(&b, feed, item, cfg); err != nil {
+		return "", err
+	}
 
 	return b.String(), nil
+}
+
+func (feed *Feed) ToMails(cfg config.Config) ([]string, error) {
+	var (
+		err   error
+		mails = make([]string, len(feed.items))
+	)
+	for idx := range feed.items {
+		if mails[idx], err = asMail(feed, feed.items[idx], cfg); err != nil {
+			return nil, fmt.Errorf("creating mails for %s: %w", feed.Name, err)
+		}
+	}
+	return mails, nil
 }
