@@ -10,15 +10,17 @@ import (
 type Map map[string]interface{}
 
 type GlobalOptions struct {
-	Timeout      int    `yaml:"timeout"`
-	DefaultEmail string `yaml:"default-email"`
-	Target       string `yaml:"target"`
+	Timeout      int      `yaml:"timeout"`
+	DefaultEmail string   `yaml:"default-email"`
+	Target       string   `yaml:"target"`
+	Parts        []string `yaml:"parts"`
 }
 
 var DefaultGlobalOptions = GlobalOptions{
 	Timeout:      30,
 	DefaultEmail: username() + "@" + hostname(),
 	Target:       "",
+	Parts:        []string{"text", "html"},
 }
 
 type Config struct {
@@ -29,6 +31,26 @@ type Config struct {
 type Options struct {
 	MinFreq    int   `yaml:"min-frequency"`
 	InclImages *bool `yaml:"include-images"`
+}
+
+func (c *Config) WithPartText() bool {
+	for _, part := range c.Parts {
+		if part == "text" {
+			return true
+		}
+	}
+
+	return false
+}
+
+func (c *Config) WithPartHtml() bool {
+	for _, part := range c.Parts {
+		if part == "html" {
+			return true
+		}
+	}
+
+	return false
 }
 
 func hostname() (hostname string) {
