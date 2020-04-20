@@ -11,7 +11,7 @@ import (
 )
 
 func address(name, address string) []*mail.Address {
-	return []*mail.Address{{name, address}}
+	return []*mail.Address{{Name: name, Address: address}}
 }
 
 func fromAdress(feed Feed, item feeditem, cfg config.Config) []*mail.Address {
