@@ -1,3 +1,5 @@
+[![Go Report Card](https://goreportcard.com/badge/github.com/Necoro/feed2imap-go)](https://goreportcard.com/report/github.com/Necoro/feed2imap-go)
+
 # feed2imap-go
 
 A software to convert rss feeds into mails.
