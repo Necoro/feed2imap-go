@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"net/url"
 	"os"
+	"time"
 
 	"github.com/Necoro/feed2imap-go/internal/feed"
 	"github.com/Necoro/feed2imap-go/internal/imap"
@@ -33,15 +34,6 @@ func run() error {
 
 	feed.Parse(feeds)
 
-	for _, f := range feeds {
-		mails, err := f.ToMails(cfg)
-		if err != nil {
-			return err
-		}
-		_ = mails
-		break
-	}
-
 	imapUrl, err := url.Parse(cfg.Target)
 	if err != nil {
 		return fmt.Errorf("parsing 'target': %w", err)
@@ -53,6 +45,26 @@ func run() error {
 	}
 
 	defer c.Disconnect()
+
+	for _, f := range feeds {
+		mails, err := f.ToMails(cfg)
+		if err != nil {
+			return err
+		}
+		if len(mails) == 0 {
+			continue
+		}
+		folder := c.NewFolder(f.Target)
+		if err = c.EnsureFolder(folder); err != nil {
+			return err
+		}
+		for _, mail := range mails {
+			if err = c.PutMessage(folder, mail, time.Now()); err != nil {
+				return err
+			} // TODO
+		}
+		log.Printf("Uploaded %d messages to '%s' @ %s", len(mails), f.Name, folder)
+	}
 
 	return nil
 }

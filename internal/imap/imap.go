@@ -77,7 +77,7 @@ func Connect(url *url.URL) (*Client, error) {
 		}
 	}
 
-	var client = Client{c: c, host: url.Host, folders: folders{}}
+	var client = Client{c: c, host: url.Host, mailboxes: mailboxes{}}
 
 	defer func() {
 		if err != nil {
@@ -113,11 +113,11 @@ func Connect(url *url.URL) (*Client, error) {
 		return nil, fmt.Errorf("fetching delimiter: %w", err)
 	}
 
-	client.toplevel = url.Path
-	if client.toplevel[0] == '/' {
-		client.toplevel = client.toplevel[1:]
+	toplevel := url.Path
+	if toplevel[0] == '/' {
+		toplevel = toplevel[1:]
 	}
-	client.toplevel = client.FolderName(strings.Split(client.toplevel, "/"))
+	client.toplevel = client.folderName(strings.Split(toplevel, "/"))
 
 	log.Printf("Determined '%s' as toplevel, with '%s' as delimiter", client.toplevel, client.delimiter)
 

@@ -3,6 +3,7 @@ package imap
 import (
 	"fmt"
 	"strings"
+	"time"
 
 	"github.com/emersion/go-imap"
 	imapClient "github.com/emersion/go-imap/client"
@@ -13,21 +14,38 @@ import (
 type Client struct {
 	c         *imapClient.Client
 	host      string
-	folders   folders
+	mailboxes mailboxes
 	delimiter string
-	toplevel  string
+	toplevel  Folder
 }
 
-type folders map[string]*imap.MailboxInfo
+type Folder struct {
+	str       string
+	delimiter string
+}
+type mailboxes map[string]*imap.MailboxInfo
 
-func (f folders) contains(elem string) bool {
-	_, ok := f[elem]
+func (f Folder) String() string {
+	return f.str
+}
+
+func (f Folder) Append(other Folder) Folder {
+	if f.delimiter != other.delimiter {
+		panic("Delimiters do not match")
+	}
+	return Folder{
+		str:       f.str + f.delimiter + other.str,
+		delimiter: f.delimiter,
+	}
+}
+
+func (mbs mailboxes) contains(elem Folder) bool {
+	_, ok := mbs[elem.str]
 	return ok
 }
 
-func (f folders) add(elem *imap.MailboxInfo) {
-	name := elem.Name
-	f[name] = elem
+func (mbs mailboxes) add(elem *imap.MailboxInfo) {
+	mbs[elem.Name] = elem
 }
 
 func (client *Client) Disconnect() {
@@ -41,8 +59,15 @@ func (client *Client) Disconnect() {
 	}
 }
 
-func (client *Client) FolderName(path []string) string {
-	return strings.Join(path, client.delimiter)
+func (client *Client) folderName(path []string) Folder {
+	return Folder{
+		strings.Join(path, client.delimiter),
+		client.delimiter,
+	}
+}
+
+func (client *Client) NewFolder(path []string) Folder {
+	return client.toplevel.Append(client.folderName(path))
 }
 
 func (client *Client) createFolder(folder string) error {
@@ -94,25 +119,33 @@ func (client *Client) fetchDelimiter() error {
 	return nil
 }
 
-func (client *Client) EnsureFolder(folder string) error {
-
-	if client.folders.contains(folder) {
+func (client *Client) EnsureFolder(folder Folder) error {
+	if client.mailboxes.contains(folder) {
 		return nil
 	}
 
 	log.Printf("Checking for folder '%s'", folder)
 
-	mbox, found, err := client.list(folder)
-
-	switch {
-	case err != nil:
+	mbox, found, err := client.list(folder.str)
+	if err != nil {
 		return err
-	case found == 0:
-		return client.createFolder(folder)
-	case found == 1:
-		client.folders.add(mbox)
+	}
+
+	if mbox != nil && mbox.Delimiter != folder.delimiter {
+		panic("Delimiters do not match")
+	}
+
+	switch found {
+	case 0:
+		return client.createFolder(folder.str)
+	case 1:
+		client.mailboxes.add(mbox)
 		return nil
 	default:
 		return fmt.Errorf("Found multiple folders matching '%s'.", folder)
 	}
+}
+
+func (client *Client) PutMessage(folder Folder, message string, date time.Time) error {
+	return client.c.Append(folder.String(), nil, date, strings.NewReader(message))
 }
