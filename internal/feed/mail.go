@@ -39,6 +39,7 @@ func writeToBuffer(b *bytes.Buffer, feed *Feed, item feeditem, cfg config.Config
 	var h mail.Header
 	h.SetAddressList("From", fromAdress(feed, item, cfg))
 	h.SetAddressList("To", address(feed.Name, cfg.DefaultEmail))
+	h.Add("X-Feed2Imap-Version", config.Version())
 
 	{ // date
 		date := item.Item.PublishedParsed

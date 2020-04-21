@@ -5,6 +5,7 @@ import (
 	"os"
 	"os/user"
 	"runtime"
+	"runtime/debug"
 	"strings"
 )
 
@@ -60,6 +61,14 @@ func (c *Config) WithPartHtml() bool {
 	}
 
 	return false
+}
+
+func Version() string {
+	bi, ok := debug.ReadBuildInfo()
+	if !ok {
+		return "(unknown)"
+	}
+	return bi.Main.Version
 }
 
 func hostname() (hostname string) {

@@ -24,7 +24,7 @@ func join(sep string, parts []string) string {
 	return strings.Join(parts, sep)
 }
 
-func LastUrlPart(url string) string {
+func lastUrlPart(url string) string {
 	split := strings.Split(url, "/")
 	return split[len(split)-1]
 }
@@ -42,11 +42,16 @@ func byteCount(b int64) string {
 	return fmt.Sprintf("%.1f %cB", float64(b)/float64(div), "KMGTPE"[exp])
 }
 
+func html(s string) template.HTML {
+	return template.HTML(s)
+}
+
 var funcMap = template.FuncMap{
 	"dict":        dict,
 	"join":        join,
-	"lastUrlPart": LastUrlPart,
+	"lastUrlPart": lastUrlPart,
 	"byteCount":   byteCount,
+	"html":        html,
 }
 
 func fromString(name, templateStr string) *template.Template {
