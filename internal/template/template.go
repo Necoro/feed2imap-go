@@ -3,7 +3,6 @@ package template
 import (
 	"fmt"
 	"html/template"
-	"path/filepath"
 	"strings"
 )
 
@@ -50,8 +49,7 @@ var funcMap = template.FuncMap{
 	"byteCount":   byteCount,
 }
 
-func ForFile(filename string) *template.Template {
-	name := filepath.Base(filename)
+func fromString(name, templateStr string) *template.Template {
 	tpl := template.New(name).Funcs(funcMap)
-	return template.Must(tpl.ParseFiles(filename))
+	return template.Must(tpl.Parse(templateStr))
 }

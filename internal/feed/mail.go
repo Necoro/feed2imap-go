@@ -31,10 +31,8 @@ func fromAdress(feed *Feed, item feeditem, cfg config.Config) []*mail.Address {
 	}
 }
 
-var htmlTemplate = template.ForFile("internal/feed/feed.tpl")
-
 func writeHtml(writer io.Writer, item feeditem) error {
-	return htmlTemplate.Execute(writer, item)
+	return template.Feed.Execute(writer, item)
 }
 
 func writeToBuffer(b *bytes.Buffer, feed *Feed, item feeditem, cfg config.Config) error {

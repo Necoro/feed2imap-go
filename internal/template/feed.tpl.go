@@ -1,4 +1,9 @@
-{{- /*gotype:github.com/Necoro/feed2imap-go/internal/feed.feeditem*/ -}}
+package template
+
+var Feed = fromString("Feed", feedTpl)
+
+//noinspection HtmlDeprecatedAttribute,HtmlUnknownTarget
+const feedTpl = `{{- /*gotype:github.com/Necoro/feed2imap-go/internal/feed.feeditem*/ -}}
 {{define "bottomLine"}}
   {{if .content}}
     <tr>
@@ -11,7 +16,7 @@
     </tr>
   {{end}}
 {{end}}
-<table border="1" width="100%" cellpadding="0" cellspacing="0" borderspacing="0">
+<table border="1" width="100%" cellpadding="0" cellspacing="0" style="border-spacing: 0; ">
   <tr>
     <td>
       <table width="100%" bgcolor="#EDEDED" cellpadding="4" cellspacing="2">
@@ -36,11 +41,11 @@
   </tr>
 </table>
 {{with .Item.Content}}
-  <br /> <!-- originally: only if content and `content !~ /\A\s*</m` -->
+  <br /> <!-- originally: only if content and 'content !~ /\A\s*</m' -->
   {{.}}
 {{end}}
 {{with .Item.Enclosures}}
-  <table border="1" width="100%" cellpadding="0" cellspacing="0" borderspacing="0">
+  <table border="1" width="100%" cellpadding="0" cellspacing="0" style="border-spacing: 0; ">
     <tr>
       <td>
         <table width="100%" bgcolor="#EDEDED" cellpadding="2" cellspacing="2">
@@ -64,4 +69,4 @@
   {{template "bottomLine" (dict "descr" "Author:" "content" .Item.Author.Name)}}
   {{template "bottomLine" (dict "descr" "Subject:" "content" .Item.Title)}}
   {{template "bottomLine" (dict "descr" "Filed under:" "content" (join ", " .Item.Categories))}}
-</table>
+</table>`
