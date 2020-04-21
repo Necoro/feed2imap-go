@@ -60,13 +60,7 @@ func writeToBuffer(b *bytes.Buffer, feed *Feed, item feeditem, cfg config.Config
 		h.SetSubject(subject)
 	}
 
-	mw, err := mail.CreateWriter(b, h)
-	if err != nil {
-		return err
-	}
-	defer mw.Close()
-
-	tw, err := mw.CreateInline()
+	tw, err := mail.CreateInlineWriter(b, h)
 	if err != nil {
 		return err
 	}
