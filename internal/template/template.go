@@ -3,7 +3,10 @@ package template
 import (
 	"fmt"
 	"html/template"
+	"strconv"
 	"strings"
+
+	"github.com/Necoro/feed2imap-go/internal/log"
 )
 
 func dict(v ...string) map[string]string {
@@ -29,12 +32,17 @@ func lastUrlPart(url string) string {
 	return split[len(split)-1]
 }
 
-func byteCount(b int64) string {
+func byteCount(str string) string {
+	b, err := strconv.ParseUint(str, 10, 64)
+	if err != nil {
+		log.Printf("Cannot convert '%s' to byte count: %s", str, err)
+	}
+
 	const unit = 1024
 	if b < unit {
 		return fmt.Sprintf("%d B", b)
 	}
-	div, exp := int64(unit), 0
+	div, exp := uint64(unit), 0
 	for n := b / unit; n >= unit; n /= unit {
 		div *= unit
 		exp++
