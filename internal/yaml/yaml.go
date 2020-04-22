@@ -111,24 +111,24 @@ func buildFeeds(cfg []configGroupFeed, target []string, feeds F.Feeds) error {
 	return nil
 }
 
-func Load(path string) (C.Config, F.Feeds, error) {
+func Load(path string) (*C.Config, F.Feeds, error) {
 	buf, err := ioutil.ReadFile(path)
 	if err != nil {
-		return C.Config{}, nil, fmt.Errorf("while reading '%s': %w", path, err)
+		return nil, nil, fmt.Errorf("while reading '%s': %w", path, err)
 	}
 
 	var parsedCfg config
 	if parsedCfg, err = parse(buf); err != nil {
-		return C.Config{}, nil, err
+		return nil, nil, err
 	}
 
 	feeds := F.Feeds{}
 
 	if err := buildFeeds(parsedCfg.Feeds, []string{}, feeds); err != nil {
-		return C.Config{}, nil, fmt.Errorf("while parsing: %w", err)
+		return nil, nil, fmt.Errorf("while parsing: %w", err)
 	}
 
-	return C.Config{
+	return &C.Config{
 		GlobalOptions: parsedCfg.GlobalOptions,
 		GlobalConfig:  parsedCfg.GlobalConfig,
 	}, feeds, nil

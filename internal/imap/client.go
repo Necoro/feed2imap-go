@@ -17,6 +17,7 @@ type Client struct {
 	mailboxes mailboxes
 	delimiter string
 	toplevel  Folder
+	commander *commander
 }
 
 type Folder struct {
@@ -50,6 +51,8 @@ func (mbs mailboxes) add(elem *imap.MailboxInfo) {
 
 func (client *Client) Disconnect() {
 	if client != nil {
+		client.stopCommander()
+
 		connected := (client.c.State() & imap.ConnectedState) != 0
 		_ = client.c.Logout()
 
@@ -119,7 +122,7 @@ func (client *Client) fetchDelimiter() error {
 	return nil
 }
 
-func (client *Client) EnsureFolder(folder Folder) error {
+func (client *Client) ensureFolder(folder Folder) error {
 	if client.mailboxes.contains(folder) {
 		return nil
 	}
@@ -146,6 +149,26 @@ func (client *Client) EnsureFolder(folder Folder) error {
 	}
 }
 
-func (client *Client) PutMessage(folder Folder, message string, date time.Time) error {
-	return client.c.Append(folder.String(), nil, date, strings.NewReader(message))
+func (client *Client) EnsureFolder(folder Folder, errorHandler ErrorHandler) {
+	client.commander.execute(ensureCommando{folder}, errorHandler)
+}
+
+func (client *Client) putMessages(folder Folder, messages []string) error {
+	if len(messages) == 0 {
+		return nil
+	}
+
+	now := time.Now()
+	for _, msg := range messages {
+		reader := strings.NewReader(msg)
+		if err := client.c.Append(folder.str, nil, now, reader); err != nil {
+			return fmt.Errorf("uploading message to %s: %w", folder, err)
+		}
+	}
+
+	return nil
+}
+
+func (client *Client) PutMessages(folder Folder, messages []string, errorHandler ErrorHandler) {
+	client.commander.execute(addCommando{folder, messages}, errorHandler)
 }

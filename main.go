@@ -5,8 +5,9 @@ import (
 	"fmt"
 	"net/url"
 	"os"
-	"time"
+	"sync"
 
+	"github.com/Necoro/feed2imap-go/internal/config"
 	"github.com/Necoro/feed2imap-go/internal/feed"
 	"github.com/Necoro/feed2imap-go/internal/imap"
 	"github.com/Necoro/feed2imap-go/internal/log"
@@ -15,6 +16,31 @@ import (
 
 var cfgFile = flag.String("f", "config.yml", "configuration file")
 var verbose = flag.Bool("v", false, "enable verbose output")
+
+func processFeed(feed *feed.Feed, cfg *config.Config, client *imap.Client, wg *sync.WaitGroup) {
+	defer wg.Done()
+
+	mails, err := feed.ToMails(cfg)
+	if err != nil {
+		log.Errorf("Processing items of feed %s: %s", feed.Name, err)
+		return
+	}
+
+	if len(mails) == 0 {
+		return
+	}
+
+	folder := client.NewFolder(feed.Target)
+	client.EnsureFolder(folder, func(err error) string {
+		return fmt.Sprintf("Creating folder of feed %s: %s", feed.Name, err)
+	})
+
+	client.PutMessages(folder, mails, func(err error) string {
+		return fmt.Sprintf("Uploading messages of feed %s: %s", feed.Name, err)
+	})
+
+	log.Printf("Uploaded %d messages to '%s' @ %s", len(mails), feed.Name, folder)
+}
 
 func run() error {
 	flag.Parse()
@@ -46,25 +72,12 @@ func run() error {
 
 	defer c.Disconnect()
 
+	var wg sync.WaitGroup
+	wg.Add(len(feeds))
 	for _, f := range feeds {
-		mails, err := f.ToMails(cfg)
-		if err != nil {
-			return err
-		}
-		if len(mails) == 0 {
-			continue
-		}
-		folder := c.NewFolder(f.Target)
-		if err = c.EnsureFolder(folder); err != nil {
-			return err
-		}
-		for _, mail := range mails {
-			if err = c.PutMessage(folder, mail, time.Now()); err != nil {
-				return err
-			} // TODO
-		}
-		log.Printf("Uploaded %d messages to '%s' @ %s", len(mails), f.Name, folder)
+		go processFeed(f, cfg, c, &wg)
 	}
+	wg.Wait()
 
 	return nil
 }

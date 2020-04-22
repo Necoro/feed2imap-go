@@ -16,7 +16,7 @@ func address(name, address string) []*mail.Address {
 	return []*mail.Address{{Name: name, Address: address}}
 }
 
-func fromAdress(feed *Feed, item feeditem, cfg config.Config) []*mail.Address {
+func fromAdress(feed *Feed, item feeditem, cfg *config.Config) []*mail.Address {
 	switch {
 	case item.Item.Author != nil && item.Item.Author.Email != "":
 		return address(item.Item.Author.Name, item.Item.Author.Email)
@@ -35,7 +35,7 @@ func writeHtml(writer io.Writer, item feeditem) error {
 	return template.Feed.Execute(writer, item)
 }
 
-func writeToBuffer(b *bytes.Buffer, feed *Feed, item feeditem, cfg config.Config) error {
+func writeToBuffer(b *bytes.Buffer, feed *Feed, item feeditem, cfg *config.Config) error {
 	var h mail.Header
 	h.SetAddressList("From", fromAdress(feed, item, cfg))
 	h.SetAddressList("To", address(feed.Name, cfg.DefaultEmail))
@@ -98,7 +98,7 @@ func writeToBuffer(b *bytes.Buffer, feed *Feed, item feeditem, cfg config.Config
 	return nil
 }
 
-func asMail(feed *Feed, item feeditem, cfg config.Config) (string, error) {
+func asMail(feed *Feed, item feeditem, cfg *config.Config) (string, error) {
 	var b bytes.Buffer
 
 	if err := writeToBuffer(&b, feed, item, cfg); err != nil {
@@ -108,7 +108,7 @@ func asMail(feed *Feed, item feeditem, cfg config.Config) (string, error) {
 	return b.String(), nil
 }
 
-func (feed *Feed) ToMails(cfg config.Config) ([]string, error) {
+func (feed *Feed) ToMails(cfg *config.Config) ([]string, error) {
 	var (
 		err   error
 		mails = make([]string, len(feed.items))
