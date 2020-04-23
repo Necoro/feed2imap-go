@@ -9,7 +9,7 @@ import (
 	"github.com/emersion/go-message/mail"
 
 	"github.com/Necoro/feed2imap-go/internal/config"
-	"github.com/Necoro/feed2imap-go/internal/template"
+	"github.com/Necoro/feed2imap-go/internal/feed/template"
 )
 
 func address(name, address string) []*mail.Address {
