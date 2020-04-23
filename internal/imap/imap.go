@@ -56,51 +56,34 @@ func sanitizeUrl(url *url.URL) {
 	setDefaultPort(url)
 }
 
-func Connect(url *url.URL) (*Client, error) {
-	var c *imapClient.Client
-	var err error
-
-	sanitizeUrl(url)
-
-	forceTls := forceTLS(url)
-
+func newImapClient(url *url.URL, forceTls bool) (*imapClient.Client,error) {
 	if forceTls {
-		c, err = imapClient.DialTLS(url.Host, nil)
+		c, err := imapClient.DialTLS(url.Host, nil)
 		if err != nil {
 			return nil, fmt.Errorf("connecting (TLS) to %s: %w", url.Host, err)
 		}
 		log.Print("Connected to ", url.Host, " (TLS)")
+		return c, nil
 	} else {
-		c, err = imapClient.Dial(url.Host)
+		c, err := imapClient.Dial(url.Host)
 		if err != nil {
 			return nil, fmt.Errorf("connecting to %s: %w", url.Host, err)
 		}
+		return c, nil
+	}
+}
+
+func (client *Client) connect(url *url.URL, forceTls bool) (*connection, error) {
+	c, err := newImapClient(url, forceTls)
+	if err != nil {
+		return nil, err
 	}
 
-	var client = Client{c: c, host: url.Host, mailboxes: mailboxes{}}
-
-	defer func() {
-		if err != nil {
-			client.Disconnect()
-		}
-	}()
+	conn := client.createConnection(c)
 
 	if !forceTls {
-		var hasStartTls bool // explicit to avoid shadowing err
-
-		hasStartTls, err = c.SupportStartTLS()
-		if err != nil {
-			return nil, fmt.Errorf("checking for starttls for %s: %w", url.Host, err)
-		}
-
-		if hasStartTls {
-			if err = c.StartTLS(nil); err != nil {
-				return nil, fmt.Errorf("enabling starttls for %s: %w", url.Host, err)
-			}
-
-			log.Print("Connected to ", url.Host, " (STARTTLS)")
-		} else {
-			log.Print("Connected to ", url.Host, " (Plain)")
+		if err = conn.startTls(); err != nil {
+			return nil, err
 		}
 	}
 
@@ -109,9 +92,33 @@ func Connect(url *url.URL) (*Client, error) {
 		return nil, fmt.Errorf("login to %s: %w", url.Host, err)
 	}
 
-	if err = client.fetchDelimiter(); err != nil {
+	return conn, nil
+}
+
+func Connect(url *url.URL) (*Client, error) {
+	var err error
+
+	sanitizeUrl(url)
+	forceTls := forceTLS(url)
+
+	client := NewClient()
+	client.host = url.Host
+	defer func() {
+		if err != nil {
+			client.Disconnect()
+		}
+	}()
+
+	var conn *connection // the main connection
+	if conn, err = client.connect(url, forceTls); err != nil {
+		return nil, err
+	}
+
+	delim, err := conn.fetchDelimiter()
+	if err != nil {
 		return nil, fmt.Errorf("fetching delimiter: %w", err)
 	}
+	client.delimiter = delim
 
 	toplevel := url.Path
 	if toplevel[0] == '/' {
@@ -121,11 +128,18 @@ func Connect(url *url.URL) (*Client, error) {
 
 	log.Printf("Determined '%s' as toplevel, with '%s' as delimiter", client.toplevel, client.delimiter)
 
-	if err = client.ensureFolder(client.toplevel); err != nil {
+	if err = conn.ensureFolder(client.toplevel); err != nil {
 		return nil, err
+	}
+
+	// the other connections
+	for i := 1; i < len(client.connections); i++ {
+		if _, err := client.connect(url, forceTls); err != nil { // explicitly new var 'err', b/c these are now harmless
+			log.Warnf("connecting #%d: %s", i, err)
+		}
 	}
 
 	client.startCommander()
 
-	return &client, nil
+	return client, nil
 }

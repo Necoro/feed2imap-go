@@ -31,13 +31,15 @@ func processFeed(feed *feed.Feed, cfg *config.Config, client *imap.Client, wg *s
 	}
 
 	folder := client.NewFolder(feed.Target)
-	client.EnsureFolder(folder, func(err error) string {
-		return fmt.Sprintf("Creating folder of feed %s: %s", feed.Name, err)
-	})
+	if err = client.EnsureFolder(folder); err != nil {
+		log.Errorf("Creating folder of feed %s: %s", feed.Name, err)
+		return
+	}
 
-	client.PutMessages(folder, mails, func(err error) string {
-		return fmt.Sprintf("Uploading messages of feed %s: %s", feed.Name, err)
-	})
+	if err = client.PutMessages(folder, mails); err != nil {
+		log.Errorf("Uploading messages of feed %s: %s", feed.Name, err)
+		return
+	}
 
 	log.Printf("Uploaded %d messages to '%s' @ %s", len(mails), feed.Name, folder)
 }

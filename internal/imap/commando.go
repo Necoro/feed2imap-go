@@ -1,7 +1,5 @@
 package imap
 
-import "github.com/Necoro/feed2imap-go/internal/log"
-
 const maxPipeDepth = 10
 
 type commander struct {
@@ -11,15 +9,12 @@ type commander struct {
 }
 
 type command interface {
-	execute(client *Client) error
+	execute(*connection) error
 }
-
-type ErrorHandler func(error) string
 
 type execution struct {
 	cmd          command
-	done         chan<- struct{}
-	errorHandler ErrorHandler
+	done         chan<- error
 }
 
 type addCommando struct {
@@ -27,25 +22,25 @@ type addCommando struct {
 	messages []string
 }
 
-func (cmd addCommando) execute(client *Client) error {
-	return client.putMessages(cmd.folder, cmd.messages)
+func (cmd addCommando) execute(conn *connection) error {
+	return conn.putMessages(cmd.folder, cmd.messages)
 }
 
 type ensureCommando struct {
 	folder Folder
 }
 
-func (cmd ensureCommando) execute(client *Client) error {
-	return client.ensureFolder(cmd.folder)
+func (cmd ensureCommando) execute(conn *connection) error {
+	return conn.ensureFolder(cmd.folder)
 }
 
-func (commander *commander) execute(command command, handler ErrorHandler) {
-	done := make(chan struct{})
-	commander.pipe <- execution{command, done, handler}
-	<-done
+func (commander *commander) execute(command command) error {
+	done := make(chan error)
+	commander.pipe <- execution{command, done}
+	return <-done
 }
 
-func executioner(client *Client, pipe <-chan execution, done <-chan struct{}) {
+func executioner(conn *connection, pipe <-chan execution, done <-chan struct{}) {
 	for {
 		select {
 		case <-done:
@@ -56,14 +51,8 @@ func executioner(client *Client, pipe <-chan execution, done <-chan struct{}) {
 				return
 			default:
 			}
-			if err := execution.cmd.execute(client); err != nil {
-				if execution.errorHandler == nil {
-					log.Error(err)
-				} else {
-					log.Error(execution.errorHandler(err))
-				}
-			}
-			close(execution.done)
+			err := execution.cmd.execute(conn)
+			execution.done <- err
 		}
 	}
 }
@@ -78,7 +67,11 @@ func (client *Client) startCommander() {
 
 	client.commander = &commander{client, pipe, done}
 
-	go executioner(client, pipe, done)
+	for _, conn := range client.connections {
+		if conn != nil {
+			go executioner(conn, pipe, done)
+		}
+	}
 }
 
 func (client *Client) stopCommander() {
