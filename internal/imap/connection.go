@@ -9,6 +9,7 @@ import (
 	imapClient "github.com/emersion/go-imap/client"
 
 	"github.com/Necoro/feed2imap-go/internal/log"
+	"github.com/Necoro/feed2imap-go/internal/util"
 )
 
 type connection struct {
@@ -109,10 +110,10 @@ func (conn *connection) ensureFolder(folder Folder) error {
 		panic("Delimiters do not match")
 	}
 
-	switch found {
-	case 0:
+	switch {
+	case found == 0 || (found == 1 && util.StrContains(mbox.Attributes, imap.NoSelectAttr)):
 		return conn.createFolder(folder.str)
-	case 1:
+	case found == 1:
 		conn.mailboxes.add(mbox)
 		return nil
 	default:
