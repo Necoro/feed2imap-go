@@ -32,22 +32,36 @@ func parseFeed(feed *Feed) error {
 	return nil
 }
 
-func handleFeed(feed *Feed, wg *sync.WaitGroup) {
-	defer wg.Done()
+func handleFeed(feed *Feed, group *sync.WaitGroup, success chan<- bool) {
+	defer group.Done()
 	log.Printf("Fetching %s from %s", feed.Name, feed.Url)
 
-	if err := parseFeed(feed); err != nil {
+	err := parseFeed(feed)
+	if err != nil {
 		log.Error(err)
 	}
+	success <- err == nil
 }
 
-func Parse(feeds Feeds) {
+func Parse(feeds Feeds) int {
 	var wg sync.WaitGroup
 	wg.Add(len(feeds))
 
+	success := make(chan bool, len(feeds))
+
 	for _, feed := range feeds {
-		go handleFeed(feed, &wg)
+		go handleFeed(feed, &wg, success)
 	}
 
 	wg.Wait()
+	close(success)
+
+	ctr := 0
+	for s := range success {
+		if s {
+			ctr++
+		}
+	}
+
+	return ctr
 }

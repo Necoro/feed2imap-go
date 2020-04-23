@@ -60,7 +60,9 @@ func run() error {
 		return fmt.Errorf("Configuration invalid: %w", err)
 	}
 
-	feed.Parse(feeds)
+	if success := feed.Parse(feeds); success == 0 {
+		return fmt.Errorf("No successfull feed fetch.")
+	}
 
 	imapUrl, err := url.Parse(cfg.Target)
 	if err != nil {
