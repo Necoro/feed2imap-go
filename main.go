@@ -7,6 +7,7 @@ import (
 	"os"
 	"sync"
 
+	"github.com/Necoro/feed2imap-go/internal/cache"
 	"github.com/Necoro/feed2imap-go/internal/config"
 	"github.com/Necoro/feed2imap-go/internal/feed"
 	"github.com/Necoro/feed2imap-go/internal/imap"
@@ -15,6 +16,7 @@ import (
 )
 
 var cfgFile = flag.String("f", "config.yml", "configuration file")
+var cacheFile = flag.String("c", "feed.cache", "cache file")
 var verbose = flag.Bool("v", false, "enable verbose output")
 
 func processFeed(feed *feed.Feed, cfg *config.Config, client *imap.Client, wg *sync.WaitGroup) {
@@ -64,6 +66,11 @@ func run() error {
 		return fmt.Errorf("No successfull feed fetch.")
 	}
 
+	feedCache, err := cache.Read(*cacheFile)
+	if err != nil {
+		return err
+	}
+
 	imapUrl, err := url.Parse(cfg.Target)
 	if err != nil {
 		return fmt.Errorf("parsing 'target': %w", err)
@@ -82,6 +89,10 @@ func run() error {
 		go processFeed(f, cfg, c, &wg)
 	}
 	wg.Wait()
+
+	if err = cache.Store(*cacheFile, feedCache); err != nil {
+		return err
+	}
 
 	return nil
 }
