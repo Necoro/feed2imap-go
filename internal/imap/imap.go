@@ -10,53 +10,7 @@ import (
 	"github.com/Necoro/feed2imap-go/internal/log"
 )
 
-const (
-	imapsPort   = "993"
-	imapPort    = "143"
-	imapsSchema = "imaps"
-	imapSchema  = "imap"
-)
-
-func forceTLS(url *url.URL) bool {
-	return url.Scheme == imapsSchema || url.Port() == imapsPort
-}
-
-func setDefaultScheme(url *url.URL) {
-	switch url.Scheme {
-	case imapSchema, imapsSchema:
-		return
-	default:
-		oldScheme := url.Scheme
-		if url.Port() == imapsPort {
-			url.Scheme = imapsSchema
-		} else {
-			url.Scheme = imapSchema
-		}
-
-		if oldScheme != "" {
-			log.Warnf("Unknown scheme '%s', defaulting to '%s'", oldScheme, url.Scheme)
-		}
-	}
-}
-
-func setDefaultPort(url *url.URL) {
-	if url.Port() == "" {
-		var port string
-		if url.Scheme == imapsSchema {
-			port = imapsPort
-		} else {
-			port = imapPort
-		}
-		url.Host += ":" + port
-	}
-}
-
-func sanitizeUrl(url *url.URL) {
-	setDefaultScheme(url)
-	setDefaultPort(url)
-}
-
-func newImapClient(url *url.URL, forceTls bool) (*imapClient.Client,error) {
+func newImapClient(url *URL, forceTls bool) (*imapClient.Client,error) {
 	if forceTls {
 		c, err := imapClient.DialTLS(url.Host, nil)
 		if err != nil {
@@ -73,7 +27,7 @@ func newImapClient(url *url.URL, forceTls bool) (*imapClient.Client,error) {
 	}
 }
 
-func (client *Client) connect(url *url.URL, forceTls bool) (*connection, error) {
+func (client *Client) connect(url *URL, forceTls bool) (*connection, error) {
 	c, err := newImapClient(url, forceTls)
 	if err != nil {
 		return nil, err
@@ -95,11 +49,10 @@ func (client *Client) connect(url *url.URL, forceTls bool) (*connection, error) 
 	return conn, nil
 }
 
-func Connect(url *url.URL) (*Client, error) {
+func Connect(_url *url.URL) (*Client, error) {
 	var err error
-
-	sanitizeUrl(url)
-	forceTls := forceTLS(url)
+	url := NewUrl(_url)
+	forceTls := url.ForceTLS()
 
 	client := NewClient()
 	client.host = url.Host

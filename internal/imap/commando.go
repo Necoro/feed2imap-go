@@ -17,23 +17,6 @@ type execution struct {
 	done         chan<- error
 }
 
-type addCommando struct {
-	folder   Folder
-	messages []string
-}
-
-func (cmd addCommando) execute(conn *connection) error {
-	return conn.putMessages(cmd.folder, cmd.messages)
-}
-
-type ensureCommando struct {
-	folder Folder
-}
-
-func (cmd ensureCommando) execute(conn *connection) error {
-	return conn.ensureFolder(cmd.folder)
-}
-
 func (commander *commander) execute(command command) error {
 	done := make(chan error)
 	commander.pipe <- execution{command, done}
