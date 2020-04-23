@@ -99,6 +99,13 @@ func (conn *connection) ensureFolder(folder Folder) error {
 		return nil
 	}
 
+	if conn.mailboxes.locking(folder) {
+		// someone else tried to create the MB -- try again, now that he's done
+		return conn.ensureFolder(folder)
+	} else {
+		defer conn.mailboxes.unlocking(folder)
+	}
+
 	log.Printf("Checking for folder '%s'", folder)
 
 	mbox, found, err := conn.list(folder.str)
