@@ -7,23 +7,49 @@ import (
 )
 
 var debugLogger = log.New(os.Stdout, "", log.LstdFlags)
+var verboseLogger = log.New(os.Stdout, "", log.LstdFlags)
 var errorLogger = log.New(os.Stderr, "ERROR ", log.LstdFlags|log.Lmsgprefix)
 var warnLogger = log.New(os.Stdout, "WARN ", log.LstdFlags|log.Lmsgprefix)
-var enableDebug = false
 
-func SetDebug(state bool) {
-	enableDebug = state
+type logLevel byte
+
+const (
+	debug logLevel = iota
+	info
+	warn
+)
+
+var level logLevel = warn
+
+func SetVerbose() {
+	level = info
 }
 
-func Print(v ...interface{}) {
-	if enableDebug {
+func SetDebug() {
+	level = debug
+}
+
+func Debug(v ...interface{}) {
+	if level <= debug {
 		_ = debugLogger.Output(2, fmt.Sprint(v...))
 	}
 }
 
-func Printf(format string, v ...interface{}) {
-	if enableDebug {
+func Debugf(format string, v ...interface{}) {
+	if level <= debug {
 		_ = debugLogger.Output(2, fmt.Sprintf(format, v...))
+	}
+}
+
+func Print(v ...interface{}) {
+	if level <= info {
+		_ = verboseLogger.Output(2, fmt.Sprint(v...))
+	}
+}
+
+func Printf(format string, v ...interface{}) {
+	if level <= info {
+		_ = verboseLogger.Output(2, fmt.Sprintf(format, v...))
 	}
 }
 

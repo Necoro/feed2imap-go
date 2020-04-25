@@ -16,6 +16,7 @@ import (
 var cfgFile = flag.String("f", "config.yml", "configuration file")
 var cacheFile = flag.String("c", "feed.cache", "cache file")
 var verbose = flag.Bool("v", false, "enable verbose output")
+var debug = flag.Bool("d", false, "enable debug output")
 
 func processFeed(feed *feed.Feed, cfg *config.Config, client *imap.Client, wg *sync.WaitGroup) {
 	defer wg.Done()
@@ -46,7 +47,11 @@ func processFeed(feed *feed.Feed, cfg *config.Config, client *imap.Client, wg *s
 
 func run() error {
 	flag.Parse()
-	log.SetDebug(*verbose)
+	if *debug {
+		log.SetDebug()
+	} else if *verbose {
+		log.SetVerbose()
+	}
 
 	log.Print("Starting up...")
 
