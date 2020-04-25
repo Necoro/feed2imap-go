@@ -4,6 +4,7 @@ import (
 	"sync"
 
 	"github.com/Necoro/feed2imap-go/pkg/config"
+	"github.com/Necoro/feed2imap-go/pkg/log"
 )
 
 type State struct {
@@ -50,7 +51,7 @@ func (state *State) Fetch() int {
 
 	ctr := 0
 	for _, feed := range state.feeds {
-		success := feed.Success()
+		success := feed.FetchSuccessful()
 		feed.cached.Checked(!success)
 
 		if success {
@@ -59,6 +60,42 @@ func (state *State) Fetch() int {
 	}
 
 	return ctr
+}
+
+func filterFeed(feed *Feed, group *sync.WaitGroup) {
+	if len(feed.items) > 0 {
+		origLen := len(feed.items)
+
+		log.Debugf("Filtering %s. Starting with %d items", feed.Name, origLen)
+		items := feed.cached.filterItems(feed.items)
+		feed.items = items
+
+		newLen := len(feed.items)
+		if newLen < origLen {
+			log.Printf("Filtered %s. Reduced from %d to %d items.", feed.Name, origLen, newLen)
+		} else {
+			log.Printf("Filtered %s, no reduction.", feed.Name)
+		}
+
+	} else {
+		log.Debugf("No items for %s. No filtering.", feed.Name)
+	}
+
+	if group != nil {
+		// group is nil in debug case
+		group.Done()
+	}
+}
+
+func (state *State) Filter() {
+	if log.IsDebug() {
+		// single threaded for better output
+		state.Foreach(func(f *Feed) {
+			filterFeed(f, nil)
+		})
+	} else {
+		state.ForeachGo(filterFeed)
+	}
 }
 
 func NewState(cfg *config.Config) *State {

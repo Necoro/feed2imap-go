@@ -28,6 +28,7 @@ func processFeed(feed *feed.Feed, cfg *config.Config, client *imap.Client, wg *s
 	}
 
 	if len(mails) == 0 {
+		feed.MarkSuccess()
 		return
 	}
 
@@ -43,6 +44,8 @@ func processFeed(feed *feed.Feed, cfg *config.Config, client *imap.Client, wg *s
 	}
 
 	log.Printf("Uploaded %d messages to '%s' @ %s", len(mails), feed.Name, folder)
+
+	feed.MarkSuccess()
 }
 
 func run() error {
@@ -81,6 +84,8 @@ func run() error {
 	if success := state.Fetch(); success == 0 {
 		return fmt.Errorf("No successfull feed fetch.")
 	}
+
+	state.Filter()
 
 	imapUrl, err := url.Parse(cfg.Target)
 	if err != nil {

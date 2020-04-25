@@ -24,6 +24,8 @@ type feedDescriptor struct {
 type feeditem struct {
 	*gofeed.Feed
 	*gofeed.Item
+	updateOnly bool
+	reasons    []string
 }
 
 func (item feeditem) Creator() string {
@@ -31,6 +33,10 @@ func (item feeditem) Creator() string {
 		return item.Item.Author.Name
 	}
 	return ""
+}
+
+func (item feeditem) addReason(reason string) {
+	item.reasons = append(item.reasons, reason)
 }
 
 func (feed *Feed) descriptor() feedDescriptor {
@@ -51,6 +57,12 @@ func (feed *Feed) NeedsUpdate(updateTime time.Time) bool {
 	return true
 }
 
-func (feed *Feed) Success() bool {
+func (feed *Feed) FetchSuccessful() bool {
 	return feed.feed != nil
+}
+
+func (feed *Feed) MarkSuccess() {
+	if feed.cached != nil {
+		feed.cached.Commit()
+	}
 }

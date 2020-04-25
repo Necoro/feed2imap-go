@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"fmt"
 	"io"
+	"strings"
 	"time"
 
 	"github.com/emersion/go-message/mail"
@@ -40,6 +41,7 @@ func writeToBuffer(b *bytes.Buffer, feed *Feed, item feeditem, cfg *config.Confi
 	h.SetAddressList("From", fromAdress(feed, item, cfg))
 	h.SetAddressList("To", address(feed.Name, cfg.DefaultEmail))
 	h.Add("X-Feed2Imap-Version", config.Version())
+	h.Add("X-Feed2Imap-Reason", strings.Join(item.reasons, ","))
 
 	{ // date
 		date := item.Item.PublishedParsed

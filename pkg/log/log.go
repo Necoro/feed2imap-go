@@ -29,6 +29,10 @@ func SetDebug() {
 	level = debug
 }
 
+func IsDebug() bool {
+	return level == debug
+}
+
 func Debug(v ...interface{}) {
 	if level <= debug {
 		_ = debugLogger.Output(2, fmt.Sprint(v...))

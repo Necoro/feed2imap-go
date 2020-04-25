@@ -27,6 +27,8 @@ type CachedFeed interface {
 	Checked(withFailure bool)
 	Failures() uint
 	Last() time.Time
+	filterItems([]feeditem) []feeditem
+	Commit()
 }
 
 func cacheForVersion(version Version) (Cache, error) {

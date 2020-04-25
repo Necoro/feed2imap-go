@@ -27,7 +27,7 @@ func parseFeed(feed *Feed) error {
 	feed.feed = parsedFeed
 	feed.items = make([]feeditem, len(parsedFeed.Items))
 	for idx, item := range parsedFeed.Items {
-		feed.items[idx] = feeditem{parsedFeed, item}
+		feed.items[idx] = feeditem{Feed: parsedFeed, Item: item}
 	}
 	return nil
 }
