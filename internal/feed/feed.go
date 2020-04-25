@@ -26,6 +26,13 @@ type feeditem struct {
 	*gofeed.Item
 }
 
+func (item feeditem) Creator() string {
+	if item.Item.Author != nil {
+		return item.Item.Author.Name
+	}
+	return ""
+}
+
 func (feed *Feed) descriptor() feedDescriptor {
 	return feedDescriptor{
 		Name: feed.Name,
