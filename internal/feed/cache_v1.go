@@ -51,6 +51,10 @@ func (cf *cachedFeed) Failures() uint {
 	return cf.NumFailures
 }
 
+func (cf *cachedFeed) Last() time.Time {
+	return cf.LastCheck
+}
+
 func (cache *v1Cache) Version() Version {
 	return v1Version
 }

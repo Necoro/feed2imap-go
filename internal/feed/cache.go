@@ -6,6 +6,7 @@ import (
 	"errors"
 	"fmt"
 	"os"
+	"time"
 
 	"github.com/Necoro/feed2imap-go/pkg/log"
 )
@@ -25,6 +26,7 @@ type Cache interface {
 type CachedFeed interface {
 	Checked(withFailure bool)
 	Failures() uint
+	Last() time.Time
 }
 
 func cacheForVersion(version Version) (Cache, error) {

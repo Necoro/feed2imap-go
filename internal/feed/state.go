@@ -74,3 +74,11 @@ func NewState(cfg *config.Config) *State {
 
 	return &state
 }
+
+func (state *State) RemoveUndue() {
+	for name, feed := range state.feeds {
+		if !feed.NeedsUpdate(feed.cached.Last()) {
+			delete(state.feeds, name)
+		}
+	}
+}
