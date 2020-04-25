@@ -40,13 +40,14 @@ const feedTpl = `{{- /*gotype:github.com/Necoro/feed2imap-go/internal/feed.feedi
     </td>
   </tr>
 </table>
+{{with .Item.Content}}
+  <br /> <!-- originally: only if content and 'content !~ /\A\s*</m' -->
+  {{html .}}
+{{else}}
 {{with .Item.Description}}
   <br /> <!-- originally: only if content and 'content !~ /\A\s*</m' -->
   {{html .}}
 {{end}}
-{{with .Item.Content}}
-  <br /> <!-- originally: only if content and 'content !~ /\A\s*</m' -->
-  {{html .}}
 {{end}}
 {{with .Item.Enclosures}}
   <table border="1" width="100%" cellpadding="0" cellspacing="0" style="border-spacing: 0; ">
@@ -71,6 +72,8 @@ const feedTpl = `{{- /*gotype:github.com/Necoro/feed2imap-go/internal/feed.feedi
 <table width="100%" cellpadding="0" cellspacing="0">
   {{template "bottomLine" (dict "descr" "Date:" "content" .Item.Published)}}
   {{template "bottomLine" (dict "descr" "Author:" "content" .Creator)}}
-  {{template "bottomLine" (dict "descr" "Subject:" "content" .Item.Title)}}
   {{template "bottomLine" (dict "descr" "Filed under:" "content" (join ", " .Item.Categories))}}
+  {{with .Feed.FeedLink}}
+    {{template "bottomLine" (dict "descr" "Feed-Link:" "content" (print "<a style=\"color: #ababab;\" href=\"" . "\">" . "</a>" | html))}}
+  {{end}}
 </table>`

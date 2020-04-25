@@ -9,11 +9,11 @@ import (
 	"github.com/Necoro/feed2imap-go/pkg/log"
 )
 
-func dict(v ...string) map[string]string {
-	dict := map[string]string{}
+func dict(v ...interface{}) map[string]interface{} {
+	dict := make(map[string]interface{})
 	lenv := len(v)
 	for i := 0; i < lenv; i += 2 {
-		key := v[i]
+		key := v[i].(string)
 		if i+1 >= lenv {
 			dict[key] = ""
 			continue
