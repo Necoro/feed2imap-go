@@ -16,6 +16,11 @@ type Feed struct {
 	cached CachedFeed
 }
 
+type feedDescriptor struct {
+	Name string
+	Url  string
+}
+
 type feeditem struct {
 	*gofeed.Feed
 	*gofeed.Item
