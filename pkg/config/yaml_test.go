@@ -44,25 +44,25 @@ func TestBuildFeeds(tst *testing.T) {
 			feeds: []configGroupFeed{
 				{Target: s("foo"), Feed: Feed{Name: "muh"}},
 			},
-			result: Feeds{"muh": Feed{Name: "muh", Target: t("foo")}},
+			result: Feeds{"muh": &Feed{Name: "muh", Target: t("foo")}},
 		},
 		{name: "Simple With Target", wantErr: false, target: "moep",
 			feeds: []configGroupFeed{
 				{Target: s("foo"), Feed: Feed{Name: "muh"}},
 			},
-			result: Feeds{"muh": Feed{Name: "muh", Target: t("moep.foo")}},
+			result: Feeds{"muh": &Feed{Name: "muh", Target: t("moep.foo")}},
 		},
 		{name: "Simple With Nil Target", wantErr: false, target: "moep",
 			feeds: []configGroupFeed{
 				{Target: nil, Feed: Feed{Name: "muh"}},
 			},
-			result: Feeds{"muh": Feed{Name: "muh", Target: t("moep.muh")}},
+			result: Feeds{"muh": &Feed{Name: "muh", Target: t("moep.muh")}},
 		},
 		{name: "Simple With Empty Target", wantErr: false, target: "moep",
 			feeds: []configGroupFeed{
 				{Target: s(""), Feed: Feed{Name: "muh"}},
 			},
-			result: Feeds{"muh": Feed{Name: "muh", Target: t("moep")}},
+			result: Feeds{"muh": &Feed{Name: "muh", Target: t("moep")}},
 		},
 		{name: "Multiple Feeds", wantErr: false, target: "moep",
 			feeds: []configGroupFeed{
@@ -70,8 +70,8 @@ func TestBuildFeeds(tst *testing.T) {
 				{Target: nil, Feed: Feed{Name: "bar"}},
 			},
 			result: Feeds{
-				"muh": Feed{Name: "muh", Target: t("moep.foo")},
-				"bar": Feed{Name: "bar", Target: t("moep.bar")},
+				"muh": &Feed{Name: "muh", Target: t("moep.foo")},
+				"bar": &Feed{Name: "bar", Target: t("moep.bar")},
 			},
 		},
 		{name: "Empty Group", wantErr: false, target: "",
@@ -89,9 +89,9 @@ func TestBuildFeeds(tst *testing.T) {
 				}}},
 			},
 			result: Feeds{
-				"F1": Feed{Name: "F1", Target: t("G1.bar")},
-				"F2": Feed{Name: "F2", Target: t("G1")},
-				"F3": Feed{Name: "F3", Target: t("G1.F3")},
+				"F1": &Feed{Name: "F1", Target: t("G1.bar")},
+				"F2": &Feed{Name: "F2", Target: t("G1")},
+				"F3": &Feed{Name: "F3", Target: t("G1.F3")},
 			},
 		},
 		{name: "Nested Groups", wantErr: false, target: "",
@@ -107,10 +107,10 @@ func TestBuildFeeds(tst *testing.T) {
 				}}},
 			},
 			result: Feeds{
-				"F0": Feed{Name: "F0", Target: t("G1.F0")},
-				"F1": Feed{Name: "F1", Target: t("G1.bar.F1")},
-				"F2": Feed{Name: "F2", Target: t("G1.baz")},
-				"F3": Feed{Name: "F3", Target: t("G1.G4.F3")},
+				"F0": &Feed{Name: "F0", Target: t("G1.F0")},
+				"F1": &Feed{Name: "F1", Target: t("G1.bar.F1")},
+				"F2": &Feed{Name: "F2", Target: t("G1.baz")},
+				"F3": &Feed{Name: "F3", Target: t("G1.G4.F3")},
 			},
 		},
 	}

@@ -10,7 +10,7 @@ import (
 )
 
 type Feed struct {
-	config.Feed
+	*config.Feed
 	feed   *gofeed.Feed
 	items  []feeditem
 	cached CachedFeed

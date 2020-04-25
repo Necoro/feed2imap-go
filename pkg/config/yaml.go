@@ -98,6 +98,7 @@ func buildFeeds(cfg []configGroupFeed, target []string, feeds Feeds) error {
 			return fmt.Errorf("Entry with Target %s is both a Feed and a group", target)
 
 		case f.isFeed():
+			feedCopy := f.Feed
 			name := f.Feed.Name
 			if name == "" {
 				return fmt.Errorf("Unnamed feed")
@@ -106,8 +107,8 @@ func buildFeeds(cfg []configGroupFeed, target []string, feeds Feeds) error {
 			if _, ok := feeds[name]; ok {
 				return fmt.Errorf("Duplicate Feed Name '%s'", name)
 			}
-			f.Feed.Target = target
-			feeds[name] = f.Feed
+			feedCopy.Target = target
+			feeds[name] = &feedCopy
 
 		case f.isGroup():
 			if err := buildFeeds(f.Group.Feeds, target, feeds); err != nil {

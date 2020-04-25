@@ -9,4 +9,4 @@ type Feed struct {
 }
 
 // Convenience type for all feeds
-type Feeds map[string]Feed
+type Feeds map[string]*Feed

@@ -39,6 +39,15 @@ type Options struct {
 	InclImages *bool `yaml:"include-images"`
 }
 
+func (opt *Options) mergeFrom(other Options) {
+	if opt.MinFreq == nil {
+		opt.MinFreq = other.MinFreq
+	}
+	if opt.InclImages == nil {
+		opt.InclImages = other.InclImages
+	}
+}
+
 // Default feed options
 var DefaultFeedOptions Options
 
@@ -111,7 +120,15 @@ func Load(path string) (*Config, error) {
 		return nil, fmt.Errorf("while parsing: %w", err)
 	}
 
+	cfg.pushFeedOptions()
+
 	return cfg, nil
+}
+
+func (cfg *Config) pushFeedOptions() {
+	for _, feed := range cfg.Feeds {
+		feed.Options.mergeFrom(cfg.FeedOptions)
+	}
 }
 
 func hostname() (hostname string) {
