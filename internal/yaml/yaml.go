@@ -8,6 +8,7 @@ import (
 
 	C "github.com/Necoro/feed2imap-go/internal/config"
 	F "github.com/Necoro/feed2imap-go/internal/feed"
+	"github.com/Necoro/feed2imap-go/internal/log"
 )
 
 type config struct {
@@ -77,7 +78,7 @@ func appTarget(target []string, app string) []string {
 }
 
 // Parse the group structure and populate the `Target` fields in the feeds
-func buildFeeds(cfg []configGroupFeed, target []string, feeds F.Feeds) error {
+func buildFeeds(cfg []configGroupFeed, target []string, feeds *F.Feeds) error {
 	for idx := range cfg {
 		f := &cfg[idx] // cannot use `_, f := range cfg` as it returns copies(!), but we need the originals
 		target := appTarget(target, f.target())
@@ -91,15 +92,15 @@ func buildFeeds(cfg []configGroupFeed, target []string, feeds F.Feeds) error {
 				return fmt.Errorf("Unnamed feed")
 			}
 
-			if _, ok := feeds[name]; ok {
+			if feeds.Contains(name) {
 				return fmt.Errorf("Duplicate Feed Name '%s'", name)
 			}
-			feeds[name] = &F.Feed{
+			feeds.Set(name, &F.Feed{
 				Name:    f.Feed.Name,
 				Target:  target,
 				Url:     f.Feed.Url,
 				Options: f.Feed.Options,
-			}
+			})
 
 		case f.isGroup():
 			if err := buildFeeds(f.Group.Feeds, target, feeds); err != nil {
@@ -111,7 +112,9 @@ func buildFeeds(cfg []configGroupFeed, target []string, feeds F.Feeds) error {
 	return nil
 }
 
-func Load(path string) (*C.Config, F.Feeds, error) {
+func Load(path string) (*C.Config, *F.Feeds, error) {
+	log.Printf("Reading configuration file '%s'", path)
+
 	buf, err := ioutil.ReadFile(path)
 	if err != nil {
 		return nil, nil, fmt.Errorf("while reading '%s': %w", path, err)
@@ -122,7 +125,7 @@ func Load(path string) (*C.Config, F.Feeds, error) {
 		return nil, nil, err
 	}
 
-	feeds := F.Feeds{}
+	feeds := F.NewFeeds()
 
 	if err := buildFeeds(parsedCfg.Feeds, []string{}, feeds); err != nil {
 		return nil, nil, fmt.Errorf("while parsing: %w", err)

@@ -7,7 +7,6 @@ import (
 	"os"
 	"sync"
 
-	"github.com/Necoro/feed2imap-go/internal/cache"
 	"github.com/Necoro/feed2imap-go/internal/config"
 	"github.com/Necoro/feed2imap-go/internal/feed"
 	"github.com/Necoro/feed2imap-go/internal/imap"
@@ -52,7 +51,6 @@ func run() error {
 
 	log.Print("Starting up...")
 
-	log.Printf("Reading configuration file '%s'", *cfgFile)
 	cfg, feeds, err := yaml.Load(*cfgFile)
 	if err != nil {
 		return err
@@ -62,13 +60,13 @@ func run() error {
 		return fmt.Errorf("Configuration invalid: %w", err)
 	}
 
-	if success := feed.Parse(feeds); success == 0 {
-		return fmt.Errorf("No successfull feed fetch.")
-	}
-
-	feedCache, err := cache.Read(*cacheFile)
+	err = feeds.LoadCache(*cacheFile)
 	if err != nil {
 		return err
+	}
+
+	if success := feeds.Parse(); success == 0 {
+		return fmt.Errorf("No successfull feed fetch.")
 	}
 
 	imapUrl, err := url.Parse(cfg.Target)
@@ -83,14 +81,11 @@ func run() error {
 
 	defer c.Disconnect()
 
-	var wg sync.WaitGroup
-	wg.Add(len(feeds))
-	for _, f := range feeds {
-		go processFeed(f, cfg, c, &wg)
-	}
-	wg.Wait()
+	feeds.ForeachGo(func(f *feed.Feed, wg *sync.WaitGroup) {
+		processFeed(f, cfg, c, wg)
+	})
 
-	if err = cache.Store(*cacheFile, feedCache); err != nil {
+	if err = feeds.StoreCache(*cacheFile); err != nil {
 		return err
 	}
 
