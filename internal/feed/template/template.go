@@ -6,7 +6,7 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/Necoro/feed2imap-go/internal/log"
+	"github.com/Necoro/feed2imap-go/pkg/log"
 )
 
 func dict(v ...string) map[string]string {

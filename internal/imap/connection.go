@@ -8,8 +8,8 @@ import (
 	"github.com/emersion/go-imap"
 	imapClient "github.com/emersion/go-imap/client"
 
-	"github.com/Necoro/feed2imap-go/internal/log"
-	"github.com/Necoro/feed2imap-go/internal/util"
+	"github.com/Necoro/feed2imap-go/pkg/log"
+	"github.com/Necoro/feed2imap-go/pkg/util"
 )
 
 type connection struct {

@@ -3,7 +3,7 @@ package imap
 import (
 	imapClient "github.com/emersion/go-imap/client"
 
-	"github.com/Necoro/feed2imap-go/internal/log"
+	"github.com/Necoro/feed2imap-go/pkg/log"
 )
 
 const numberConns = 5
@@ -16,9 +16,9 @@ type connConf struct {
 
 type Client struct {
 	connConf
-	mailboxes *mailboxes
-	commander *commander
-	connections [numberConns]*connection
+	mailboxes     *mailboxes
+	commander     *commander
+	connections   [numberConns]*connection
 	nextFreeIndex int
 }
 
@@ -37,7 +37,7 @@ func (client *Client) Disconnect() {
 	}
 }
 
-func (client *Client) createConnection(c *imapClient.Client) *connection{
+func (client *Client) createConnection(c *imapClient.Client) *connection {
 	if client.nextFreeIndex >= len(client.connections) {
 		panic("Too many connections")
 	}

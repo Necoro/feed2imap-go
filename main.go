@@ -7,11 +7,10 @@ import (
 	"os"
 	"sync"
 
-	"github.com/Necoro/feed2imap-go/internal/config"
 	"github.com/Necoro/feed2imap-go/internal/feed"
 	"github.com/Necoro/feed2imap-go/internal/imap"
-	"github.com/Necoro/feed2imap-go/internal/log"
-	"github.com/Necoro/feed2imap-go/internal/yaml"
+	"github.com/Necoro/feed2imap-go/pkg/config"
+	"github.com/Necoro/feed2imap-go/pkg/log"
 )
 
 var cfgFile = flag.String("f", "config.yml", "configuration file")
@@ -51,7 +50,7 @@ func run() error {
 
 	log.Print("Starting up...")
 
-	cfg, feeds, err := yaml.Load(*cfgFile)
+	cfg, err := config.Load(*cfgFile)
 	if err != nil {
 		return err
 	}
@@ -60,12 +59,14 @@ func run() error {
 		return fmt.Errorf("Configuration invalid: %w", err)
 	}
 
-	err = feeds.LoadCache(*cacheFile)
+	state := feed.NewState(cfg)
+
+	err = state.LoadCache(*cacheFile)
 	if err != nil {
 		return err
 	}
 
-	if success := feeds.Parse(); success == 0 {
+	if success := state.Fetch(); success == 0 {
 		return fmt.Errorf("No successfull feed fetch.")
 	}
 
@@ -81,11 +82,11 @@ func run() error {
 
 	defer c.Disconnect()
 
-	feeds.ForeachGo(func(f *feed.Feed, wg *sync.WaitGroup) {
+	state.ForeachGo(func(f *feed.Feed, wg *sync.WaitGroup) {
 		processFeed(f, cfg, c, wg)
 	})
 
-	if err = feeds.StoreCache(*cacheFile); err != nil {
+	if err = state.StoreCache(*cacheFile); err != nil {
 		return err
 	}
 

@@ -4,7 +4,7 @@ import (
 	"net"
 	"net/url"
 
-	"github.com/Necoro/feed2imap-go/internal/log"
+	"github.com/Necoro/feed2imap-go/pkg/log"
 )
 
 // Our own convenience wrapper

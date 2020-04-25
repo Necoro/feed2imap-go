@@ -7,10 +7,10 @@ import (
 
 	imapClient "github.com/emersion/go-imap/client"
 
-	"github.com/Necoro/feed2imap-go/internal/log"
+	"github.com/Necoro/feed2imap-go/pkg/log"
 )
 
-func newImapClient(url *URL, forceTls bool) (*imapClient.Client,error) {
+func newImapClient(url *URL, forceTls bool) (*imapClient.Client, error) {
 	if forceTls {
 		c, err := imapClient.DialTLS(url.Host, nil)
 		if err != nil {

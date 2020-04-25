@@ -9,7 +9,7 @@ import (
 	"os"
 	"time"
 
-	"github.com/Necoro/feed2imap-go/internal/log"
+	"github.com/Necoro/feed2imap-go/pkg/log"
 )
 
 const (
@@ -77,7 +77,7 @@ func (cache *v1Cache) Version() byte {
 	return cache.version
 }
 
-func New() Cache {
+func newCache() Cache {
 	cache := v1Cache{
 		Ids:    map[feedDescriptor]feedId{},
 		Feeds:  map[feedId]*cachedFeed{},
@@ -90,7 +90,7 @@ func New() Cache {
 func cacheForVersion(version byte) (Cache, error) {
 	switch version {
 	case 1:
-		return New(), nil
+		return newCache(), nil
 	default:
 		return nil, fmt.Errorf("unknown cache version '%d'", version)
 	}
@@ -114,20 +114,20 @@ func (cache *v1Cache) findItem(feed *Feed) CachedFeed {
 		return feed.cached.(*cachedFeed)
 	}
 
-	fId := feedDescriptor{Name: feed.Name, Url: feed.Url}
-	id, ok := cache.Ids[fId]
+	fDescr := feed.descriptor()
+	id, ok := cache.Ids[fDescr]
 	if !ok {
 		var otherId feedDescriptor
 		changed := false
 		for otherId, id = range cache.Ids {
-			if otherId.Name == fId.Name {
-				log.Warnf("Feed %s seems to have changed URLs: New '%s', old '%s'. Updating.",
-					fId.Name, fId.Url, otherId.Url)
+			if otherId.Name == fDescr.Name {
+				log.Warnf("Feed %s seems to have changed URLs: newCache '%s', old '%s'. Updating.",
+					fDescr.Name, fDescr.Url, otherId.Url)
 				changed = true
 				break
-			} else if otherId.Url == fId.Url {
-				log.Warnf("Feed with URL '%s' seems to have changed its name: New '%s', old '%s'. Updating",
-					fId.Url, fId.Name, otherId.Name)
+			} else if otherId.Url == fDescr.Url {
+				log.Warnf("Feed with URL '%s' seems to have changed its name: newCache '%s', old '%s'. Updating",
+					fDescr.Url, fDescr.Name, otherId.Name)
 				changed = true
 				break
 			}
@@ -139,7 +139,7 @@ func (cache *v1Cache) findItem(feed *Feed) CachedFeed {
 			cache.NextId++
 		}
 
-		cache.Ids[fId] = id
+		cache.Ids[fDescr] = id
 	}
 
 	item := cache.getItem(id)
@@ -147,8 +147,7 @@ func (cache *v1Cache) findItem(feed *Feed) CachedFeed {
 	return item
 }
 
-func (feeds *Feeds) StoreCache(fileName string) error {
-	cache := feeds.cache
+func storeCache(cache Cache, fileName string) error {
 	if cache == nil {
 		return fmt.Errorf("trying to store nil cache")
 	}
@@ -178,25 +177,12 @@ func (feeds *Feeds) StoreCache(fileName string) error {
 	return nil
 }
 
-func (feeds *Feeds) LoadCache(fileName string) error {
-	cache, err := loadCache(fileName)
-	if err != nil {
-		return err
-	}
-	feeds.cache = cache
-
-	for _, feed := range feeds.feeds {
-		feed.cached = cache.findItem(feed)
-	}
-	return nil
-}
-
 func loadCache(fileName string) (Cache, error) {
 	f, err := os.Open(fileName)
 	if err != nil {
 		if errors.Is(err, os.ErrNotExist) {
 			// no cache there yet -- make new
-			return New(), nil
+			return newCache(), nil
 		}
 		return nil, fmt.Errorf("opening cache at '%s': %w", fileName, err)
 	}

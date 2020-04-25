@@ -8,7 +8,7 @@ import (
 
 	"github.com/mmcdole/gofeed"
 
-	"github.com/Necoro/feed2imap-go/internal/log"
+	"github.com/Necoro/feed2imap-go/pkg/log"
 )
 
 func context() (ctxt.Context, ctxt.CancelFunc) {
@@ -40,20 +40,4 @@ func handleFeed(feed *Feed, group *sync.WaitGroup) {
 	if err != nil {
 		log.Error(err)
 	}
-}
-
-func (feeds Feeds) Parse() int {
-	feeds.ForeachGo(handleFeed)
-
-	ctr := 0
-	for _, feed := range feeds.feeds {
-		success := feed.Success()
-		feed.cached.Checked(!success)
-
-		if success {
-			ctr++
-		}
-	}
-
-	return ctr
 }
