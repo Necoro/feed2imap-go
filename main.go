@@ -68,6 +68,11 @@ func run() error {
 
 	state.RemoveUndue()
 
+	if state.NumFeeds() == 0 {
+		// nothing to do
+		return nil
+	}
+
 	if success := state.Fetch(); success == 0 {
 		return fmt.Errorf("No successfull feed fetch.")
 	}

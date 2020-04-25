@@ -82,3 +82,7 @@ func (state *State) RemoveUndue() {
 		}
 	}
 }
+
+func (state *State) NumFeeds() int {
+	return len(state.feeds)
+}
