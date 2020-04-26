@@ -19,12 +19,17 @@ func (state *State) Foreach(f func(*Feed)) {
 	}
 }
 
-func (state *State) ForeachGo(goFunc func(*Feed, *sync.WaitGroup)) {
+func (state *State) ForeachGo(goFunc func(*Feed)) {
 	var wg sync.WaitGroup
 	wg.Add(len(state.feeds))
 
+	f := func(feed *Feed, wg *sync.WaitGroup) {
+		goFunc(feed)
+		wg.Done()
+	}
+
 	for _, feed := range state.feeds {
-		go goFunc(feed, &wg)
+		go f(feed, &wg)
 	}
 	wg.Wait()
 }
@@ -62,7 +67,7 @@ func (state *State) Fetch() int {
 	return ctr
 }
 
-func filterFeed(feed *Feed, group *sync.WaitGroup) {
+func filterFeed(feed *Feed) {
 	if len(feed.items) > 0 {
 		origLen := len(feed.items)
 
@@ -80,19 +85,12 @@ func filterFeed(feed *Feed, group *sync.WaitGroup) {
 	} else {
 		log.Debugf("No items for %s. No filtering.", feed.Name)
 	}
-
-	if group != nil {
-		// group is nil in debug case
-		group.Done()
-	}
 }
 
 func (state *State) Filter() {
 	if log.IsDebug() {
 		// single threaded for better output
-		state.Foreach(func(f *Feed) {
-			filterFeed(f, nil)
-		})
+		state.Foreach(filterFeed)
 	} else {
 		state.ForeachGo(filterFeed)
 	}

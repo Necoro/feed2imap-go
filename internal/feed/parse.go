@@ -3,7 +3,6 @@ package feed
 import (
 	ctxt "context"
 	"fmt"
-	"sync"
 	"time"
 
 	"github.com/mmcdole/gofeed"
@@ -32,8 +31,7 @@ func parseFeed(feed *Feed) error {
 	return nil
 }
 
-func handleFeed(feed *Feed, group *sync.WaitGroup) {
-	defer group.Done()
+func handleFeed(feed *Feed) {
 	log.Printf("Fetching %s from %s", feed.Name, feed.Url)
 
 	err := parseFeed(feed)

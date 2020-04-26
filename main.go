@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"net/url"
 	"os"
-	"sync"
 
 	"github.com/Necoro/feed2imap-go/internal/feed"
 	"github.com/Necoro/feed2imap-go/internal/imap"
@@ -18,9 +17,7 @@ var cacheFile = flag.String("c", "feed.cache", "cache file")
 var verbose = flag.Bool("v", false, "enable verbose output")
 var debug = flag.Bool("d", false, "enable debug output")
 
-func processFeed(feed *feed.Feed, cfg *config.Config, client *imap.Client, wg *sync.WaitGroup) {
-	defer wg.Done()
-
+func processFeed(feed *feed.Feed, cfg *config.Config, client *imap.Client) {
 	mails, err := feed.ToMails(cfg)
 	if err != nil {
 		log.Errorf("Processing items of feed %s: %s", feed.Name, err)
@@ -99,8 +96,8 @@ func run() error {
 
 	defer c.Disconnect()
 
-	state.ForeachGo(func(f *feed.Feed, wg *sync.WaitGroup) {
-		processFeed(f, cfg, c, wg)
+	state.ForeachGo(func(f *feed.Feed) {
+		processFeed(f, cfg, c)
 	})
 
 	if err = state.StoreCache(*cacheFile); err != nil {
