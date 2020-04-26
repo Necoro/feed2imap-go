@@ -37,6 +37,8 @@ var DefaultGlobalOptions = GlobalOptions{
 type Options struct {
 	MinFreq    *int  `yaml:"min-frequency"`
 	InclImages *bool `yaml:"include-images"`
+	Disable    *bool `yaml:"disable"`
+	IgnHash    *bool `yaml:"ignore-hash"`
 }
 
 func (opt *Options) mergeFrom(other Options) {
@@ -45,6 +47,12 @@ func (opt *Options) mergeFrom(other Options) {
 	}
 	if opt.InclImages == nil {
 		opt.InclImages = other.InclImages
+	}
+	if opt.IgnHash == nil {
+		opt.IgnHash = other.IgnHash
+	}
+	if opt.Disable == nil {
+		opt.Disable = other.Disable
 	}
 }
 
@@ -57,6 +65,8 @@ func init() {
 	DefaultFeedOptions = Options{
 		MinFreq:    &one,
 		InclImages: &fal,
+		IgnHash:    &fal,
+		Disable:    &fal,
 	}
 }
 

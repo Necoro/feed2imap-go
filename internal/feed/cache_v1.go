@@ -171,7 +171,7 @@ func (cf *cachedFeed) deleteItem(index int) {
 	cf.Items = cf.Items[:len(cf.Items)-1]
 }
 
-func (cf *cachedFeed) filterItems(items []feeditem) []feeditem {
+func (cf *cachedFeed) filterItems(items []feeditem, ignoreHash bool) []feeditem {
 	if len(items) == 0 {
 		return items
 	}
@@ -209,7 +209,7 @@ CACHE_ITEMS:
 			for idx, oldItem := range cf.Items {
 				if oldItem.Guid == ci.Guid {
 					log.Debugf("Guid matches with: %s", oldItem)
-					if !oldItem.similarTo(&ci, false) {
+					if !oldItem.similarTo(&ci, ignoreHash) {
 						item.addReason("guid (upd)")
 						app(item, ci, &idx)
 					} else {
@@ -227,7 +227,7 @@ CACHE_ITEMS:
 		}
 
 		for idx, oldItem := range cf.Items {
-			if oldItem.similarTo(&ci, false) {
+			if oldItem.similarTo(&ci, ignoreHash) {
 				log.Debugf("Similarity matches, ignoring: %s", oldItem)
 				continue CACHE_ITEMS
 			}
