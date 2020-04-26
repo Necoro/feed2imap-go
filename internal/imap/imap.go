@@ -11,20 +11,23 @@ import (
 )
 
 func newImapClient(url *URL, forceTls bool) (*imapClient.Client, error) {
+	var (
+		c   *imapClient.Client
+		err error
+	)
+
 	if forceTls {
-		c, err := imapClient.DialTLS(url.Host, nil)
-		if err != nil {
+		if c, err = imapClient.DialTLS(url.Host, nil); err != nil {
 			return nil, fmt.Errorf("connecting (TLS) to %s: %w", url.Host, err)
 		}
 		log.Print("Connected to ", url.Host, " (TLS)")
-		return c, nil
 	} else {
-		c, err := imapClient.Dial(url.Host)
-		if err != nil {
+		if c, err = imapClient.Dial(url.Host); err != nil {
 			return nil, fmt.Errorf("connecting to %s: %w", url.Host, err)
 		}
-		return c, nil
 	}
+
+	return c, nil
 }
 
 func (client *Client) connect(url *URL, forceTls bool) (*connection, error) {

@@ -12,7 +12,6 @@ func (client *Client) EnsureFolder(folder Folder) error {
 	return client.commander.execute(ensureCommando{folder})
 }
 
-
 type addCommando struct {
 	folder   Folder
 	messages []string

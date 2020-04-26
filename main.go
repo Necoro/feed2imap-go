@@ -82,7 +82,7 @@ func run() error {
 	}
 
 	if success := state.Fetch(); success == 0 {
-		return fmt.Errorf("No successfull feed fetch.")
+		return fmt.Errorf("No successful feed fetch.")
 	}
 
 	state.Filter()

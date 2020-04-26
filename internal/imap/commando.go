@@ -13,8 +13,8 @@ type command interface {
 }
 
 type execution struct {
-	cmd          command
-	done         chan<- error
+	cmd  command
+	done chan<- error
 }
 
 func (commander *commander) execute(command command) error {
