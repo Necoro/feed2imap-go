@@ -29,7 +29,9 @@ type feeditem struct {
 	reasons    []string
 }
 
-func (item *feeditem) Creator() string {
+// Creator returns the name of the creating author.
+// MUST NOT have `*feeditem` has the receiver, because the template breaks then.
+func (item feeditem) Creator() string {
 	if item.Item.Author != nil {
 		return item.Item.Author.Name
 	}
