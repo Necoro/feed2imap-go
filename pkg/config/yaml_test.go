@@ -1,21 +1,24 @@
 package config
 
 import (
-	"reflect"
 	"strings"
 	"testing"
 
-	"github.com/davecgh/go-spew/spew"
+	"github.com/google/go-cmp/cmp"
+	"gopkg.in/yaml.v3"
 )
 
-func i(i int) *int       { return &i }
-func s(s string) *string { return &s }
-func b(b bool) *bool     { return &b }
+func i(i int) *int   { return &i }
+func b(b bool) *bool { return &b }
 func t(s string) []string {
 	if s == "" {
 		return []string{}
 	}
 	return strings.Split(s, ".")
+}
+func n(s string) (n yaml.Node) {
+	n.SetString(s)
+	return
 }
 
 func TestBuildFeeds(tst *testing.T) {
@@ -29,45 +32,51 @@ func TestBuildFeeds(tst *testing.T) {
 		{name: "Empty input", wantErr: false, target: "", feeds: nil, result: Feeds{}},
 		{name: "Empty Feed", wantErr: true, target: "",
 			feeds: []configGroupFeed{
-				{Target: s("foo"), Feed: Feed{Url: "google.de"}},
+				{Target: n("foo"), Feed: Feed{Url: "google.de"}},
 			}, result: Feeds{}},
 		{name: "Empty Feed", wantErr: true, target: "",
 			feeds: []configGroupFeed{
-				{Target: nil, Feed: Feed{Url: "google.de"}},
+				{Feed: Feed{Url: "google.de"}},
 			}, result: Feeds{}},
 		{name: "Duplicate Feed Name", wantErr: true, target: "",
 			feeds: []configGroupFeed{
-				{Target: nil, Feed: Feed{Name: "Dup"}},
-				{Target: nil, Feed: Feed{Name: "Dup"}},
+				{Feed: Feed{Name: "Dup"}},
+				{Feed: Feed{Name: "Dup"}},
 			}, result: Feeds{}},
 		{name: "Simple", wantErr: false, target: "",
 			feeds: []configGroupFeed{
-				{Target: s("foo"), Feed: Feed{Name: "muh"}},
+				{Target: n("foo"), Feed: Feed{Name: "muh"}},
 			},
 			result: Feeds{"muh": &Feed{Name: "muh", Target: t("foo")}},
 		},
 		{name: "Simple With Target", wantErr: false, target: "moep",
 			feeds: []configGroupFeed{
-				{Target: s("foo"), Feed: Feed{Name: "muh"}},
+				{Target: n("foo"), Feed: Feed{Name: "muh"}},
 			},
 			result: Feeds{"muh": &Feed{Name: "muh", Target: t("moep.foo")}},
 		},
-		{name: "Simple With Nil Target", wantErr: false, target: "moep",
+		{name: "Simple Without Target", wantErr: false, target: "moep",
 			feeds: []configGroupFeed{
-				{Target: nil, Feed: Feed{Name: "muh"}},
+				{Feed: Feed{Name: "muh"}},
 			},
 			result: Feeds{"muh": &Feed{Name: "muh", Target: t("moep.muh")}},
 		},
+		{name: "Simple With Nil Target", wantErr: false, target: "moep",
+			feeds: []configGroupFeed{
+				{Target: yaml.Node{Tag: "!!null"}, Feed: Feed{Name: "muh"}},
+			},
+			result: Feeds{"muh": &Feed{Name: "muh", Target: t("moep")}},
+		},
 		{name: "Simple With Empty Target", wantErr: false, target: "moep",
 			feeds: []configGroupFeed{
-				{Target: s(""), Feed: Feed{Name: "muh"}},
+				{Target: n(""), Feed: Feed{Name: "muh"}},
 			},
 			result: Feeds{"muh": &Feed{Name: "muh", Target: t("moep")}},
 		},
 		{name: "Multiple Feeds", wantErr: false, target: "moep",
 			feeds: []configGroupFeed{
-				{Target: s("foo"), Feed: Feed{Name: "muh"}},
-				{Target: nil, Feed: Feed{Name: "bar"}},
+				{Target: n("foo"), Feed: Feed{Name: "muh"}},
+				{Feed: Feed{Name: "bar"}},
 			},
 			result: Feeds{
 				"muh": &Feed{Name: "muh", Target: t("moep.foo")},
@@ -76,16 +85,16 @@ func TestBuildFeeds(tst *testing.T) {
 		},
 		{name: "Empty Group", wantErr: false, target: "",
 			feeds: []configGroupFeed{
-				{Target: nil, Group: group{Group: "G1"}},
+				{Group: group{Group: "G1"}},
 			},
 			result: Feeds{},
 		},
 		{name: "Simple Group", wantErr: false, target: "",
 			feeds: []configGroupFeed{
-				{Target: nil, Group: group{Group: "G1", Feeds: []configGroupFeed{
-					{Target: s("bar"), Feed: Feed{Name: "F1"}},
-					{Target: s(""), Feed: Feed{Name: "F2"}},
-					{Target: nil, Feed: Feed{Name: "F3"}},
+				{Group: group{Group: "G1", Feeds: []configGroupFeed{
+					{Target: n("bar"), Feed: Feed{Name: "F1"}},
+					{Target: n(""), Feed: Feed{Name: "F2"}},
+					{Feed: Feed{Name: "F3"}},
 				}}},
 			},
 			result: Feeds{
@@ -96,14 +105,14 @@ func TestBuildFeeds(tst *testing.T) {
 		},
 		{name: "Nested Groups", wantErr: false, target: "",
 			feeds: []configGroupFeed{
-				{Target: nil, Group: group{Group: "G1", Feeds: []configGroupFeed{
-					{Target: nil, Feed: Feed{Name: "F0"}},
-					{Target: s("bar"), Group: group{Group: "G2",
-						Feeds: []configGroupFeed{{Target: nil, Feed: Feed{Name: "F1"}}}}},
-					{Target: s(""), Group: group{Group: "G3",
-						Feeds: []configGroupFeed{{Target: s("baz"), Feed: Feed{Name: "F2"}}}}},
-					{Target: nil, Group: group{Group: "G4",
-						Feeds: []configGroupFeed{{Target: nil, Feed: Feed{Name: "F3"}}}}},
+				{Group: group{Group: "G1", Feeds: []configGroupFeed{
+					{Feed: Feed{Name: "F0"}},
+					{Target: n("bar"), Group: group{Group: "G2",
+						Feeds: []configGroupFeed{{Feed: Feed{Name: "F1"}}}}},
+					{Target: n(""), Group: group{Group: "G3",
+						Feeds: []configGroupFeed{{Target: n("baz"), Feed: Feed{Name: "F2"}}}}},
+					{Group: group{Group: "G4",
+						Feeds: []configGroupFeed{{Feed: Feed{Name: "F3"}}}}},
 				}}},
 			},
 			result: Feeds{
@@ -122,8 +131,8 @@ func TestBuildFeeds(tst *testing.T) {
 				tst.Errorf("buildFeeds() error = %v, wantErr %v", err, tt.wantErr)
 				return
 			}
-			if !tt.wantErr && !reflect.DeepEqual(feeds, tt.result) {
-				tst.Errorf("buildFeeds() got: %s\nwant: %s", spew.Sdump(feeds), spew.Sdump(tt.result))
+			if diff := cmp.Diff(feeds, tt.result); !tt.wantErr && diff != "" {
+				tst.Error(diff)
 			}
 		})
 	}
@@ -180,7 +189,7 @@ feeds:
 `,
 			wantErr: false,
 			config: defaultConfig([]configGroupFeed{
-				{Target: s("bar"), Feed: Feed{
+				{Target: n("bar"), Feed: Feed{
 					Name: "Foo",
 					Url:  "whatever",
 					Options: Options{
@@ -202,7 +211,7 @@ feeds:
 `,
 			wantErr: false,
 			config: defaultConfig([]configGroupFeed{
-				{Target: nil, Feed: Feed{
+				{Feed: Feed{
 					Name: "Foo",
 					Url:  "whatever",
 					Options: Options{
@@ -210,7 +219,7 @@ feeds:
 						InclImages: nil,
 					},
 				}},
-				{Target: s("bla"), Feed: Feed{
+				{Target: n("bla"), Feed: Feed{
 					Name: "Shrubbery",
 					Url:  "google.de",
 					Options: Options{
@@ -227,7 +236,7 @@ feeds:
      target: bla
 `,
 			wantErr: false,
-			config:  defaultConfig([]configGroupFeed{{Target: s("bla"), Group: group{"Foo", nil}}}, nil),
+			config:  defaultConfig([]configGroupFeed{{Target: n("bla"), Group: group{"Foo", nil}}}, nil),
 		},
 		{name: "Feeds and Groups",
 			inp: `
@@ -247,26 +256,30 @@ feeds:
 `,
 			wantErr: false,
 			config: defaultConfig([]configGroupFeed{
-				{Target: nil, Feed: Feed{
+				{Feed: Feed{
 					Name: "Foo",
 					Url:  "whatever",
 				}},
-				{Target: s("target"), Group: group{
+				{Target: n("target"), Group: group{
 					Group: "G1",
 					Feeds: []configGroupFeed{
-						{Target: s(""), Group: group{
+						{Target: n(""), Group: group{
 							Group: "G2",
 							Feeds: []configGroupFeed{
-								{Target: nil, Feed: Feed{Name: "F1", Url: "google.de"}},
+								{Feed: Feed{Name: "F1", Url: "google.de"}},
 							}},
 						},
-						{Target: nil, Feed: Feed{Name: "F2"}},
-						{Target: nil, Group: group{Group: "G3"}},
+						{Feed: Feed{Name: "F2"}},
+						{Group: group{Group: "G3"}},
 					}},
 				},
 			}, nil),
 		},
 	}
+
+	eqNode := cmp.Comparer(func(l, r yaml.Node) bool {
+		return l.Tag == r.Tag && l.Value == r.Value
+	})
 
 	for _, tt := range tests {
 		tst.Run(tt.name, func(tst *testing.T) {
@@ -276,8 +289,12 @@ feeds:
 				tst.Errorf("parse() error = %v, wantErr %v", err, tt.wantErr)
 				return
 			}
-			if err == nil && !reflect.DeepEqual(got, tt.config) {
-				tst.Errorf("parse() got: %s\nwant: %s", spew.Sdump(got), spew.Sdump(tt.config))
+
+			if err == nil {
+				diff := cmp.Diff(got, tt.config, eqNode)
+				if diff != "" {
+					tst.Error(diff)
+				}
 			}
 		})
 	}

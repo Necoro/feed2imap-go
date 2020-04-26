@@ -6,6 +6,12 @@ import (
 	"gopkg.in/yaml.v3"
 )
 
+const (
+	strTag   = "!!str"
+	nullTag  = "!!null"
+	emptyTag = ""
+)
+
 type config struct {
 	*Config      `yaml:",inline"`
 	GlobalConfig Map `yaml:",inline"` // need to be duplicated, because the Map in Config is not filled
@@ -18,7 +24,7 @@ type group struct {
 }
 
 type configGroupFeed struct {
-	Target *string
+	Target yaml.Node
 	Feed   Feed  `yaml:",inline"`
 	Group  group `yaml:",inline"`
 }
@@ -32,9 +38,18 @@ func (grpFeed *configGroupFeed) isFeed() bool {
 }
 
 func (grpFeed *configGroupFeed) target() string {
-	if grpFeed.Target != nil {
-		return *grpFeed.Target
+	tag := grpFeed.Target.ShortTag()
+	switch tag {
+	case strTag:
+		return grpFeed.Target.Value
+	case nullTag:
+		return ""
+	case emptyTag:
+		// tag not set: continue on
+	default:
+		panic("unexpected tag " + tag + " for target node")
 	}
+
 	if grpFeed.Feed.Name != "" {
 		return grpFeed.Feed.Name
 	}
@@ -89,13 +104,13 @@ func appTarget(target []string, app string) []string {
 	}
 }
 
-// Fetch the group structure and populate the `Target` fields in the feeds
+// Fetch the group structure and populate the `targetStr` fields in the feeds
 func buildFeeds(cfg []configGroupFeed, target []string, feeds Feeds) error {
 	for _, f := range cfg {
 		target := appTarget(target, f.target())
 		switch {
 		case f.isFeed() && f.isGroup():
-			return fmt.Errorf("Entry with Target %s is both a Feed and a group", target)
+			return fmt.Errorf("Entry with targetStr %s is both a Feed and a group", target)
 
 		case f.isFeed():
 			feedCopy := f.Feed
