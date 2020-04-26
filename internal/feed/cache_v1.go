@@ -159,10 +159,10 @@ func newCachedItem(item feeditem) cachedItem {
 }
 
 func (item *cachedItem) similarTo(other *cachedItem, ignoreHash bool) bool {
-	return other.Title == item.Title ||
-		other.Link == item.Link ||
-		other.PublishedDate.Equal(item.PublishedDate) ||
-		(!ignoreHash && other.Hash == item.Hash)
+	return other.Title == item.Title &&
+		other.Link == item.Link &&
+		other.PublishedDate.Equal(item.PublishedDate) &&
+		(ignoreHash || other.Hash == item.Hash)
 }
 
 func (cf *cachedFeed) deleteItem(index int) {
