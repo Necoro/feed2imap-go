@@ -113,12 +113,12 @@ func (cache *v1Cache) findItem(feed *Feed) CachedFeed {
 		changed := false
 		for otherId, id = range cache.Ids {
 			if otherId.Name == fDescr.Name {
-				log.Warnf("Feed %s seems to have changed URLs: newCache '%s', old '%s'. Updating.",
+				log.Warnf("Feed %s seems to have changed URLs: new '%s', old '%s'. Updating.",
 					fDescr.Name, fDescr.Url, otherId.Url)
 				changed = true
 				break
 			} else if otherId.Url == fDescr.Url {
-				log.Warnf("Feed with URL '%s' seems to have changed its name: newCache '%s', old '%s'. Updating",
+				log.Warnf("Feed with URL '%s' seems to have changed its name: new '%s', old '%s'. Updating",
 					fDescr.Url, fDescr.Name, otherId.Name)
 				changed = true
 				break
