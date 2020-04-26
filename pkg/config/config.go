@@ -39,6 +39,7 @@ type Options struct {
 	InclImages *bool `yaml:"include-images"`
 	Disable    *bool `yaml:"disable"`
 	IgnHash    *bool `yaml:"ignore-hash"`
+	AlwaysNew  *bool `yaml:"always-new"`
 }
 
 func (opt *Options) mergeFrom(other Options) {
@@ -50,6 +51,9 @@ func (opt *Options) mergeFrom(other Options) {
 	}
 	if opt.IgnHash == nil {
 		opt.IgnHash = other.IgnHash
+	}
+	if opt.AlwaysNew == nil {
+		opt.AlwaysNew = other.AlwaysNew
 	}
 	if opt.Disable == nil {
 		opt.Disable = other.Disable
@@ -66,6 +70,7 @@ func init() {
 		MinFreq:    &one,
 		InclImages: &fal,
 		IgnHash:    &fal,
+		AlwaysNew:  &fal,
 		Disable:    &fal,
 	}
 }

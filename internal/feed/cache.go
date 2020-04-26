@@ -27,7 +27,7 @@ type CachedFeed interface {
 	Checked(withFailure bool)
 	Failures() uint
 	Last() time.Time
-	filterItems([]feeditem, bool) []feeditem
+	filterItems(items []feeditem, ignoreHash bool, alwaysNew bool) []feeditem
 	Commit()
 }
 

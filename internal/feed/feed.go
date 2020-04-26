@@ -7,6 +7,7 @@ import (
 
 	"github.com/Necoro/feed2imap-go/pkg/config"
 	"github.com/Necoro/feed2imap-go/pkg/log"
+	"github.com/Necoro/feed2imap-go/pkg/util"
 )
 
 type Feed struct {
@@ -28,15 +29,17 @@ type feeditem struct {
 	reasons    []string
 }
 
-func (item feeditem) Creator() string {
+func (item *feeditem) Creator() string {
 	if item.Item.Author != nil {
 		return item.Item.Author.Name
 	}
 	return ""
 }
 
-func (item feeditem) addReason(reason string) {
-	item.reasons = append(item.reasons, reason)
+func (item *feeditem) addReason(reason string) {
+	if !util.StrContains(item.reasons, reason) {
+		item.reasons = append(item.reasons, reason)
+	}
 }
 
 func (feed *Feed) descriptor() feedDescriptor {

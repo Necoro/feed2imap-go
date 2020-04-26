@@ -72,7 +72,7 @@ func filterFeed(feed *Feed) {
 		origLen := len(feed.items)
 
 		log.Debugf("Filtering %s. Starting with %d items", feed.Name, origLen)
-		items := feed.cached.filterItems(feed.items, *feed.Options.IgnHash)
+		items := feed.cached.filterItems(feed.items, *feed.Options.IgnHash, *feed.Options.AlwaysNew)
 		feed.items = items
 
 		newLen := len(feed.items)

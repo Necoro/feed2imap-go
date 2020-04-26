@@ -171,7 +171,7 @@ func (cf *cachedFeed) deleteItem(index int) {
 	cf.Items = cf.Items[:len(cf.Items)-1]
 }
 
-func (cf *cachedFeed) filterItems(items []feeditem, ignoreHash bool) []feeditem {
+func (cf *cachedFeed) filterItems(items []feeditem, ignoreHash, alwaysNew bool) []feeditem {
 	if len(items) == 0 {
 		return items
 	}
@@ -200,7 +200,7 @@ CACHE_ITEMS:
 		if cf.LastCheck.IsZero() || ci.PublishedDate.After(cf.LastCheck) {
 			log.Debug("Newer than last check, including.")
 
-			item.addReason("newer")
+			item.addReason("time")
 			app(item, ci, nil)
 			continue
 		}
@@ -233,6 +233,11 @@ CACHE_ITEMS:
 			}
 
 			if oldItem.Link == ci.Link {
+				if alwaysNew {
+					log.Debugf("Link matches, but `always-new`.")
+					item.addReason("always-new")
+					continue
+				}
 				log.Debugf("Link matches, updating: %s", oldItem)
 				item.addReason("link (upd)")
 				app(item, ci, &idx)
@@ -242,6 +247,7 @@ CACHE_ITEMS:
 		}
 
 		log.Debugf("No match found, inserting.")
+		item.addReason("new")
 		app(item, ci, nil)
 	}
 
