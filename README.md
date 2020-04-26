@@ -22,7 +22,7 @@ It aims to be compatible in functionality and configuration, and should mostly w
 
 * groups (_details TBD_)
 * heavier use of parallel processing (it's Go after all ;))
-* Global `target` and each feed only specifies only the folder relative to that target. (feature contained also in [fork of the original][nec]) 
+* Global `target` and each feed only specifies the folder relative to that target. (feature contained also in [fork of the original][nec]) 
 
 ### Subtle differences
 
