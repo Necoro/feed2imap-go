@@ -104,7 +104,7 @@ func NewState(cfg *config.Config) *State {
 	}
 
 	for name, parsedFeed := range cfg.Feeds {
-		state.feeds[name] = &Feed{Feed: parsedFeed}
+		state.feeds[name] = &Feed{Feed: parsedFeed, Global: cfg.GlobalOptions}
 	}
 
 	return &state

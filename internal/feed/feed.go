@@ -15,6 +15,7 @@ type Feed struct {
 	feed   *gofeed.Feed
 	items  []feeditem
 	cached CachedFeed
+	Global config.GlobalOptions
 }
 
 type feedDescriptor struct {

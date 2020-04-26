@@ -2,7 +2,9 @@ package feed
 
 import (
 	ctxt "context"
+	"crypto/tls"
 	"fmt"
+	"net/http"
 	"time"
 
 	"github.com/mmcdole/gofeed"
@@ -10,14 +12,36 @@ import (
 	"github.com/Necoro/feed2imap-go/pkg/log"
 )
 
-func context() (ctxt.Context, ctxt.CancelFunc) {
-	return ctxt.WithTimeout(ctxt.Background(), 60*time.Second)
+// share HTTP clients
+var stdHTTPClient = &http.Client{Transport: http.DefaultTransport}
+var unsafeHTTPClient *http.Client
+
+func init() {
+	tlsConfig := &tls.Config{InsecureSkipVerify: true}
+	transport := http.DefaultTransport.(*http.Transport).Clone()
+	transport.TLSClientConfig = tlsConfig
+	unsafeHTTPClient = &http.Client{Transport: transport}
+}
+
+func context(timeout int) (ctxt.Context, ctxt.CancelFunc) {
+	return ctxt.WithTimeout(ctxt.Background(), time.Duration(timeout)*time.Second)
+}
+
+func setHTTPClient(parser *gofeed.Parser, disableTLS bool) {
+	if disableTLS {
+		parser.Client = unsafeHTTPClient
+	} else {
+		parser.Client = stdHTTPClient
+	}
 }
 
 func parseFeed(feed *Feed) error {
-	ctx, cancel := context()
+	ctx, cancel := context(feed.Global.Timeout)
 	defer cancel()
+
 	fp := gofeed.NewParser()
+	setHTTPClient(fp, *feed.NoTLS)
+
 	parsedFeed, err := fp.ParseURLWithContext(feed.Url, ctx)
 	if err != nil {
 		return fmt.Errorf("while fetching %s from %s: %w", feed.Name, feed.Url, err)

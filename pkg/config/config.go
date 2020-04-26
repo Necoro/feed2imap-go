@@ -40,6 +40,7 @@ type Options struct {
 	Disable    *bool `yaml:"disable"`
 	IgnHash    *bool `yaml:"ignore-hash"`
 	AlwaysNew  *bool `yaml:"always-new"`
+	NoTLS      *bool `yaml:"tls-no-verify"`
 }
 
 func (opt *Options) mergeFrom(other Options) {
@@ -58,6 +59,9 @@ func (opt *Options) mergeFrom(other Options) {
 	if opt.Disable == nil {
 		opt.Disable = other.Disable
 	}
+	if opt.NoTLS == nil {
+		opt.NoTLS = other.NoTLS
+	}
 }
 
 // Default feed options
@@ -72,6 +76,7 @@ func init() {
 		IgnHash:    &fal,
 		AlwaysNew:  &fal,
 		Disable:    &fal,
+		NoTLS:      &fal,
 	}
 }
 
