@@ -28,16 +28,13 @@ It aims to be compatible in functionality and configuration, and should mostly w
 
 * **Feed rendering**: Unfortunately, semantics of RSS and Atom tags are very broad. As we use a different feed parser library than the original, the interpretation (e.g., what tag is "the author") can differ.
 * **Caching**: We do not implement the caching algorithm of feed2imap point by point. In general we opted for less heuristics and more optimism (belief that GUID is filled correctly; belief that the difference between publishing and update date is adhered to). If this results in a problem, file a bug and include the `X-Feed2Imap-Reason` header of the mail.
-* **Configuration**: We took the liberty to restructure the configuration options. Old configs are supported, but a warning is issued when an option should now be in another place or is no longer supported (that is, without function).
+* **Configuration**: We took the liberty to restructure the configuration options. Old configs are supported, but a warning is issued when an option should now be in another place or is no longer supported (i.e., the option is without function).
 
 ### Unsupported features of feed2imap
 
 * IMAP-Target per Feed ([issue #6][i6]); targets only specify the folder relative to the global target
 * Maildir ([issue #4][i4])
-* Scripts that run pre/post a feed entryfeed2imap is an RSS/Atom feed aggregator. After
-Downloading feeds (over HTTP or HTTPS), it uploads them to a specified
-folder of an IMAP mail server. The user can then access the feeds using
-Mutt, Evolution, Mozilla Thunderbird or even a webmail.
+* Scripts for generating/filtering feeds
 
 [i6]: https://github.com/Necoro/feed2imap-go/issues/6
 [i4]: https://github.com/Necoro/feed2imap-go/issues/4
