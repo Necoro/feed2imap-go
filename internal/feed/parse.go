@@ -13,10 +13,16 @@ import (
 )
 
 // share HTTP clients
-var stdHTTPClient = &http.Client{Transport: http.DefaultTransport}
-var unsafeHTTPClient *http.Client
+var (
+	stdHTTPClient *http.Client
+    unsafeHTTPClient *http.Client
+)
 
 func init() {
+	// std
+	stdHTTPClient = &http.Client{Transport: http.DefaultTransport}
+	
+	// unsafe
 	tlsConfig := &tls.Config{InsecureSkipVerify: true}
 	transport := http.DefaultTransport.(*http.Transport).Clone()
 	transport.TLSClientConfig = tlsConfig
@@ -27,12 +33,11 @@ func context(timeout int) (ctxt.Context, ctxt.CancelFunc) {
 	return ctxt.WithTimeout(ctxt.Background(), time.Duration(timeout)*time.Second)
 }
 
-func setHTTPClient(parser *gofeed.Parser, disableTLS bool) {
+func httpClient(disableTLS bool) *http.Client {
 	if disableTLS {
-		parser.Client = unsafeHTTPClient
-	} else {
-		parser.Client = stdHTTPClient
+		return unsafeHTTPClient
 	}
+	return stdHTTPClient
 }
 
 func parseFeed(feed *Feed) error {
@@ -40,7 +45,7 @@ func parseFeed(feed *Feed) error {
 	defer cancel()
 
 	fp := gofeed.NewParser()
-	setHTTPClient(fp, *feed.NoTLS)
+	fp.Client = httpClient(*feed.NoTLS)
 
 	parsedFeed, err := fp.ParseURLWithContext(feed.Url, ctx)
 	if err != nil {
