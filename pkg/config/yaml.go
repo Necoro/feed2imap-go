@@ -29,9 +29,14 @@ type group struct {
 	Feeds []configGroupFeed
 }
 
+type feed struct {
+	Name string
+	Url  string
+}
+
 type configGroupFeed struct {
 	Target  yaml.Node
-	Feed    Feed  `yaml:",inline"`
+	Feed    feed  `yaml:",inline"`
 	Group   group `yaml:",inline"`
 	Options Map   `yaml:",inline"`
 }
@@ -187,7 +192,6 @@ func buildFeeds(cfg []configGroupFeed, target []string, feeds Feeds, globalFeedO
 			return fmt.Errorf("Entry with targetStr %s is both a Feed and a group", target)
 
 		case f.isFeed():
-			feedCopy := f.Feed
 			name := f.Feed.Name
 			if name == "" {
 				return fmt.Errorf("Unnamed feed")
@@ -204,9 +208,12 @@ func buildFeeds(cfg []configGroupFeed, target []string, feeds Feeds, globalFeedO
 				}
 			}
 
-			feedCopy.Options = opt
-			feedCopy.Target = target
-			feeds[name] = &feedCopy
+			feeds[name] = &Feed{
+				Name:    name,
+				Url:     f.Feed.Url,
+				Options: opt,
+				Target:  target,
+			}
 
 		case f.isGroup():
 			if err := buildFeeds(f.Group.Feeds, target, feeds, globalFeedOptions); err != nil {

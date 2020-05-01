@@ -70,51 +70,51 @@ func TestBuildFeeds(tst *testing.T) {
 		{name: "Empty input", wantErr: false, target: "", feeds: nil, result: Feeds{}},
 		{name: "Empty Feed", wantErr: true, target: "",
 			feeds: []configGroupFeed{
-				{Target: n("foo"), Feed: Feed{Url: "google.de"}},
+				{Target: n("foo"), Feed: feed{Url: "google.de"}},
 			}, result: Feeds{}},
 		{name: "Empty Feed", wantErr: true, target: "",
 			feeds: []configGroupFeed{
-				{Feed: Feed{Url: "google.de"}},
+				{Feed: feed{Url: "google.de"}},
 			}, result: Feeds{}},
 		{name: "Duplicate Feed Name", wantErr: true, target: "",
 			feeds: []configGroupFeed{
-				{Feed: Feed{Name: "Dup"}},
-				{Feed: Feed{Name: "Dup"}},
+				{Feed: feed{Name: "Dup"}},
+				{Feed: feed{Name: "Dup"}},
 			}, result: Feeds{}},
 		{name: "Simple", wantErr: false, target: "",
 			feeds: []configGroupFeed{
-				{Target: n("foo"), Feed: Feed{Name: "muh"}},
+				{Target: n("foo"), Feed: feed{Name: "muh"}},
 			},
 			result: Feeds{"muh": &Feed{Name: "muh", Target: t("foo")}},
 		},
 		{name: "Simple With Target", wantErr: false, target: "moep",
 			feeds: []configGroupFeed{
-				{Target: n("foo"), Feed: Feed{Name: "muh"}},
+				{Target: n("foo"), Feed: feed{Name: "muh"}},
 			},
 			result: Feeds{"muh": &Feed{Name: "muh", Target: t("moep.foo")}},
 		},
 		{name: "Simple Without Target", wantErr: false, target: "moep",
 			feeds: []configGroupFeed{
-				{Feed: Feed{Name: "muh"}},
+				{Feed: feed{Name: "muh"}},
 			},
 			result: Feeds{"muh": &Feed{Name: "muh", Target: t("moep.muh")}},
 		},
 		{name: "Simple With Nil Target", wantErr: false, target: "moep",
 			feeds: []configGroupFeed{
-				{Target: yaml.Node{Tag: "!!null"}, Feed: Feed{Name: "muh"}},
+				{Target: yaml.Node{Tag: "!!null"}, Feed: feed{Name: "muh"}},
 			},
 			result: Feeds{"muh": &Feed{Name: "muh", Target: t("moep")}},
 		},
 		{name: "Simple With Empty Target", wantErr: false, target: "moep",
 			feeds: []configGroupFeed{
-				{Target: n(""), Feed: Feed{Name: "muh"}},
+				{Target: n(""), Feed: feed{Name: "muh"}},
 			},
 			result: Feeds{"muh": &Feed{Name: "muh", Target: t("moep")}},
 		},
 		{name: "Multiple Feeds", wantErr: false, target: "moep",
 			feeds: []configGroupFeed{
-				{Target: n("foo"), Feed: Feed{Name: "muh"}},
-				{Feed: Feed{Name: "bar"}},
+				{Target: n("foo"), Feed: feed{Name: "muh"}},
+				{Feed: feed{Name: "bar"}},
 			},
 			result: Feeds{
 				"muh": &Feed{Name: "muh", Target: t("moep.foo")},
@@ -130,9 +130,9 @@ func TestBuildFeeds(tst *testing.T) {
 		{name: "Simple Group", wantErr: false, target: "",
 			feeds: []configGroupFeed{
 				{Group: group{Group: "G1", Feeds: []configGroupFeed{
-					{Target: n("bar"), Feed: Feed{Name: "F1"}},
-					{Target: n(""), Feed: Feed{Name: "F2"}},
-					{Feed: Feed{Name: "F3"}},
+					{Target: n("bar"), Feed: feed{Name: "F1"}},
+					{Target: n(""), Feed: feed{Name: "F2"}},
+					{Feed: feed{Name: "F3"}},
 				}}},
 			},
 			result: Feeds{
@@ -144,13 +144,13 @@ func TestBuildFeeds(tst *testing.T) {
 		{name: "Nested Groups", wantErr: false, target: "",
 			feeds: []configGroupFeed{
 				{Group: group{Group: "G1", Feeds: []configGroupFeed{
-					{Feed: Feed{Name: "F0"}},
+					{Feed: feed{Name: "F0"}},
 					{Target: n("bar"), Group: group{Group: "G2",
-						Feeds: []configGroupFeed{{Feed: Feed{Name: "F1"}}}}},
+						Feeds: []configGroupFeed{{Feed: feed{Name: "F1"}}}}},
 					{Target: n(""), Group: group{Group: "G3",
-						Feeds: []configGroupFeed{{Target: n("baz"), Feed: Feed{Name: "F2"}}}}},
+						Feeds: []configGroupFeed{{Target: n("baz"), Feed: feed{Name: "F2"}}}}},
 					{Group: group{Group: "G4",
-						Feeds: []configGroupFeed{{Feed: Feed{Name: "F3"}}}}},
+						Feeds: []configGroupFeed{{Feed: feed{Name: "F3"}}}}},
 				}}},
 			},
 			result: Feeds{
@@ -227,7 +227,7 @@ feeds:
 			wantErr: false,
 			config: defaultConfig([]configGroupFeed{{
 				Target: n("bar"),
-				Feed: Feed{
+				Feed: feed{
 					Name: "Foo",
 					Url:  "whatever",
 				},
@@ -248,7 +248,7 @@ feeds:
 			wantErr: false,
 			config: defaultConfig([]configGroupFeed{
 				{
-					Feed: Feed{
+					Feed: feed{
 						Name: "Foo",
 						Url:  "whatever",
 					},
@@ -256,7 +256,7 @@ feeds:
 				},
 				{
 					Target: n("bla"),
-					Feed: Feed{
+					Feed: feed{
 						Name: "Shrubbery",
 						Url:  "google.de",
 					},
@@ -291,7 +291,7 @@ feeds:
 `,
 			wantErr: false,
 			config: defaultConfig([]configGroupFeed{
-				{Feed: Feed{
+				{Feed: feed{
 					Name: "Foo",
 					Url:  "whatever",
 				}},
@@ -301,10 +301,10 @@ feeds:
 						{Target: n(""), Group: group{
 							Group: "G2",
 							Feeds: []configGroupFeed{
-								{Feed: Feed{Name: "F1", Url: "google.de"}},
+								{Feed: feed{Name: "F1", Url: "google.de"}},
 							}},
 						},
-						{Feed: Feed{Name: "F2"}},
+						{Feed: feed{Name: "F2"}},
 						{Group: group{Group: "G3"}},
 					}},
 				},
