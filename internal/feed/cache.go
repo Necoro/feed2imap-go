@@ -70,12 +70,16 @@ func storeCache(cache Cache, fileName string) error {
 	return nil
 }
 
+func newCache() (Cache, error) {
+	return cacheForVersion(currentVersion)
+}
+
 func loadCache(fileName string) (Cache, error) {
 	f, err := os.Open(fileName)
 	if err != nil {
 		if errors.Is(err, os.ErrNotExist) {
 			// no cache there yet -- make new
-			return cacheForVersion(currentVersion)
+			return newCache()
 		}
 		return nil, fmt.Errorf("opening cache at '%s': %w", fileName, err)
 	}

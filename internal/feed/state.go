@@ -34,8 +34,18 @@ func (state *State) ForeachGo(goFunc func(*Feed)) {
 	wg.Wait()
 }
 
-func (state *State) LoadCache(fileName string) error {
-	cache, err := loadCache(fileName)
+func (state *State) LoadCache(fileName string, forceNew bool) error {
+	var (
+		cache Cache
+		err   error
+	)
+
+	if forceNew {
+		cache, err = newCache()
+	} else {
+		cache, err = loadCache(fileName)
+	}
+
 	if err != nil {
 		return err
 	}

@@ -16,15 +16,17 @@ var cfgFile = flag.String("f", "config.yml", "configuration file")
 var cacheFile = flag.String("c", "feed.cache", "cache file")
 var verbose = flag.Bool("v", false, "enable verbose output")
 var debug = flag.Bool("d", false, "enable debug output")
+var dryRun = flag.Bool("dry-run", false, "do everything short of uploading and writing the cache")
+var buildCache = flag.Bool("build-cache", false, "only (re)build the cache; useful after migration or when the cache is lost or corrupted")
 
-func processFeed(feed *feed.Feed, cfg *config.Config, client *imap.Client) {
+func processFeed(feed *feed.Feed, cfg *config.Config, client *imap.Client, dryRun bool) {
 	mails, err := feed.ToMails(cfg)
 	if err != nil {
 		log.Errorf("Processing items of feed %s: %s", feed.Name, err)
 		return
 	}
 
-	if len(mails) == 0 {
+	if dryRun || len(mails) == 0 {
 		feed.MarkSuccess()
 		return
 	}
@@ -66,7 +68,7 @@ func run() error {
 
 	state := feed.NewState(cfg)
 
-	err = state.LoadCache(*cacheFile)
+	err = state.LoadCache(*cacheFile, *buildCache)
 	if err != nil {
 		return err
 	}
@@ -89,19 +91,25 @@ func run() error {
 		return fmt.Errorf("parsing 'target': %w", err)
 	}
 
-	c, err := imap.Connect(imapUrl)
-	if err != nil {
-		return err
+	var c *imap.Client
+	if !*dryRun && !*buildCache {
+		if c, err = imap.Connect(imapUrl); err != nil {
+			return err
+		}
+
+		defer c.Disconnect()
 	}
 
-	defer c.Disconnect()
+	if !*buildCache {
+		state.ForeachGo(func(f *feed.Feed) {
+			processFeed(f, cfg, c, *dryRun)
+		})
+	}
 
-	state.ForeachGo(func(f *feed.Feed) {
-		processFeed(f, cfg, c)
-	})
-
-	if err = state.StoreCache(*cacheFile); err != nil {
-		return err
+	if !*dryRun {
+		if err = state.StoreCache(*cacheFile); err != nil {
+			return err
+		}
 	}
 
 	return nil
