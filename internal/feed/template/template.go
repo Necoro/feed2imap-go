@@ -33,9 +33,12 @@ func lastUrlPart(url string) string {
 }
 
 func byteCount(str string) string {
-	b, err := strconv.ParseUint(str, 10, 64)
-	if err != nil {
-		log.Printf("Cannot convert '%s' to byte count: %s", str, err)
+	var b uint64
+	if str != "" {
+		var err error
+		if b, err = strconv.ParseUint(str, 10, 64); err != nil {
+			log.Printf("Cannot convert '%s' to byte count: %s", str, err)
+		}
 	}
 
 	const unit = 1024
