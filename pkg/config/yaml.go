@@ -76,6 +76,27 @@ func unmarshal(in io.Reader, cfg *Config) (config, error) {
 	return parsedCfg, nil
 }
 
+func (cfg *Config) fixGlobalOptions(unparsed Map) {
+	origMap := Map{}
+
+	// copy map
+	for k, v := range unparsed {
+		origMap[k] = v
+	}
+
+	newOpts, _ := buildOptions(&cfg.FeedOptions, unparsed)
+
+	for k := range origMap {
+		if _, ok := unparsed[k]; !ok {
+			log.Warnf("Global option '%s' should be inside the 'options' map. It currently overwrites the same key there.", k)
+		} else {
+			log.Warnf("Unknown global option '%s'. Ignored!", k)
+		}
+	}
+
+	cfg.FeedOptions = newOpts
+}
+
 func (cfg *Config) parse(in io.Reader) error {
 	var (
 		err       error
@@ -92,6 +113,8 @@ func (cfg *Config) parse(in io.Reader) error {
 
 		return fmt.Errorf("while unmarshalling: %w", err)
 	}
+
+	cfg.fixGlobalOptions(parsedCfg.GlobalConfig)
 
 	if err := buildFeeds(parsedCfg.Feeds, []string{}, cfg.Feeds, &cfg.FeedOptions); err != nil {
 		return fmt.Errorf("while parsing: %w", err)
