@@ -22,11 +22,13 @@ type GlobalOptions struct {
 	DefaultEmail string   `yaml:"default-email"`
 	Target       string   `yaml:"target"`
 	Parts        []string `yaml:"parts"`
+	MaxFailures  int      `yaml:"max-failures"`
 }
 
 // Default global options
 var DefaultGlobalOptions = GlobalOptions{
 	Timeout:      30,
+	MaxFailures:  10,
 	DefaultEmail: username() + "@" + hostname(),
 	Target:       "",
 	Parts:        []string{"text", "html"},

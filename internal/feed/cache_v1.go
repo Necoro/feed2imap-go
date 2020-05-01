@@ -25,7 +25,7 @@ type v1Cache struct {
 type cachedFeed struct {
 	LastCheck    time.Time
 	currentCheck time.Time
-	NumFailures  uint // can't be named `Failures` b/c it'll collide with the interface
+	NumFailures  int // can't be named `Failures` b/c it'll collide with the interface
 	Items        []cachedItem
 	newItems     []cachedItem
 }
@@ -67,7 +67,7 @@ func (cf *cachedFeed) Commit() {
 	cf.LastCheck = cf.currentCheck
 }
 
-func (cf *cachedFeed) Failures() uint {
+func (cf *cachedFeed) Failures() int {
 	return cf.NumFailures
 }
 

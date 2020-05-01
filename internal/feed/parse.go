@@ -65,6 +65,10 @@ func handleFeed(feed *Feed) {
 
 	err := parseFeed(feed)
 	if err != nil {
-		log.Error(err)
+		if feed.cached.Failures() >= feed.Global.MaxFailures {
+			log.Error(err)
+		} else {
+			log.Print(err)
+		}
 	}
 }
