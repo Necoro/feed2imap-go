@@ -1,6 +1,7 @@
 package config
 
 import (
+	"errors"
 	"fmt"
 	"io"
 	"reflect"
@@ -67,6 +68,7 @@ func unmarshal(in io.Reader, cfg *Config) (config, error) {
 	parsedCfg := config{Config: cfg}
 
 	d := yaml.NewDecoder(in)
+	d.KnownFields(true)
 	if err := d.Decode(&parsedCfg); err != nil && err != io.EOF {
 		return config{}, err
 	}
@@ -81,6 +83,13 @@ func (cfg *Config) parse(in io.Reader) error {
 	)
 
 	if parsedCfg, err = unmarshal(in, cfg); err != nil {
+		var typeError *yaml.TypeError
+		if errors.As(err, &typeError) {
+			const sep = "\n\t"
+			errMsgs := strings.Join(typeError.Errors, sep)
+			return fmt.Errorf("config is invalid: %s%s", sep, errMsgs)
+		}
+
 		return fmt.Errorf("while unmarshalling: %w", err)
 	}
 

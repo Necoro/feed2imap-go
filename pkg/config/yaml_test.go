@@ -212,6 +212,8 @@ func TestUnmarshal(tst *testing.T) {
 				c.FeedOptions.MinFreq = 6
 				return c
 			}()},
+		{name: "Known config with invalid feed-options",
+			inp: "options:\n  max-frequency: 6", wantErr: true, config: config{}},
 		{name: "Config with feed",
 			inp: `
 something: 1
