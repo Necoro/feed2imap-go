@@ -76,6 +76,7 @@ func run() error {
 	state.RemoveUndue()
 
 	if state.NumFeeds() == 0 {
+		log.Print("Nothing to do, exiting.")
 		// nothing to do
 		return nil
 	}
