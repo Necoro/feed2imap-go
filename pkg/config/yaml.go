@@ -86,10 +86,10 @@ func (cfg *Config) fixGlobalOptions(unparsed Map) {
 
 	newOpts, _ := buildOptions(&cfg.FeedOptions, unparsed)
 
-	for k := range origMap {
+	for k, v := range origMap {
 		if _, ok := unparsed[k]; !ok {
 			log.Warnf("Global option '%s' should be inside the 'options' map. It currently overwrites the same key there.", k)
-		} else {
+		} else if !handleDeprecated(k, v, "", &cfg.GlobalOptions, &newOpts) {
 			log.Warnf("Unknown global option '%s'. Ignored!", k)
 		}
 	}
@@ -199,7 +199,9 @@ func buildFeeds(cfg []configGroupFeed, target []string, feeds Feeds, globalFeedO
 			opt, unknown := buildOptions(globalFeedOptions, f.Options)
 
 			for _, optName := range unknown {
-				log.Warnf("Unknown option '%s' for feed '%s'. Ignored!", optName, name)
+				if !handleDeprecated(optName, f.Options[optName], name, nil, &opt) {
+					log.Warnf("Unknown option '%s' for feed '%s'. Ignored!", optName, name)
+				}
 			}
 
 			feedCopy.Options = opt
