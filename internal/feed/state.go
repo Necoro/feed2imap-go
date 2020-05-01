@@ -82,7 +82,7 @@ func filterFeed(feed *Feed) {
 		origLen := len(feed.items)
 
 		log.Debugf("Filtering %s. Starting with %d items", feed.Name, origLen)
-		items := feed.cached.filterItems(feed.items, *feed.Options.IgnHash, *feed.Options.AlwaysNew)
+		items := feed.cached.filterItems(feed.items, feed.IgnHash, feed.AlwaysNew)
 		feed.items = items
 
 		newLen := len(feed.items)
@@ -122,7 +122,7 @@ func NewState(cfg *config.Config) *State {
 
 func (state *State) RemoveUndue() {
 	for name, feed := range state.feeds {
-		if *feed.Options.Disable || !feed.NeedsUpdate(feed.cached.Last()) {
+		if feed.Disable || !feed.NeedsUpdate(feed.cached.Last()) {
 			delete(state.feeds, name)
 		}
 	}

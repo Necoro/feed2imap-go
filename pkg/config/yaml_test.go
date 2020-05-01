@@ -1,6 +1,7 @@
 package config
 
 import (
+	"sort"
 	"strings"
 	"testing"
 
@@ -8,8 +9,6 @@ import (
 	"gopkg.in/yaml.v3"
 )
 
-func i(i int) *int   { return &i }
-func b(b bool) *bool { return &b }
 func t(s string) []string {
 	if s == "" {
 		return []string{}
@@ -19,6 +18,45 @@ func t(s string) []string {
 func n(s string) (n yaml.Node) {
 	n.SetString(s)
 	return
+}
+
+func TestBuildOptions(tst *testing.T) {
+	tests := []struct {
+		name     string
+		inp      Map
+		opts     Options
+		out      Options
+		unknowns []string
+	}{
+		{"Empty", nil, Options{}, Options{}, nil},
+		{"Simple copy", nil, Options{MinFreq: 75}, Options{MinFreq: 75}, nil},
+		{"Unknowns", Map{"foo": 1}, Options{}, Options{}, []string{"foo"}},
+		{"Override", Map{"include-images": true}, Options{InclImages: false}, Options{InclImages: true}, nil},
+		{"Mixed", Map{"min-frequency": 24}, Options{MinFreq: 6, InclImages: true}, Options{MinFreq: 24, InclImages: true}, nil},
+		{"All",
+			Map{"max-frequency": 12, "include-images": true, "ignore-hash": true, "obsolete": 54},
+			Options{MinFreq: 6, InclImages: true, IgnHash: false},
+			Options{MinFreq: 6, InclImages: true, IgnHash: true},
+			[]string{"max-frequency", "obsolete"},
+		},
+	}
+
+	for _, tt := range tests {
+		tst.Run(tt.name, func(tst *testing.T) {
+			out, unk := buildOptions(&tt.opts, tt.inp)
+
+			if diff := cmp.Diff(out, tt.out); diff != "" {
+				tst.Error(diff)
+			}
+
+			sort.Strings(unk)
+			sort.Strings(tt.unknowns)
+
+			if diff := cmp.Diff(unk, tt.unknowns); diff != "" {
+				tst.Error(diff)
+			}
+		})
+	}
 }
 
 func TestBuildFeeds(tst *testing.T) {
@@ -126,7 +164,8 @@ func TestBuildFeeds(tst *testing.T) {
 	for _, tt := range tests {
 		tst.Run(tt.name, func(tst *testing.T) {
 			var feeds = Feeds{}
-			err := buildFeeds(tt.feeds, t(tt.target), feeds)
+			var opts = Options{}
+			err := buildFeeds(tt.feeds, t(tt.target), feeds, &opts)
 			if (err != nil) != tt.wantErr {
 				tst.Errorf("buildFeeds() error = %v, wantErr %v", err, tt.wantErr)
 				return
@@ -140,9 +179,6 @@ func TestBuildFeeds(tst *testing.T) {
 
 func defaultConfig(feeds []configGroupFeed, global Map) config {
 	defCfg := WithDefault()
-	if global != nil {
-		defCfg.GlobalConfig = global
-	}
 	return config{
 		Config:       defCfg,
 		Feeds:        feeds,
@@ -150,7 +186,6 @@ func defaultConfig(feeds []configGroupFeed, global Map) config {
 	}
 }
 
-//noinspection GoNilness,GoNilness
 func TestUnmarshal(tst *testing.T) {
 	tests := []struct {
 		name    string
@@ -174,66 +209,64 @@ func TestUnmarshal(tst *testing.T) {
 			inp: "whatever: 2\ntimeout: 60\noptions:\n  min-frequency: 6", wantErr: false, config: func() config {
 				c := defaultConfig(nil, Map{"whatever": 2})
 				c.Timeout = 60
-				c.FeedOptions.MinFreq = i(6)
+				c.FeedOptions.MinFreq = 6
 				return c
 			}()},
 		{name: "Config with feed",
 			inp: `
 something: 1
 feeds:
-   - name: Foo
-     url: whatever
-     target: bar
-     include-images: true
-     unknown-option: foo
+  - name: Foo
+    url: whatever
+    target: bar
+    include-images: true
+    unknown-option: foo
 `,
 			wantErr: false,
-			config: defaultConfig([]configGroupFeed{
-				{Target: n("bar"), Feed: Feed{
+			config: defaultConfig([]configGroupFeed{{
+				Target: n("bar"),
+				Feed: Feed{
 					Name: "Foo",
 					Url:  "whatever",
-					Options: Options{
-						MinFreq:    nil,
-						InclImages: b(true),
-					},
-				}}}, Map{"something": 1})},
+				},
+				Options: Map{"include-images": true, "unknown-option": "foo"},
+			}}, Map{"something": 1})},
 
 		{name: "Feeds",
 			inp: `
 feeds:
-   - name: Foo
-     url: whatever
-     min-frequency: 2
-   - name: Shrubbery
-     url: google.de
-     target: bla
-     include-images: false
+  - name: Foo
+    url: whatever
+    min-frequency: 2
+  - name: Shrubbery
+    url: google.de
+    target: bla
+    include-images: false
 `,
 			wantErr: false,
 			config: defaultConfig([]configGroupFeed{
-				{Feed: Feed{
-					Name: "Foo",
-					Url:  "whatever",
-					Options: Options{
-						MinFreq:    i(2),
-						InclImages: nil,
+				{
+					Feed: Feed{
+						Name: "Foo",
+						Url:  "whatever",
 					},
-				}},
-				{Target: n("bla"), Feed: Feed{
-					Name: "Shrubbery",
-					Url:  "google.de",
-					Options: Options{
-						MinFreq:    nil,
-						InclImages: b(false),
+					Options: Map{"min-frequency": 2},
+				},
+				{
+					Target: n("bla"),
+					Feed: Feed{
+						Name: "Shrubbery",
+						Url:  "google.de",
 					},
-				}},
+					Options: Map{"include-images": false},
+				},
 			}, nil),
 		},
 		{name: "Empty Group",
 			inp: `
 feeds:
-   - group: Foo
-     target: bla
+  - group: Foo
+    target: bla
 `,
 			wantErr: false,
 			config:  defaultConfig([]configGroupFeed{{Target: n("bla"), Group: group{"Foo", nil}}}, nil),
@@ -241,18 +274,18 @@ feeds:
 		{name: "Feeds and Groups",
 			inp: `
 feeds:
-   - name: Foo
-     url: whatever
-   - group: G1
-     target: target
-     feeds:
-      - group: G2
-        target: ""
-        feeds: 
-         - name: F1
-           url: google.de
-      - name: F2
-      - group: G3
+  - name: Foo
+    url: whatever
+  - group: G1
+    target: target
+    feeds:
+     - group: G2
+       target: ""
+       feeds:
+        - name: F1
+          url: google.de
+     - name: F2
+     - group: G3
 `,
 			wantErr: false,
 			config: defaultConfig([]configGroupFeed{
@@ -291,8 +324,7 @@ feeds:
 			}
 
 			if err == nil {
-				diff := cmp.Diff(got, tt.config, eqNode)
-				if diff != "" {
+				if diff := cmp.Diff(got, tt.config, eqNode); diff != "" {
 					tst.Error(diff)
 				}
 			}

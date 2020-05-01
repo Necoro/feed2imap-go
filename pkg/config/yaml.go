@@ -2,8 +2,12 @@ package config
 
 import (
 	"fmt"
+	"reflect"
+	"strings"
 
 	"gopkg.in/yaml.v3"
+
+	"github.com/Necoro/feed2imap-go/pkg/log"
 )
 
 const (
@@ -14,7 +18,7 @@ const (
 
 type config struct {
 	*Config      `yaml:",inline"`
-	GlobalConfig Map `yaml:",inline"` // need to be duplicated, because the Map in Config is not filled
+	GlobalConfig Map `yaml:",inline"`
 	Feeds        []configGroupFeed
 }
 
@@ -24,9 +28,10 @@ type group struct {
 }
 
 type configGroupFeed struct {
-	Target yaml.Node
-	Feed   Feed  `yaml:",inline"`
-	Group  group `yaml:",inline"`
+	Target  yaml.Node
+	Feed    Feed  `yaml:",inline"`
+	Group   group `yaml:",inline"`
+	Options Map   `yaml:",inline"`
 }
 
 func (grpFeed *configGroupFeed) isGroup() bool {
@@ -65,12 +70,6 @@ func unmarshal(buf []byte, cfg *Config) (config, error) {
 	}
 	//fmt.Printf("--- parsedCfg:\n%+v\n\n", parsedCfg)
 
-	if parsedCfg.GlobalConfig == nil {
-		cfg.GlobalConfig = Map{}
-	} else {
-		cfg.GlobalConfig = parsedCfg.GlobalConfig // need to copy the map explicitly
-	}
-
 	return parsedCfg, nil
 }
 
@@ -84,7 +83,7 @@ func (cfg *Config) parse(buf []byte) error {
 		return fmt.Errorf("while unmarshalling: %w", err)
 	}
 
-	if err := buildFeeds(parsedCfg.Feeds, []string{}, cfg.Feeds); err != nil {
+	if err := buildFeeds(parsedCfg.Feeds, []string{}, cfg.Feeds, &cfg.FeedOptions); err != nil {
 		return fmt.Errorf("while parsing: %w", err)
 	}
 
@@ -104,8 +103,50 @@ func appTarget(target []string, app string) []string {
 	}
 }
 
+func buildOptions(globalFeedOptions *Options, options Map) (feedOptions Options, unknownFields []string) {
+	if options == nil {
+		// no options set for the feed: copy global options and be done
+		return *globalFeedOptions, unknownFields
+	}
+
+	fv := reflect.ValueOf(&feedOptions).Elem()
+	gv := reflect.ValueOf(globalFeedOptions).Elem()
+
+	n := gv.NumField()
+	for i := 0; i < n; i++ {
+		val := fv.Field(i)
+		f := fv.Type().Field(i)
+
+		if f.PkgPath != "" && !f.Anonymous {
+			continue
+		}
+
+		tag := f.Tag.Get("yaml")
+		if tag == "" {
+			continue
+		}
+
+		name := strings.Split(tag, ",")[0]
+
+		set, ok := options[name]
+		if ok { // in the map -> copy and delete
+			val.Set(reflect.ValueOf(set))
+			delete(options, name)
+		} else { // not in the map -> copy from global
+			val.Set(gv.Field(i))
+		}
+	}
+
+	// remaining fields are unknown
+	for k := range options {
+		unknownFields = append(unknownFields, k)
+	}
+
+	return feedOptions, unknownFields
+}
+
 // Fetch the group structure and populate the `targetStr` fields in the feeds
-func buildFeeds(cfg []configGroupFeed, target []string, feeds Feeds) error {
+func buildFeeds(cfg []configGroupFeed, target []string, feeds Feeds, globalFeedOptions *Options) error {
 	for _, f := range cfg {
 		target := appTarget(target, f.target())
 		switch {
@@ -118,16 +159,27 @@ func buildFeeds(cfg []configGroupFeed, target []string, feeds Feeds) error {
 			if name == "" {
 				return fmt.Errorf("Unnamed feed")
 			}
-
 			if _, ok := feeds[name]; ok {
 				return fmt.Errorf("Duplicate Feed Name '%s'", name)
 			}
+
+			opt, unknown := buildOptions(globalFeedOptions, f.Options)
+
+			for _, optName := range unknown {
+				log.Warnf("Unknown option '%s' for feed '%s'. Ignored!", optName, name)
+			}
+
+			feedCopy.Options = opt
 			feedCopy.Target = target
 			feeds[name] = &feedCopy
 
 		case f.isGroup():
-			if err := buildFeeds(f.Group.Feeds, target, feeds); err != nil {
+			if err := buildFeeds(f.Group.Feeds, target, feeds, globalFeedOptions); err != nil {
 				return err
+			}
+
+			for optName := range f.Options {
+				log.Warnf("Unknown option '%s' for group '%s'. Ignored!", optName, f.Group.Group)
 			}
 		}
 	}

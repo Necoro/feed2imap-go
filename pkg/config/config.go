@@ -34,56 +34,29 @@ var DefaultGlobalOptions = GlobalOptions{
 }
 
 // Per feed options
+// NB: Always specify a yaml name, as it is later used in processing
 type Options struct {
-	MinFreq    *int  `yaml:"min-frequency"`
-	InclImages *bool `yaml:"include-images"`
-	Disable    *bool `yaml:"disable"`
-	IgnHash    *bool `yaml:"ignore-hash"`
-	AlwaysNew  *bool `yaml:"always-new"`
-	NoTLS      *bool `yaml:"tls-no-verify"`
-}
-
-func (opt *Options) mergeFrom(other Options) {
-	if opt.MinFreq == nil {
-		opt.MinFreq = other.MinFreq
-	}
-	if opt.InclImages == nil {
-		opt.InclImages = other.InclImages
-	}
-	if opt.IgnHash == nil {
-		opt.IgnHash = other.IgnHash
-	}
-	if opt.AlwaysNew == nil {
-		opt.AlwaysNew = other.AlwaysNew
-	}
-	if opt.Disable == nil {
-		opt.Disable = other.Disable
-	}
-	if opt.NoTLS == nil {
-		opt.NoTLS = other.NoTLS
-	}
+	MinFreq    int  `yaml:"min-frequency"`
+	InclImages bool `yaml:"include-images"`
+	Disable    bool `yaml:"disable"`
+	IgnHash    bool `yaml:"ignore-hash"`
+	AlwaysNew  bool `yaml:"always-new"`
+	NoTLS      bool `yaml:"tls-no-verify"`
 }
 
 // Default feed options
-var DefaultFeedOptions Options
-
-func init() {
-	one := 1
-	fal := false
-	DefaultFeedOptions = Options{
-		MinFreq:    &one,
-		InclImages: &fal,
-		IgnHash:    &fal,
-		AlwaysNew:  &fal,
-		Disable:    &fal,
-		NoTLS:      &fal,
-	}
+var DefaultFeedOptions = Options{
+	MinFreq:    1,
+	InclImages: false,
+	IgnHash:    false,
+	AlwaysNew:  false,
+	Disable:    false,
+	NoTLS:      false,
 }
 
 // Config holds the global configuration options and the configured feeds
 type Config struct {
 	GlobalOptions `yaml:",inline"`
-	GlobalConfig  Map     `yaml:",inline"`
 	FeedOptions   Options `yaml:"options"`
 	Feeds         Feeds   `yaml:"-"`
 }
@@ -93,7 +66,6 @@ func WithDefault() *Config {
 	return &Config{
 		GlobalOptions: DefaultGlobalOptions,
 		FeedOptions:   DefaultFeedOptions,
-		GlobalConfig:  Map{},
 		Feeds:         Feeds{},
 	}
 }
@@ -140,15 +112,7 @@ func Load(path string) (*Config, error) {
 		return nil, fmt.Errorf("while parsing: %w", err)
 	}
 
-	cfg.pushFeedOptions()
-
 	return cfg, nil
-}
-
-func (cfg *Config) pushFeedOptions() {
-	for _, feed := range cfg.Feeds {
-		feed.Options.mergeFrom(cfg.FeedOptions)
-	}
 }
 
 func hostname() (hostname string) {

@@ -5,7 +5,7 @@ type Feed struct {
 	Name    string
 	Target  []string `yaml:"-"`
 	Url     string
-	Options `yaml:",inline"`
+	Options `yaml:"-"` // not parsed directly
 }
 
 // Convenience type for all feeds

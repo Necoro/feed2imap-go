@@ -53,10 +53,10 @@ func (feed *Feed) descriptor() feedDescriptor {
 }
 
 func (feed *Feed) NeedsUpdate(updateTime time.Time) bool {
-	if *feed.MinFreq == 0 { // shortcut
+	if feed.MinFreq == 0 { // shortcut
 		return true
 	}
-	if !updateTime.IsZero() && int(time.Since(updateTime).Hours()) < *feed.MinFreq {
+	if !updateTime.IsZero() && int(time.Since(updateTime).Hours()) < feed.MinFreq {
 		log.Printf("Feed '%s' does not need updating, skipping.", feed.Name)
 		return false
 	}

@@ -14,14 +14,14 @@ import (
 
 // share HTTP clients
 var (
-	stdHTTPClient *http.Client
-    unsafeHTTPClient *http.Client
+	stdHTTPClient    *http.Client
+	unsafeHTTPClient *http.Client
 )
 
 func init() {
 	// std
 	stdHTTPClient = &http.Client{Transport: http.DefaultTransport}
-	
+
 	// unsafe
 	tlsConfig := &tls.Config{InsecureSkipVerify: true}
 	transport := http.DefaultTransport.(*http.Transport).Clone()
@@ -45,7 +45,7 @@ func parseFeed(feed *Feed) error {
 	defer cancel()
 
 	fp := gofeed.NewParser()
-	fp.Client = httpClient(*feed.NoTLS)
+	fp.Client = httpClient(feed.NoTLS)
 
 	parsedFeed, err := fp.ParseURLWithContext(feed.Url, ctx)
 	if err != nil {
