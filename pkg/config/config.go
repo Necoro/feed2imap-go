@@ -2,7 +2,6 @@ package config
 
 import (
 	"fmt"
-	"io/ioutil"
 	"os"
 	"os/user"
 	"runtime"
@@ -102,13 +101,13 @@ func Version() string {
 func Load(path string) (*Config, error) {
 	log.Printf("Reading configuration file '%s'", path)
 
-	buf, err := ioutil.ReadFile(path)
+	f, err := os.Open(path)
 	if err != nil {
-		return nil, fmt.Errorf("while reading '%s': %w", path, err)
+		return nil, fmt.Errorf("while opening '%s': %w", path, err)
 	}
 
 	cfg := WithDefault()
-	if err = cfg.parse(buf); err != nil {
+	if err = cfg.parse(f); err != nil {
 		return nil, fmt.Errorf("while parsing: %w", err)
 	}
 

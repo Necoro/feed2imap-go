@@ -2,6 +2,7 @@ package config
 
 import (
 	"fmt"
+	"io"
 	"reflect"
 	"strings"
 
@@ -62,24 +63,24 @@ func (grpFeed *configGroupFeed) target() string {
 	return grpFeed.Group.Group
 }
 
-func unmarshal(buf []byte, cfg *Config) (config, error) {
+func unmarshal(in io.Reader, cfg *Config) (config, error) {
 	parsedCfg := config{Config: cfg}
 
-	if err := yaml.Unmarshal(buf, &parsedCfg); err != nil {
+	d := yaml.NewDecoder(in)
+	if err := d.Decode(&parsedCfg); err != nil && err != io.EOF {
 		return config{}, err
 	}
-	//fmt.Printf("--- parsedCfg:\n%+v\n\n", parsedCfg)
 
 	return parsedCfg, nil
 }
 
-func (cfg *Config) parse(buf []byte) error {
+func (cfg *Config) parse(in io.Reader) error {
 	var (
 		err       error
 		parsedCfg config
 	)
 
-	if parsedCfg, err = unmarshal(buf, cfg); err != nil {
+	if parsedCfg, err = unmarshal(in, cfg); err != nil {
 		return fmt.Errorf("while unmarshalling: %w", err)
 	}
 

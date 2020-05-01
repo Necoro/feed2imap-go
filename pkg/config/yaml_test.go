@@ -316,8 +316,9 @@ feeds:
 
 	for _, tt := range tests {
 		tst.Run(tt.name, func(tst *testing.T) {
-			var buf = []byte(tt.inp)
-			got, err := unmarshal(buf, WithDefault())
+			in := strings.NewReader(tt.inp)
+
+			got, err := unmarshal(in, WithDefault())
 			if (err != nil) != tt.wantErr {
 				tst.Errorf("parse() error = %v, wantErr %v", err, tt.wantErr)
 				return
