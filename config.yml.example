@@ -1,0 +1,118 @@
+# Example configuration. Each configuration option presented shows its default, so sensible.
+
+## Target
+# The IMAP URI where to put emails, including credentials. Should start with imap:// for IMAP and imaps:// for IMAPS.
+# URI must be properly escaped, thus '@' as part of the user must be written as %40.
+# NB: This also applies for the password!
+# Format: scheme://user:password@host/PATH
+# Host can include a port; PATH denotes the root of the hierarchy for all feeds. Probably should start with INBOX.
+# Allowed delimiters in PATH are '/' -- they will be replaced by the correct delimiter. If you know yours, you can
+# also use that.
+target: imap://test%40example.com:passw0rd@mail.example.com:143/INBOX/Feeds
+
+## Global Options
+# Timeout in seconds for fetching feeds.
+timeout: 30
+# Maximum number of failures allowed before they are reported in normal mode.
+# By default, failures are only visible in verbose mode. Most feeds tend to suffer from temporary failures.
+max-failures:  10,
+# Parts to generate in the resulting emails.
+# Valid parts are "text" and "html"
+parts: ["text", "html"]
+# Email-Address to use in 'From' and 'To' when not specified in feed.
+# Default uses 'current user'@hostname
+default-email: username@hostname
+
+## Per-Feed Options
+# Defaults for options per feed, overridable in each feed
+# NB: For compatibility with old feed2imap, options existing in feed2imap can also be specified at the toplevel,
+# i.e. not beneath 'options'. Triggers a warning though :)
+options:
+  # Frequency in hours for checking.
+  min-frequency: 1
+  # Include images referenced in the item per URL in the mail.
+  # For instance, when a feed item includes <img src="https://some.example/foo.png">, this image is fetched
+  # and included in the mail.
+  include-images: true
+  # By default, images are added as an additional part to the email and referred to in the HTML part.
+  # If you, for some reason, prefer the images to be directly encoded in the HTML part, set this option to true.
+  # Without function when `include-images` is false.
+  embed-images: false
+  # Specify what type of a feed item determines the message's body.
+  # Values:
+  #  - default: default heuristics
+  #  - content: Use the 'content' tag
+  #  - description: Use the 'description' tag
+  #  - both: Use both
+  body: default
+  # Disable a feed. Beats commenting ;)
+  disable: false
+  # Disable certificate verification for HTTPS connections.
+  # This is sometimes needed, when a site delivers broken certificate (chains).
+  tls-no-verify: false
+  # Some feeds change the content of their items all the time, so we detect that they have been updated at each run.
+  # When this option is enabled, the content of an item is ignored when determining whether this item is already known.
+  ignore-hash: false
+  # We employ a clever algorithm to determine whether an item is new or has been updated. This does not always work
+  # perfectly. When this flag is enabled, all items which don't match exactly any previously downloaded item are
+  # considered as new items.
+  always-new: false
+
+## Feeds
+# Each feed must have a name and a URL. The name must be unique.
+# The name also determines the folder to use for that feed, which can be overwritten with an explicit target.
+# Groups can be used to build a hierarchy, with arbitrary nesting.
+feeds:
+  - name: XKCD
+    url: http://xkcd.com/rss.xml
+    # specify any per feed option to overwrite it for this feed
+    min-frequency: 12
+  # Groups can be used for, well, grouping.
+  - group: Linux
+    feeds:
+      - name: Arch Linux
+        # Use `target` to specify the folder name.
+        # Together with the group folder this now spells 'Linux/Arch'.
+        # Considering the global `target` the final folder will be:
+        #  INBOX/Feeds/Linux/Arch
+        target: Arch
+        url: https://www.archlinux.org/feeds/news/
+        # Groups can be nested...
+      - group: Gentoo
+        # and also specify a target (which is superfluous here, because it is identical to the group name)
+        target: Gentoo
+        feeds:
+            - name: Planet Gentoo
+              # An empty target omits the creation of a folder for this feed and uses the one from the level above.
+              # Thus "Planet Gentoo" and "Gentoo News" will finally reside in 'Linux/Gentoo'
+              target:
+              url: https://planet.gentoo.org/atom.xml
+              min-frequency: 24
+            - name: Gentoo News
+              target:
+              url: https://gentoo.org/feeds/news.xml
+              min-frequency: 24
+  - group: News
+    feeds:
+      - name: Heise
+        url: http://www.heise.de/newsticker/heise-atom.xml
+        ignore-hash: true
+      - name: Spiegel
+        url: http://www.spiegel.de/schlagzeilen/index.rss
+      - group: Süddeutsche
+        target: SZ
+        feeds:
+          - name: Bayern
+            url: http://rssfeed.sueddeutsche.de/c/795/f/448243/index.rss
+            target:
+          - name: München
+            url: http://rssfeed.sueddeutsche.de/c/795/f/448324/index.rss
+            target:
+      - group: ZEIT Online
+        target: Zeit
+        feeds:
+          - name: Digital
+            url: http://newsfeed.zeit.de/digital/index
+            target:
+
+# vim: ft=yaml:sts=2:expandtab
