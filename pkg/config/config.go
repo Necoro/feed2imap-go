@@ -29,7 +29,7 @@ type GlobalOptions struct {
 var DefaultGlobalOptions = GlobalOptions{
 	Timeout:      30,
 	MaxFailures:  10,
-	DefaultEmail: username() + "@" + hostname(),
+	DefaultEmail: username() + "@" + Hostname(),
 	Target:       "",
 	Parts:        []string{"text", "html"},
 }
@@ -120,7 +120,8 @@ func Load(path string) (*Config, error) {
 	return cfg, nil
 }
 
-func hostname() (hostname string) {
+// Hostname returns the current hostname, or 'localhost' if it cannot be determined
+func Hostname() (hostname string) {
 	hostname, err := os.Hostname()
 	if err != nil {
 		hostname = "localhost"

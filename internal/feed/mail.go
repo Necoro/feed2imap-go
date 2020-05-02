@@ -49,8 +49,9 @@ func buildHeader(feed *Feed, item feeditem, cfg *config.Config) message.Header {
 	h.SetContentType("multipart/alternative", nil)
 	h.SetAddressList("From", fromAdress(feed, item, cfg))
 	h.SetAddressList("To", address(feed.Name, cfg.DefaultEmail))
-	h.Add("X-Feed2Imap-Version", config.Version())
-	h.Add("X-Feed2Imap-Reason", strings.Join(item.reasons, ","))
+	h.Set("X-Feed2Imap-Version", config.Version())
+	h.Set("X-Feed2Imap-Reason", strings.Join(item.reasons, ","))
+	h.Set("Message-Id", feed.messageId(item))
 
 	{ // date
 		date := item.Item.PublishedParsed
@@ -225,6 +226,10 @@ func getBody(content, description string, bodyCfg config.Body) string {
 	default:
 		panic(fmt.Sprintf("Unknown value for Body: %v", bodyCfg))
 	}
+}
+
+func (feed *Feed) messageId(item feeditem) string {
+	return fmt.Sprintf("<feed#%s#%s@%s>", feed.cached.ID(), item.itemId, config.Hostname())
 }
 
 func (feed *Feed) buildBody(item *feeditem) {

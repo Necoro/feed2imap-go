@@ -3,7 +3,10 @@ package feed
 import (
 	"crypto/sha256"
 	"fmt"
+	"strconv"
 	"time"
+
+	"github.com/lithammer/shortuuid"
 
 	"github.com/Necoro/feed2imap-go/pkg/log"
 	"github.com/Necoro/feed2imap-go/pkg/util"
@@ -16,6 +19,10 @@ const (
 
 type feedId uint64
 
+func (id feedId) String() string {
+	return strconv.FormatUint(uint64(id), 16)
+}
+
 type v1Cache struct {
 	Ids    map[feedDescriptor]feedId
 	NextId uint64
@@ -23,6 +30,7 @@ type v1Cache struct {
 }
 
 type cachedFeed struct {
+	id           feedId // not saved, has to be set on loading
 	LastCheck    time.Time
 	currentCheck time.Time
 	NumFailures  int // can't be named `Failures` b/c it'll collide with the interface
@@ -40,6 +48,7 @@ type cachedItem struct {
 	UpdatedDate   time.Time
 	UpdatedCache  time.Time
 	Hash          itemHash
+	ID            string
 }
 
 func (item cachedItem) String() string {
@@ -75,6 +84,10 @@ func (cf *cachedFeed) Last() time.Time {
 	return cf.LastCheck
 }
 
+func (cf *cachedFeed) ID() string {
+	return cf.id.String()
+}
+
 func (cache *v1Cache) Version() Version {
 	return v1Version
 }
@@ -98,6 +111,7 @@ func (cache *v1Cache) getItem(id feedId) CachedFeed {
 		feed = &cachedFeed{}
 		cache.Feeds[id] = feed
 	}
+	feed.id = id
 	return feed
 }
 
@@ -141,6 +155,8 @@ func (cache *v1Cache) findItem(feed *Feed) CachedFeed {
 
 func newCachedItem(item feeditem) cachedItem {
 	var ci cachedItem
+
+	ci.ID = shortuuid.New()
 
 	ci.Title = item.Item.Title
 	ci.Link = item.Item.Link
@@ -192,6 +208,7 @@ func (cf *cachedFeed) filterItems(items []feeditem, ignoreHash, alwaysNew bool) 
 		}
 		filtered = append(filtered, *item)
 		cacheadd = append(cacheadd, ci)
+		item.itemId = ci.ID
 	}
 
 CACHE_ITEMS:
@@ -211,6 +228,7 @@ CACHE_ITEMS:
 					log.Debugf("Guid matches with: %s", oldItem)
 					if !oldItem.similarTo(&ci, ignoreHash) {
 						item.addReason("guid (upd)")
+						ci.ID = oldItem.ID
 						app(item, ci, &idx)
 					} else {
 						log.Debugf("Similar, ignoring")
@@ -240,6 +258,7 @@ CACHE_ITEMS:
 				}
 				log.Debugf("Link matches, updating: %s", oldItem)
 				item.addReason("link (upd)")
+				ci.ID = oldItem.ID
 				app(item, ci, &idx)
 
 				continue CACHE_ITEMS

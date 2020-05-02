@@ -35,6 +35,7 @@ type feeditem struct {
 	updateOnly bool
 	reasons    []string
 	images     []feedImage
+	itemId     string
 }
 
 // Creator returns the name of the creating author.
