@@ -31,6 +31,7 @@ for details.
 (feature contained also in [fork of the original][nec]) 
 * Fix `include-images` option: It now includes images as mime-parts. An additional `embed-images` option serves the images 
 as inline base64-encoded data (the old default behavior of feed2imap).
+* Improved image inclusion: Links without scheme; images without extension (using mime-detection)
 * Use HTML-Parser instead of regular expressions for modifying the HTML content.
 
 ### Subtle differences

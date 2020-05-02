@@ -14,6 +14,7 @@ import (
 	"github.com/PuerkitoBio/goquery"
 	"github.com/emersion/go-message"
 	"github.com/emersion/go-message/mail"
+	"github.com/gabriel-vasile/mimetype"
 
 	"github.com/Necoro/feed2imap-go/internal/feed/template"
 	"github.com/Necoro/feed2imap-go/pkg/config"
@@ -177,6 +178,10 @@ func (feed *Feed) ToMails(cfg *config.Config) ([]string, error) {
 }
 
 func getImage(src string) ([]byte, string) {
+	if strings.HasPrefix(src, "//") {
+		src = "https:" + src
+	}
+
 	resp, err := stdHTTPClient.Get(src)
 	if err != nil {
 		log.Errorf("Error fetching from '%s': %s", src, err)
@@ -190,14 +195,14 @@ func getImage(src string) ([]byte, string) {
 		return nil, ""
 	}
 
+	var mimeStr string
 	ext := path.Ext(src)
 	if ext == "" {
-		log.Warnf("Cannot determine extension from '%s', skipping.", src)
-		return nil, ""
+		mimeStr = mimetype.Detect(img).String()
+	} else {
+		mimeStr = mime.TypeByExtension(ext)
 	}
-
-	mime := mime.TypeByExtension(ext)
-	return img, mime
+	return img, mimeStr
 }
 
 func cidNr(idx int) string {
