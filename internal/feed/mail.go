@@ -25,7 +25,7 @@ func address(name, address string) []*mail.Address {
 	return []*mail.Address{{Name: name, Address: address}}
 }
 
-func (item *item) fromAdress() []*mail.Address {
+func (item *item) fromAddress() []*mail.Address {
 	switch {
 	case item.Item.Author != nil && item.Item.Author.Email != "":
 		return address(item.Item.Author.Name, item.Item.Author.Email)
@@ -51,7 +51,7 @@ func (item *item) writeHtml(writer io.Writer) error {
 func (item *item) buildHeader() message.Header {
 	var h mail.Header
 	h.SetContentType("multipart/alternative", nil)
-	h.SetAddressList("From", item.fromAdress())
+	h.SetAddressList("From", item.fromAddress())
 	h.SetAddressList("To", item.toAddress())
 	h.Set("X-Feed2Imap-Version", config.Version())
 	h.Set("X-Feed2Imap-Reason", strings.Join(item.reasons, ","))
