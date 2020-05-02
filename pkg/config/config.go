@@ -43,6 +43,7 @@ type Options struct {
 	Disable     bool `yaml:"disable"`
 	IgnHash     bool `yaml:"ignore-hash"`
 	AlwaysNew   bool `yaml:"always-new"`
+	Reupload    bool `yaml:"reupload-if-updated"`
 	NoTLS       bool `yaml:"tls-no-verify"`
 	Body        Body `yaml:"body"`
 }

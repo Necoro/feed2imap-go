@@ -57,6 +57,9 @@ options:
   # perfectly. When this flag is enabled, all items which don't match exactly any previously downloaded item are
   # considered as new items.
   always-new: false
+  # If an item is updated, but has been deleted on the server already, it is re-uploaded when this option is true.
+  # Else it is ignored.
+  reupload-if-updated: false
 
 ## Feeds
 # Each feed must have a name and a URL. The name must be unique.
