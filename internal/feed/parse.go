@@ -7,7 +7,7 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/lithammer/shortuuid"
+	"github.com/google/uuid"
 	"github.com/mmcdole/gofeed"
 
 	"github.com/Necoro/feed2imap-go/pkg/log"
@@ -56,7 +56,7 @@ func (feed *Feed) parse() error {
 	feed.feed = parsedFeed
 	feed.items = make([]item, len(parsedFeed.Items))
 	for idx, feedItem := range parsedFeed.Items {
-		feed.items[idx] = item{Feed: parsedFeed, Item: feedItem, itemId: shortuuid.New(), feed: feed}
+		feed.items[idx] = item{Feed: parsedFeed, Item: feedItem, itemId: uuid.New(), feed: feed}
 	}
 	return nil
 }

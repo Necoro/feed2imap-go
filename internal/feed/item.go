@@ -1,8 +1,10 @@
 package feed
 
 import (
+	"encoding/base64"
 	"fmt"
 
+	"github.com/google/uuid"
 	"github.com/mmcdole/gofeed"
 
 	"github.com/Necoro/feed2imap-go/pkg/config"
@@ -22,7 +24,7 @@ type item struct {
 	updateOnly bool
 	reasons    []string
 	images     []feedImage
-	itemId     string
+	itemId     uuid.UUID
 }
 
 // Creator returns the name of the creating author.
@@ -54,6 +56,11 @@ func (item *item) defaultEmail() string {
 	return item.feed.Global.DefaultEmail
 }
 
+func (item *item) id() string {
+	idStr := base64.RawURLEncoding.EncodeToString(item.itemId[:])
+	return item.feed.cached.ID() + "#" + idStr
+}
+
 func (item *item) messageId() string {
-	return fmt.Sprintf("<feed#%s#%s@%s>", item.feed.cached.ID(), item.itemId, config.Hostname())
+	return fmt.Sprintf("<feed#%s@%s>", item.id(), config.Hostname())
 }

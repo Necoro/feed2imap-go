@@ -55,6 +55,7 @@ func (item *item) buildHeader() message.Header {
 	h.SetAddressList("To", item.toAddress())
 	h.Set("X-Feed2Imap-Version", config.Version())
 	h.Set("X-Feed2Imap-Reason", strings.Join(item.reasons, ","))
+	h.Set("X-Feed2Imap-Item", item.id())
 	h.Set("Message-Id", item.messageId())
 
 	{ // date

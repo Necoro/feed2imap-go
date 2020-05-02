@@ -6,6 +6,8 @@ import (
 	"strconv"
 	"time"
 
+	"github.com/google/uuid"
+
 	"github.com/Necoro/feed2imap-go/pkg/log"
 	"github.com/Necoro/feed2imap-go/pkg/util"
 )
@@ -46,7 +48,7 @@ type cachedItem struct {
 	UpdatedDate   time.Time
 	UpdatedCache  time.Time
 	Hash          itemHash
-	ID            string
+	ID            uuid.UUID
 }
 
 func (item cachedItem) String() string {
