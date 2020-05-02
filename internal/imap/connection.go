@@ -130,10 +130,12 @@ func (conn *connection) ensureFolder(folder Folder) error {
 
 func (conn *connection) delete(uids []uint32) error {
 	storeItem := imap.FormatFlagsOp(imap.AddFlags, true)
+	deleteFlag := []interface{}{imap.DeletedFlag}
+
 	seqSet := new(imap.SeqSet)
 	seqSet.AddNum(uids...)
 
-	if err := conn.c.UidStore(seqSet, storeItem, imap.DeletedFlag, nil); err != nil {
+	if err := conn.c.UidStore(seqSet, storeItem, deleteFlag, nil); err != nil {
 		return fmt.Errorf("marking as deleted: %w", err)
 	}
 
@@ -189,11 +191,19 @@ func (conn *connection) replace(folder Folder, header, value, newContent string,
 		return err
 	}
 
+	// filter \Seen --> updating should be noted :)
+	filteredFlags := make([]string, 0, len(flags))
+	for _, f := range flags {
+		if f != imap.SeenFlag && f != imap.RecentFlag {
+			filteredFlags = append(filteredFlags, f)
+		}
+	}
+
 	if err = conn.delete(msgIds); err != nil {
 		return err
 	}
 
-	if err = conn.append(folder, flags, newContent); err != nil {
+	if err = conn.append(folder, filteredFlags, newContent); err != nil {
 		return err
 	}
 
