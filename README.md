@@ -12,6 +12,8 @@ It also includes the features that up to now only lived on [my own branch][nec].
 It aims to be compatible in functionality and configuration, and should mostly work as a drop-in replacement 
 (but see [Changes](#changes)).
 
+An example configuration can be found [here](config.yml.example).
+
 ## Features
 
 * Support for most feed formats. See [gofeed documentation](https://github.com/mmcdole/gofeed/blob/master/README.md#features) 

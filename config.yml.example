@@ -15,7 +15,7 @@ target: imap://test%40example.com:passw0rd@mail.example.com:143/INBOX/Feeds
 timeout: 30
 # Maximum number of failures allowed before they are reported in normal mode.
 # By default, failures are only visible in verbose mode. Most feeds tend to suffer from temporary failures.
-max-failures:  10,
+max-failures:  10
 # Parts to generate in the resulting emails.
 # Valid parts are "text" and "html"
 parts: ["text", "html"]
