@@ -128,16 +128,117 @@ func (conn *connection) ensureFolder(folder Folder) error {
 	}
 }
 
+func (conn *connection) delete(uids []uint32) error {
+	storeItem := imap.FormatFlagsOp(imap.AddFlags, true)
+	seqSet := new(imap.SeqSet)
+	seqSet.AddNum(uids...)
+
+	if err := conn.c.UidStore(seqSet, storeItem, imap.DeletedFlag, nil); err != nil {
+		return fmt.Errorf("marking as deleted: %w", err)
+	}
+
+	if err := conn.c.Expunge(nil); err != nil {
+		return fmt.Errorf("expunging: %w", err)
+	}
+
+	return nil
+}
+
+func (conn *connection) fetchFlags(uid uint32) ([]string, error) {
+	fetchItem := []imap.FetchItem{imap.FetchFlags}
+
+	seqSet := new(imap.SeqSet)
+	seqSet.AddNum(uid)
+
+	messages := make(chan *imap.Message, 1)
+	done := make(chan error, 1)
+	go func() {
+		done <- conn.c.UidFetch(seqSet, fetchItem, messages)
+	}()
+
+	msg := <-messages
+	err := <-done
+
+	if err != nil {
+		return nil, fmt.Errorf("fetching flags: %w", err)
+	}
+	return msg.Flags, nil
+}
+
+func (conn *connection) replace(folder Folder, header, value, newContent string, force bool) error {
+	var err error
+	var msgIds []uint32
+
+	if err = conn.selectFolder(folder); err != nil {
+		return err
+	}
+
+	if msgIds, err = conn.searchHeader(header, value); err != nil {
+		return err
+	}
+
+	if len(msgIds) == 0 {
+		if force {
+			return conn.append(folder, nil, newContent)
+		}
+		return nil // nothing to do
+	}
+
+	var flags []string
+	if flags, err = conn.fetchFlags(msgIds[0]); err != nil {
+		return err
+	}
+
+	if err = conn.delete(msgIds); err != nil {
+		return err
+	}
+
+	if err = conn.append(folder, flags, newContent); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (conn *connection) searchHeader(header, value string) ([]uint32, error) {
+	criteria := imap.NewSearchCriteria()
+	criteria.Header.Set(header, value)
+	ids, err := conn.search(criteria)
+	if err != nil {
+		return nil, fmt.Errorf("searching for header %q=%q: %w", header, value, err)
+	}
+	return ids, nil
+}
+
+func (conn *connection) search(criteria *imap.SearchCriteria) ([]uint32, error) {
+	return conn.c.UidSearch(criteria)
+}
+
+func (conn *connection) selectFolder(folder Folder) error {
+	if _, err := conn.c.Select(folder.str, false); err != nil {
+		return fmt.Errorf("selecting folder %s: %w", folder, err)
+	}
+
+	return nil
+}
+
+func (conn *connection) append(folder Folder, flags []string, msg string) error {
+	reader := strings.NewReader(msg)
+	if err := conn.c.Append(folder.str, flags, time.Now(), reader); err != nil {
+		return fmt.Errorf("uploading message to %s: %w", folder, err)
+	}
+
+	return nil
+}
+
 func (conn *connection) putMessages(folder Folder, messages []string) error {
 	if len(messages) == 0 {
 		return nil
 	}
 
-	now := time.Now()
 	for _, msg := range messages {
-		reader := strings.NewReader(msg)
-		if err := conn.c.Append(folder.str, nil, now, reader); err != nil {
-			return fmt.Errorf("uploading message to %s: %w", folder, err)
+		if err := conn.append(folder, nil, msg); err != nil {
+			return err
 		}
 	}
 

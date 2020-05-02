@@ -20,13 +20,13 @@ var dryRun = flag.Bool("dry-run", false, "do everything short of uploading and w
 var buildCache = flag.Bool("build-cache", false, "only (re)build the cache; useful after migration or when the cache is lost or corrupted")
 
 func processFeed(feed *feed.Feed, client *imap.Client, dryRun bool) {
-	mails, err := feed.ToMails()
+	msgs, err := feed.Messages()
 	if err != nil {
 		log.Errorf("Processing items of feed %s: %s", feed.Name, err)
 		return
 	}
 
-	if dryRun || len(mails) == 0 {
+	if dryRun || len(msgs) == 0 {
 		feed.MarkSuccess()
 		return
 	}
@@ -37,12 +37,12 @@ func processFeed(feed *feed.Feed, client *imap.Client, dryRun bool) {
 		return
 	}
 
-	if err = client.PutMessages(folder, mails); err != nil {
+	if err = msgs.Upload(client, folder, feed.Reupload); err != nil {
 		log.Errorf("Uploading messages of feed %s: %s", feed.Name, err)
 		return
 	}
 
-	log.Printf("Uploaded %d messages to '%s' @ %s", len(mails), feed.Name, folder)
+	log.Printf("Uploaded %d messages to '%s' @ %s", len(msgs), feed.Name, folder)
 
 	feed.MarkSuccess()
 }

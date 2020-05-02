@@ -17,6 +17,7 @@ import (
 	"github.com/gabriel-vasile/mimetype"
 
 	"github.com/Necoro/feed2imap-go/internal/feed/template"
+	"github.com/Necoro/feed2imap-go/internal/msg"
 	"github.com/Necoro/feed2imap-go/pkg/config"
 	"github.com/Necoro/feed2imap-go/pkg/log"
 )
@@ -53,9 +54,9 @@ func (item *item) buildHeader() message.Header {
 	h.SetContentType("multipart/alternative", nil)
 	h.SetAddressList("From", item.fromAddress())
 	h.SetAddressList("To", item.toAddress())
-	h.Set("X-Feed2Imap-Version", config.Version())
-	h.Set("X-Feed2Imap-Reason", strings.Join(item.reasons, ","))
-	h.Set("X-Feed2Imap-Item", item.id())
+	h.Set(msg.VersionHeader, config.Version())
+	h.Set(msg.ReasonHeader, strings.Join(item.reasons, ","))
+	h.Set(msg.IdHeader, item.id())
 	h.Set("Message-Id", item.messageId())
 
 	{ // date
@@ -160,23 +161,29 @@ func (item *item) writeToBuffer(b *bytes.Buffer) error {
 	return nil
 }
 
-func (item *item) asMail() (string, error) {
+func (item *item) message() (msg.Message, error) {
 	var b bytes.Buffer
 
 	if err := item.writeToBuffer(&b); err != nil {
-		return "", err
+		return msg.Message{}, err
 	}
 
-	return b.String(), nil
+	msg := msg.Message{
+		Content:  b.String(),
+		IsUpdate: item.updateOnly,
+		ID:       item.id(),
+	}
+
+	return msg, nil
 }
 
-func (feed *Feed) ToMails() ([]string, error) {
+func (feed *Feed) Messages() (msg.Messages, error) {
 	var (
 		err   error
-		mails = make([]string, len(feed.items))
+		mails = make([]msg.Message, len(feed.items))
 	)
 	for idx := range feed.items {
-		if mails[idx], err = feed.items[idx].asMail(); err != nil {
+		if mails[idx], err = feed.items[idx].message(); err != nil {
 			return nil, fmt.Errorf("creating mails for %s: %w", feed.Name, err)
 		}
 	}
