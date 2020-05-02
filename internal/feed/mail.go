@@ -25,33 +25,37 @@ func address(name, address string) []*mail.Address {
 	return []*mail.Address{{Name: name, Address: address}}
 }
 
-func fromAdress(feed *Feed, item feeditem, cfg *config.Config) []*mail.Address {
+func (item *item) fromAdress() []*mail.Address {
 	switch {
 	case item.Item.Author != nil && item.Item.Author.Email != "":
 		return address(item.Item.Author.Name, item.Item.Author.Email)
 	case item.Item.Author != nil && item.Item.Author.Name != "":
-		return address(item.Item.Author.Name, cfg.DefaultEmail)
+		return address(item.Item.Author.Name, item.defaultEmail())
 	case item.Feed.Author != nil && item.Feed.Author.Email != "":
 		return address(item.Feed.Author.Name, item.Feed.Author.Email)
 	case item.Feed.Author != nil && item.Feed.Author.Name != "":
-		return address(item.Feed.Author.Name, cfg.DefaultEmail)
+		return address(item.Feed.Author.Name, item.defaultEmail())
 	default:
-		return address(feed.Name, cfg.DefaultEmail)
+		return address(item.feed.Name, item.defaultEmail())
 	}
 }
 
-func writeHtml(writer io.Writer, item feeditem) error {
+func (item *item) toAddress() []*mail.Address {
+	return address(item.feed.Name, item.defaultEmail())
+}
+
+func (item *item) writeHtml(writer io.Writer) error {
 	return template.Feed.Execute(writer, item)
 }
 
-func buildHeader(feed *Feed, item feeditem, cfg *config.Config) message.Header {
+func (item *item) buildHeader() message.Header {
 	var h mail.Header
 	h.SetContentType("multipart/alternative", nil)
-	h.SetAddressList("From", fromAdress(feed, item, cfg))
-	h.SetAddressList("To", address(feed.Name, cfg.DefaultEmail))
+	h.SetAddressList("From", item.fromAdress())
+	h.SetAddressList("To", item.toAddress())
 	h.Set("X-Feed2Imap-Version", config.Version())
 	h.Set("X-Feed2Imap-Reason", strings.Join(item.reasons, ","))
-	h.Set("Message-Id", feed.messageId(item))
+	h.Set("Message-Id", item.messageId())
 
 	{ // date
 		date := item.Item.PublishedParsed
@@ -75,7 +79,7 @@ func buildHeader(feed *Feed, item feeditem, cfg *config.Config) message.Header {
 	return h.Header
 }
 
-func writeHtmlPart(w *message.Writer, item feeditem) error {
+func (item *item) writeHtmlPart(w *message.Writer) error {
 	var ih message.Header
 	ih.SetContentType("text/html", map[string]string{"charset": "utf-8"})
 	ih.SetContentDisposition("inline", nil)
@@ -87,14 +91,14 @@ func writeHtmlPart(w *message.Writer, item feeditem) error {
 	}
 	defer partW.Close()
 
-	if err = writeHtml(w, item); err != nil {
+	if err = item.writeHtml(w); err != nil {
 		return fmt.Errorf("writing html part: %w", err)
 	}
 
 	return nil
 }
 
-func writeImagePart(w *message.Writer, img feedImage, cid string) error {
+func (img *feedImage) writeImagePart(w *message.Writer, cid string) error {
 	var ih message.Header
 	ih.SetContentType(img.mime, nil)
 	ih.SetContentDisposition("inline", nil)
@@ -114,8 +118,8 @@ func writeImagePart(w *message.Writer, img feedImage, cid string) error {
 	return nil
 }
 
-func writeToBuffer(b *bytes.Buffer, feed *Feed, item feeditem, cfg *config.Config) error {
-	h := buildHeader(feed, item, cfg)
+func (item *item) writeToBuffer(b *bytes.Buffer) error {
+	h := item.buildHeader()
 
 	writer, err := message.CreateWriter(b, h)
 	if err != nil {
@@ -123,8 +127,8 @@ func writeToBuffer(b *bytes.Buffer, feed *Feed, item feeditem, cfg *config.Confi
 	}
 	defer writer.Close()
 
-	if cfg.WithPartHtml() {
-		feed.buildBody(&item)
+	if item.feed.Global.WithPartHtml() {
+		item.buildBody()
 
 		var relWriter *message.Writer
 		if len(item.images) > 0 {
@@ -138,13 +142,13 @@ func writeToBuffer(b *bytes.Buffer, feed *Feed, item feeditem, cfg *config.Confi
 			relWriter = writer
 		}
 
-		if err = writeHtmlPart(relWriter, item); err != nil {
+		if err = item.writeHtmlPart(relWriter); err != nil {
 			return err
 		}
 
 		for idx, img := range item.images {
 			cid := cidNr(idx + 1)
-			if err = writeImagePart(relWriter, img, cid); err != nil {
+			if err = img.writeImagePart(relWriter, cid); err != nil {
 				return err
 			}
 		}
@@ -155,23 +159,23 @@ func writeToBuffer(b *bytes.Buffer, feed *Feed, item feeditem, cfg *config.Confi
 	return nil
 }
 
-func asMail(feed *Feed, item feeditem, cfg *config.Config) (string, error) {
+func (item *item) asMail() (string, error) {
 	var b bytes.Buffer
 
-	if err := writeToBuffer(&b, feed, item, cfg); err != nil {
+	if err := item.writeToBuffer(&b); err != nil {
 		return "", err
 	}
 
 	return b.String(), nil
 }
 
-func (feed *Feed) ToMails(cfg *config.Config) ([]string, error) {
+func (feed *Feed) ToMails() ([]string, error) {
 	var (
 		err   error
 		mails = make([]string, len(feed.items))
 	)
 	for idx := range feed.items {
-		if mails[idx], err = asMail(feed, feed.items[idx], cfg); err != nil {
+		if mails[idx], err = feed.items[idx].asMail(); err != nil {
 			return nil, fmt.Errorf("creating mails for %s: %w", feed.Name, err)
 		}
 	}
@@ -228,11 +232,8 @@ func getBody(content, description string, bodyCfg config.Body) string {
 	}
 }
 
-func (feed *Feed) messageId(item feeditem) string {
-	return fmt.Sprintf("<feed#%s#%s@%s>", feed.cached.ID(), item.itemId, config.Hostname())
-}
-
-func (feed *Feed) buildBody(item *feeditem) {
+func (item *item) buildBody() {
+	feed := item.feed
 	body := getBody(item.Item.Content, item.Item.Description, feed.Body)
 
 	if !feed.InclImages {

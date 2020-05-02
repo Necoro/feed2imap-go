@@ -7,13 +7,12 @@ import (
 
 	"github.com/Necoro/feed2imap-go/pkg/config"
 	"github.com/Necoro/feed2imap-go/pkg/log"
-	"github.com/Necoro/feed2imap-go/pkg/util"
 )
 
 type Feed struct {
 	*config.Feed
 	feed   *gofeed.Feed
-	items  []feeditem
+	items  []item
 	cached CachedFeed
 	Global config.GlobalOptions
 }
@@ -21,46 +20,6 @@ type Feed struct {
 type feedDescriptor struct {
 	Name string
 	Url  string
-}
-
-type feedImage struct {
-	image []byte
-	mime  string
-}
-
-type feeditem struct {
-	*gofeed.Feed
-	*gofeed.Item
-	Body       string
-	updateOnly bool
-	reasons    []string
-	images     []feedImage
-	itemId     string
-}
-
-// Creator returns the name of the creating author.
-// MUST NOT have `*feeditem` has the receiver, because the template breaks then.
-func (item feeditem) Creator() string {
-	if item.Item.Author != nil {
-		return item.Item.Author.Name
-	}
-	return ""
-}
-
-func (item *feeditem) addReason(reason string) {
-	if !util.StrContains(item.reasons, reason) {
-		item.reasons = append(item.reasons, reason)
-	}
-}
-
-func (item *feeditem) addImage(img []byte, mime string) int {
-	i := feedImage{img, mime}
-	item.images = append(item.images, i)
-	return len(item.images)
-}
-
-func (item *feeditem) clearImages() {
-	item.images = []feedImage{}
 }
 
 func (feed *Feed) descriptor() feedDescriptor {

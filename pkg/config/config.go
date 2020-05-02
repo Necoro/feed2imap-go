@@ -85,13 +85,13 @@ func (cfg *Config) Validate() error {
 }
 
 // Marks whether 'text' part should be included in mails
-func (cfg *Config) WithPartText() bool {
-	return util.StrContains(cfg.Parts, "text")
+func (opt GlobalOptions) WithPartText() bool {
+	return util.StrContains(opt.Parts, "text")
 }
 
 // Marks whether 'html' part should be included in mails
-func (cfg *Config) WithPartHtml() bool {
-	return util.StrContains(cfg.Parts, "html")
+func (opt GlobalOptions) WithPartHtml() bool {
+	return util.StrContains(opt.Parts, "html")
 }
 
 // Current feed2imap version

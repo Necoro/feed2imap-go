@@ -19,8 +19,8 @@ var debug = flag.Bool("d", false, "enable debug output")
 var dryRun = flag.Bool("dry-run", false, "do everything short of uploading and writing the cache")
 var buildCache = flag.Bool("build-cache", false, "only (re)build the cache; useful after migration or when the cache is lost or corrupted")
 
-func processFeed(feed *feed.Feed, cfg *config.Config, client *imap.Client, dryRun bool) {
-	mails, err := feed.ToMails(cfg)
+func processFeed(feed *feed.Feed, client *imap.Client, dryRun bool) {
+	mails, err := feed.ToMails()
 	if err != nil {
 		log.Errorf("Processing items of feed %s: %s", feed.Name, err)
 		return
@@ -103,7 +103,7 @@ func run() error {
 
 	if !*buildCache {
 		state.ForeachGo(func(f *feed.Feed) {
-			processFeed(f, cfg, c, *dryRun)
+			processFeed(f, c, *dryRun)
 		})
 	}
 

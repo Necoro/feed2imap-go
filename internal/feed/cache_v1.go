@@ -6,8 +6,6 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/lithammer/shortuuid"
-
 	"github.com/Necoro/feed2imap-go/pkg/log"
 	"github.com/Necoro/feed2imap-go/pkg/util"
 )
@@ -153,11 +151,10 @@ func (cache *v1Cache) findItem(feed *Feed) CachedFeed {
 	return item
 }
 
-func newCachedItem(item feeditem) cachedItem {
+func (item *item) newCachedItem() cachedItem {
 	var ci cachedItem
 
-	ci.ID = shortuuid.New()
-
+	ci.ID = item.itemId
 	ci.Title = item.Item.Title
 	ci.Link = item.Item.Link
 	if item.Item.PublishedParsed != nil {
@@ -187,28 +184,30 @@ func (cf *cachedFeed) deleteItem(index int) {
 	cf.Items = cf.Items[:len(cf.Items)-1]
 }
 
-func (cf *cachedFeed) filterItems(items []feeditem, ignoreHash, alwaysNew bool) []feeditem {
+func (cf *cachedFeed) filterItems(items []item, ignoreHash, alwaysNew bool) []item {
 	if len(items) == 0 {
 		return items
 	}
 
-	cacheItems := make(map[cachedItem]*feeditem, len(items))
+	cacheItems := make(map[cachedItem]*item, len(items))
 	for idx := range items {
 		// remove complete duplicates on the go
-		cacheItems[newCachedItem(items[idx])] = &items[idx]
+		cacheItems[items[idx].newCachedItem()] = &items[idx]
 	}
 	log.Debugf("%d items after deduplication", len(cacheItems))
 
-	filtered := make([]feeditem, 0, len(items))
+	filtered := make([]item, 0, len(items))
 	cacheadd := make([]cachedItem, 0, len(items))
-	app := func(item *feeditem, ci cachedItem, oldIdx *int) {
+	app := func(item *item, ci cachedItem, oldIdx *int) {
 		if oldIdx != nil {
 			item.updateOnly = true
+			prevId := cf.Items[*oldIdx].ID
+			ci.ID = prevId
+			item.itemId = prevId
 			cf.deleteItem(*oldIdx)
 		}
 		filtered = append(filtered, *item)
 		cacheadd = append(cacheadd, ci)
-		item.itemId = ci.ID
 	}
 
 CACHE_ITEMS:
@@ -228,7 +227,6 @@ CACHE_ITEMS:
 					log.Debugf("Guid matches with: %s", oldItem)
 					if !oldItem.similarTo(&ci, ignoreHash) {
 						item.addReason("guid (upd)")
-						ci.ID = oldItem.ID
 						app(item, ci, &idx)
 					} else {
 						log.Debugf("Similar, ignoring")
@@ -258,7 +256,6 @@ CACHE_ITEMS:
 				}
 				log.Debugf("Link matches, updating: %s", oldItem)
 				item.addReason("link (upd)")
-				ci.ID = oldItem.ID
 				app(item, ci, &idx)
 
 				continue CACHE_ITEMS

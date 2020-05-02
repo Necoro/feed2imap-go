@@ -41,7 +41,7 @@ func httpClient(disableTLS bool) *http.Client {
 	return stdHTTPClient
 }
 
-func parseFeed(feed *Feed) error {
+func (feed *Feed) parse() error {
 	ctx, cancel := context(feed.Global.Timeout)
 	defer cancel()
 
@@ -54,9 +54,9 @@ func parseFeed(feed *Feed) error {
 	}
 
 	feed.feed = parsedFeed
-	feed.items = make([]feeditem, len(parsedFeed.Items))
-	for idx, item := range parsedFeed.Items {
-		feed.items[idx] = feeditem{Feed: parsedFeed, Item: item, itemId: shortuuid.New()}
+	feed.items = make([]item, len(parsedFeed.Items))
+	for idx, feedItem := range parsedFeed.Items {
+		feed.items[idx] = item{Feed: parsedFeed, Item: feedItem, itemId: shortuuid.New(), feed: feed}
 	}
 	return nil
 }
@@ -64,7 +64,7 @@ func parseFeed(feed *Feed) error {
 func handleFeed(feed *Feed) {
 	log.Printf("Fetching %s from %s", feed.Name, feed.Url)
 
-	err := parseFeed(feed)
+	err := feed.parse()
 	if err != nil {
 		if feed.cached.Failures() >= feed.Global.MaxFailures {
 			log.Error(err)
