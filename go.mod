@@ -3,6 +3,7 @@ module github.com/Necoro/feed2imap-go
 go 1.14
 
 require (
+	github.com/PuerkitoBio/goquery v1.5.0
 	github.com/emersion/go-imap v1.0.4
 	github.com/emersion/go-message v0.11.3-0.20200422153910-8c6ac6b57e3d
 	github.com/google/go-cmp v0.4.0

@@ -40,14 +40,8 @@ const feedTpl = `{{- /*gotype:github.com/Necoro/feed2imap-go/internal/feed.feedi
     </td>
   </tr>
 </table>
-{{with .Item.Content}}
-  <br /> <!-- originally: only if content and 'content !~ /\A\s*</m' -->
+{{with .Body}}
   {{html .}}
-{{else}}
-{{with .Item.Description}}
-  <br /> <!-- originally: only if content and 'content !~ /\A\s*</m' -->
-  {{html .}}
-{{end}}
 {{end}}
 {{with .Item.Enclosures}}
   <table border="1" width="100%" cellpadding="0" cellspacing="0" style="border-spacing: 0; ">
@@ -59,7 +53,7 @@ const feedTpl = `{{- /*gotype:github.com/Necoro/feed2imap-go/internal/feed.feedi
               <tr>
                 <td>
                   &nbsp;&nbsp;&nbsp;
-                  <a href={{.URL}}>{{.URL | lastUrlPart}}</a> ({{.Length | byteCount}}, {{.Type}})
+                  <a href={{.URL}}>{{.URL | lastUrlPart}}</a> ({{with .Length}}{{. | byteCount}}, {{end}}{{.Type}})
                 </td>
               </tr>
           {{end}}

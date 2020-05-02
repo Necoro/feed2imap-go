@@ -23,11 +23,18 @@ type feedDescriptor struct {
 	Url  string
 }
 
+type feedImage struct {
+	image []byte
+	mime  string
+}
+
 type feeditem struct {
 	*gofeed.Feed
 	*gofeed.Item
+	Body       string
 	updateOnly bool
 	reasons    []string
+	images     []feedImage
 }
 
 // Creator returns the name of the creating author.
@@ -43,6 +50,16 @@ func (item *feeditem) addReason(reason string) {
 	if !util.StrContains(item.reasons, reason) {
 		item.reasons = append(item.reasons, reason)
 	}
+}
+
+func (item *feeditem) addImage(img []byte, mime string) int {
+	i := feedImage{img, mime}
+	item.images = append(item.images, i)
+	return len(item.images)
+}
+
+func (item *feeditem) clearImages() {
+	item.images = []feedImage{}
 }
 
 func (feed *Feed) descriptor() feedDescriptor {
