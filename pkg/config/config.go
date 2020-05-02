@@ -44,10 +44,12 @@ type Options struct {
 	IgnHash     bool `yaml:"ignore-hash"`
 	AlwaysNew   bool `yaml:"always-new"`
 	NoTLS       bool `yaml:"tls-no-verify"`
+	Body        Body `yaml:"body"`
 }
 
 // Default feed options
 var DefaultFeedOptions = Options{
+	Body:        "default",
 	MinFreq:     1,
 	InclImages:  true,
 	EmbedImages: false,

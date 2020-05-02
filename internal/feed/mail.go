@@ -209,20 +209,29 @@ func cidNr(idx int) string {
 	return fmt.Sprintf("cid_%d", idx)
 }
 
-func (feed *Feed) buildBody(item *feeditem) {
-	var body string
-	var comment string
-
-	if item.Item.Content != "" {
-		comment = "<!-- Content -->\n"
-		body = item.Item.Content
-	} else if item.Item.Description != "" {
-		comment = "<!-- Description -->\n"
-		body = item.Item.Description
+func getBody(content, description string, bodyCfg config.Body) string {
+	switch bodyCfg {
+	case "default":
+		if content != "" {
+			return content
+		}
+		return description
+	case "description":
+		return description
+	case "content":
+		return content
+	case "both":
+		return description + content
+	default:
+		panic(fmt.Sprintf("Unknown value for Body: %v", bodyCfg))
 	}
+}
+
+func (feed *Feed) buildBody(item *feeditem) {
+	body := getBody(item.Item.Content, item.Item.Description, feed.Body)
 
 	if !feed.InclImages {
-		item.Body = comment + body
+		item.Body = body
 		return
 	}
 
@@ -230,7 +239,7 @@ func (feed *Feed) buildBody(item *feeditem) {
 	if err != nil {
 		log.Debugf("Feed %s: Error while parsing html content: %s", feed.Name, err)
 		if body != "" {
-			item.Body = "<br />" + comment + body
+			item.Body = "<br />" + body
 		}
 		return
 	}
@@ -271,5 +280,5 @@ func (feed *Feed) buildBody(item *feeditem) {
 		}
 	}
 
-	item.Body = comment + body
+	item.Body = body
 }
