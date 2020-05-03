@@ -7,6 +7,7 @@ import (
 	"io"
 	"io/ioutil"
 	"mime"
+	"net/http"
 	"net/url"
 	"path"
 	"strings"
@@ -192,8 +193,8 @@ func (feed *Feed) Messages() (msg.Messages, error) {
 	return mails, nil
 }
 
-func getImage(src string) ([]byte, string, error) {
-	resp, err := stdHTTPClient.Get(src)
+func getImage(src string, client *http.Client) ([]byte, string, error) {
+	resp, err := client.Get(src)
 	if err != nil {
 		return nil, "", fmt.Errorf("fetching from '%s': %w", src, err)
 	}
@@ -277,7 +278,7 @@ func (item *item) buildBody() {
 		}
 		imgUrl := feedUrl.ResolveReference(srcUrl)
 
-		img, mime, err := getImage(imgUrl.String())
+		img, mime, err := getImage(imgUrl.String(), httpClient(feed.NoTLS))
 		if err != nil {
 			log.Errorf("Feed %s: Item %s: Error fetching image: %s",
 				feed.Name, item.Item.Link, err)
