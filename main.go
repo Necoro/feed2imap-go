@@ -12,6 +12,7 @@ import (
 	"github.com/Necoro/feed2imap-go/pkg/log"
 )
 
+var printVersion = flag.Bool("version", false, "print version and exit")
 var cfgFile = flag.String("f", "config.yml", "configuration file")
 var cacheFile = flag.String("c", "feed.cache", "cache file")
 var verbose = flag.Bool("v", false, "enable verbose output")
@@ -49,6 +50,11 @@ func processFeed(feed *feed.Feed, client *imap.Client, dryRun bool) {
 
 func run() error {
 	flag.Parse()
+	if *printVersion {
+		println("Feed2Imap-Go, version " + config.Version())
+		return nil
+	}
+
 	if *debug {
 		log.SetDebug()
 	} else if *verbose {
