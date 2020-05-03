@@ -20,7 +20,7 @@ An example configuration can be found [here](config.yml.example).
 for details.
 * Connection to any IMAP server, using IMAP, IMAP+STARTTLS, or IMAPS.
 * Detection of duplicates: Heuristics what feed items have already been uploaded.
-* Update mechanism: When a feed item is updated, so is the mail. (_TODO_: [issue #9][i9])
+* Update mechanism: When a feed item is updated, so is the mail.
 * Detailed configuration options per feed (fetch frequency, should images be included, tune change heuristics, ...)
 
 ## Changes
@@ -28,13 +28,14 @@ for details.
 ### Additions to feed2imap
 
 * groups (_details TBD_)
-* heavier use of parallel processing (it's Go after all ;))
+* Heavier use of parallel processing (it's Go after all ;))
 * Global `target` and each feed only specifies the folder relative to that target. 
 (feature contained also in [fork of the original][nec]) 
 * Fix `include-images` option: It now includes images as mime-parts. An additional `embed-images` option serves the images 
 as inline base64-encoded data (the old default behavior of feed2imap).
-* Improved image inclusion: Links without scheme; images without extension (using mime-detection)
+* Improved image inclusion: Support any relative URLs, including `//example.com/foo.png`
 * Use HTML-Parser instead of regular expressions for modifying the HTML content.
+* STARTTLS-Support. As it turned out only in testing, the old feed2imap never supported it...
 
 ### Subtle differences
 
