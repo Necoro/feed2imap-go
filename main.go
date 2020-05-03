@@ -10,6 +10,7 @@ import (
 	"github.com/Necoro/feed2imap-go/internal/imap"
 	"github.com/Necoro/feed2imap-go/pkg/config"
 	"github.com/Necoro/feed2imap-go/pkg/log"
+	"github.com/Necoro/feed2imap-go/pkg/version"
 )
 
 var printVersion = flag.Bool("version", false, "print version and exit")
@@ -51,7 +52,7 @@ func processFeed(feed *feed.Feed, client *imap.Client, dryRun bool) {
 func run() error {
 	flag.Parse()
 	if *printVersion {
-		println("Feed2Imap-Go, version " + config.Version())
+		println("Feed2Imap-Go, version " + version.Version())
 		return nil
 	}
 

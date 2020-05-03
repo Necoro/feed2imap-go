@@ -20,6 +20,7 @@ import (
 	"github.com/Necoro/feed2imap-go/internal/msg"
 	"github.com/Necoro/feed2imap-go/pkg/config"
 	"github.com/Necoro/feed2imap-go/pkg/log"
+	"github.com/Necoro/feed2imap-go/pkg/version"
 )
 
 func address(name, address string) []*mail.Address {
@@ -54,7 +55,7 @@ func (item *item) buildHeader() message.Header {
 	h.SetContentType("multipart/alternative", nil)
 	h.SetAddressList("From", item.fromAddress())
 	h.SetAddressList("To", item.toAddress())
-	h.Set(msg.VersionHeader, config.Version())
+	h.Set(msg.VersionHeader, version.Version())
 	h.Set(msg.ReasonHeader, strings.Join(item.reasons, ","))
 	h.Set(msg.IdHeader, item.id())
 	h.Set("Message-Id", item.messageId())

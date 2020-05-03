@@ -5,7 +5,6 @@ import (
 	"os"
 	"os/user"
 	"runtime"
-	"runtime/debug"
 	"strings"
 
 	"github.com/Necoro/feed2imap-go/pkg/log"
@@ -93,15 +92,6 @@ func (opt GlobalOptions) WithPartText() bool {
 // Marks whether 'html' part should be included in mails
 func (opt GlobalOptions) WithPartHtml() bool {
 	return util.StrContains(opt.Parts, "html")
-}
-
-// Current feed2imap version
-func Version() string {
-	bi, ok := debug.ReadBuildInfo()
-	if !ok {
-		return "(unknown)"
-	}
-	return bi.Main.Version
 }
 
 // Load configuration from file
