@@ -1,6 +1,7 @@
 package imap
 
 import (
+	uidplus "github.com/emersion/go-imap-uidplus"
 	imapClient "github.com/emersion/go-imap/client"
 
 	"github.com/Necoro/feed2imap-go/pkg/log"
@@ -37,19 +38,21 @@ func (client *Client) Disconnect() {
 	}
 }
 
-func (client *Client) createConnection(c *imapClient.Client) *connection {
-	if client.nextFreeIndex >= len(client.connections) {
+func (cl *Client) createConnection(c *imapClient.Client) *connection {
+	if cl.nextFreeIndex >= len(cl.connections) {
 		panic("Too many connections")
 	}
 
+	client := &client{c, uidplus.NewClient(c)}
+
 	conn := &connection{
-		connConf:  &client.connConf,
-		mailboxes: client.mailboxes,
-		c:         c,
+		connConf:  &cl.connConf,
+		mailboxes: cl.mailboxes,
+		c:         client,
 	}
 
-	client.connections[client.nextFreeIndex] = conn
-	client.nextFreeIndex++
+	cl.connections[cl.nextFreeIndex] = conn
+	cl.nextFreeIndex++
 
 	return conn
 }

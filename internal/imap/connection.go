@@ -6,16 +6,22 @@ import (
 	"time"
 
 	"github.com/emersion/go-imap"
+	uidplus "github.com/emersion/go-imap-uidplus"
 	imapClient "github.com/emersion/go-imap/client"
 
 	"github.com/Necoro/feed2imap-go/pkg/log"
 	"github.com/Necoro/feed2imap-go/pkg/util"
 )
 
+type client struct {
+	*imapClient.Client
+	*uidplus.UidPlusClient
+}
+
 type connection struct {
 	*connConf
 	mailboxes *mailboxes
-	c         *imapClient.Client
+	c         *client
 }
 
 func (conn *connection) startTls() error {
@@ -139,8 +145,14 @@ func (conn *connection) delete(uids []uint32) error {
 		return fmt.Errorf("marking as deleted: %w", err)
 	}
 
-	if err := conn.c.Expunge(nil); err != nil {
-		return fmt.Errorf("expunging: %w", err)
+	if ok, _ := conn.c.SupportUidPlus(); ok {
+		if err := conn.c.UidExpunge(seqSet, nil); err != nil {
+			return fmt.Errorf("expunging (uid): %w", err)
+		}
+	} else {
+		if err := conn.c.Expunge(nil); err != nil {
+			return fmt.Errorf("expunging: %w", err)
+		}
 	}
 
 	return nil
@@ -234,7 +246,7 @@ func (conn *connection) selectFolder(folder Folder) error {
 
 func (conn *connection) append(folder Folder, flags []string, msg string) error {
 	reader := strings.NewReader(msg)
-	if err := conn.c.Append(folder.str, flags, time.Now(), reader); err != nil {
+	if err := conn.c.Client.Append(folder.str, flags, time.Now(), reader); err != nil {
 		return fmt.Errorf("uploading message to %s: %w", folder, err)
 	}
 

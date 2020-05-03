@@ -1,3 +1,5 @@
+github.com/Necoro/go-imap-uidplus v0.0.0-20200503000539-a17018888f1a h1:YvbrP3o8uDdTqHZbLgNNYLvSeY5iuNwW9+CzsduxiYU=
+github.com/Necoro/go-imap-uidplus v0.0.0-20200503000539-a17018888f1a/go.mod h1:zEkda+LAg4txW9yrQXUU7lPXGmyntWfkFUwFJ2fEBmw=
 github.com/PuerkitoBio/goquery v1.5.0 h1:uGvmFXOA73IKluu/F84Xd1tt/z07GYm8X49XKHP7EJk=
 github.com/PuerkitoBio/goquery v1.5.0/go.mod h1:qD2PgZ9lccMbQlc7eEOjaeRlFQON7xY8kdmcsrnKqMg=
 github.com/andybalholm/cascadia v1.0.0 h1:hOCXnnZ5A+3eVDX8pvgl4kofXv2ELss0bKcqRySc45o=
@@ -8,6 +10,8 @@ github.com/davecgh/go-spew v1.1.1 h1:vj9j/u1bqnvCEfJOwUhtlOARqs3+rkHYY13jYWTU97c
 github.com/davecgh/go-spew v1.1.1/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
 github.com/emersion/go-imap v1.0.4 h1:uiCAIHM6Z5Jwkma1zdNDWWXxSCqb+/xHBkHflD7XBro=
 github.com/emersion/go-imap v1.0.4/go.mod h1:yKASt+C3ZiDAiCSssxg9caIckWF/JG7ZQTO7GAmvicU=
+github.com/emersion/go-imap-uidplus v0.0.0-20190115233941-506176eeb0f6 h1:iu0B9px6K5GZUaiM/zcB6ho+JYRdzNsiK4PE1Np6ZZc=
+github.com/emersion/go-imap-uidplus v0.0.0-20190115233941-506176eeb0f6/go.mod h1:GfiSiw/du0221I3Cf4F0DqX3Bv5Xe580gIIATrQtnJg=
 github.com/emersion/go-message v0.11.1/go.mod h1:C4jnca5HOTo4bGN9YdqNQM9sITuT3Y0K6bSUw9RklvY=
 github.com/emersion/go-message v0.11.3-0.20200422153910-8c6ac6b57e3d h1:GJ4ATGxKc/zmU4LIgw4LiNc1W+MQii/hMM+gWRDaHLU=
 github.com/emersion/go-message v0.11.3-0.20200422153910-8c6ac6b57e3d/go.mod h1:C4jnca5HOTo4bGN9YdqNQM9sITuT3Y0K6bSUw9RklvY=
