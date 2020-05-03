@@ -23,17 +23,17 @@ type Client struct {
 	nextFreeIndex int
 }
 
-func (client *Client) Disconnect() {
-	if client != nil {
-		client.stopCommander()
+func (cl *Client) Disconnect() {
+	if cl != nil {
+		cl.stopCommander()
 
 		connected := false
-		for _, conn := range client.connections {
+		for _, conn := range cl.connections {
 			connected = conn.disconnect() || connected
 		}
 
 		if connected {
-			log.Print("Disconnected from ", client.host)
+			log.Print("Disconnected from ", cl.host)
 		}
 	}
 }

@@ -21,13 +21,13 @@ func (f Folder) Append(other Folder) Folder {
 	}
 }
 
-func (client *Client) folderName(path []string) Folder {
+func (cl *Client) folderName(path []string) Folder {
 	return Folder{
-		strings.Join(path, client.delimiter),
-		client.delimiter,
+		strings.Join(path, cl.delimiter),
+		cl.delimiter,
 	}
 }
 
-func (client *Client) NewFolder(path []string) Folder {
-	return client.toplevel.Append(client.folderName(path))
+func (cl *Client) NewFolder(path []string) Folder {
+	return cl.toplevel.Append(cl.folderName(path))
 }

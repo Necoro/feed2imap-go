@@ -40,29 +40,29 @@ func executioner(conn *connection, pipe <-chan execution, done <-chan struct{}) 
 	}
 }
 
-func (client *Client) startCommander() {
-	if client.commander != nil {
+func (cl *Client) startCommander() {
+	if cl.commander != nil {
 		return
 	}
 
 	pipe := make(chan execution, maxPipeDepth)
 	done := make(chan struct{})
 
-	client.commander = &commander{client, pipe, done}
+	cl.commander = &commander{cl, pipe, done}
 
-	for _, conn := range client.connections {
+	for _, conn := range cl.connections {
 		if conn != nil {
 			go executioner(conn, pipe, done)
 		}
 	}
 }
 
-func (client *Client) stopCommander() {
-	if client.commander == nil {
+func (cl *Client) stopCommander() {
+	if cl.commander == nil {
 		return
 	}
 
-	close(client.commander.done)
+	close(cl.commander.done)
 
-	client.commander = nil
+	cl.commander = nil
 }

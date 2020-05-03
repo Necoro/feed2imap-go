@@ -30,13 +30,13 @@ func newImapClient(url *URL, forceTls bool) (*imapClient.Client, error) {
 	return c, nil
 }
 
-func (client *Client) connect(url *URL, forceTls bool) (*connection, error) {
+func (cl *Client) connect(url *URL, forceTls bool) (*connection, error) {
 	c, err := newImapClient(url, forceTls)
 	if err != nil {
 		return nil, err
 	}
 
-	conn := client.createConnection(c)
+	conn := cl.createConnection(c)
 
 	if !forceTls {
 		if err = conn.startTls(); err != nil {
