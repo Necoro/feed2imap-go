@@ -7,6 +7,7 @@ import (
 	"io"
 	"io/ioutil"
 	"mime"
+	"net/url"
 	"path"
 	"strings"
 	"time"
@@ -191,22 +192,16 @@ func (feed *Feed) Messages() (msg.Messages, error) {
 	return mails, nil
 }
 
-func getImage(src string) ([]byte, string) {
-	if strings.HasPrefix(src, "//") {
-		src = "https:" + src
-	}
-
+func getImage(src string) ([]byte, string, error) {
 	resp, err := stdHTTPClient.Get(src)
 	if err != nil {
-		log.Errorf("Error fetching from '%s': %s", src, err)
-		return nil, ""
+		return nil, "", fmt.Errorf("fetching from '%s': %w", src, err)
 	}
 	defer resp.Body.Close()
 
 	img, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
-		log.Errorf("Error reading body from '%s': %s", src, err)
-		return nil, ""
+		return nil, "", fmt.Errorf("reading from '%s': %w", src, err)
 	}
 
 	var mimeStr string
@@ -216,7 +211,7 @@ func getImage(src string) ([]byte, string) {
 	} else {
 		mimeStr = mime.TypeByExtension(ext)
 	}
-	return img, mimeStr
+	return img, mimeStr, nil
 }
 
 func cidNr(idx int) string {
@@ -243,6 +238,11 @@ func getBody(content, description string, bodyCfg config.Body) string {
 
 func (item *item) buildBody() {
 	feed := item.feed
+	feedUrl, err := url.Parse(feed.Url)
+	if err != nil {
+		panic(fmt.Sprintf("URL '%s' of feed '%s' is not a valid URL. How have we ended up here?", feed.Url, feed.Name))
+	}
+
 	body := getBody(item.Item.Content, item.Item.Description, feed.Body)
 
 	if !feed.InclImages {
@@ -252,7 +252,7 @@ func (item *item) buildBody() {
 
 	doc, err := goquery.NewDocumentFromReader(strings.NewReader(body))
 	if err != nil {
-		log.Debugf("Feed %s: Error while parsing html content: %s", feed.Name, err)
+		log.Errorf("Feed %s: Item %s: Error while parsing html content: %s", feed.Name, item.Item.Link, err)
 		if body != "" {
 			item.Body = "<br />" + body
 		}
@@ -269,7 +269,20 @@ func (item *item) buildBody() {
 			return
 		}
 
-		img, mime := getImage(src)
+		srcUrl,err := url.Parse(src)
+		if err != nil {
+			log.Errorf("Feed %s: Item %s: Error parsing URL '%s' embedded in item: %s",
+				feed.Name, item.Item.Link, src, err)
+			return
+		}
+		imgUrl := feedUrl.ResolveReference(srcUrl)
+
+		img, mime, err := getImage(imgUrl.String())
+		if err != nil {
+			log.Errorf("Feed %s: Item %s: Error fetching image: %s",
+				feed.Name, item.Item.Link, err)
+			return
+		}
 		if img == nil {
 			return
 		}
@@ -289,7 +302,8 @@ func (item *item) buildBody() {
 		html, err := doc.Find("body").Html()
 		if err != nil {
 			item.clearImages()
-			log.Errorf("Error during rendering HTML, skipping.")
+			log.Errorf("Feed %s: Item %s: Error during rendering HTML: %s",
+				feed.Name, item.Item.Link, err)
 		} else {
 			body = html
 		}
