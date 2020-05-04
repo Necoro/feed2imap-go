@@ -1,0 +1,33 @@
+project_name: feed2imap-go
+
+before:
+  hooks:
+    - go mod download
+builds:
+  -  
+    binary: feed2imap-go
+    ldflags:
+        - -s -w -X github.com/Necoro/feed2imap-go/pkg/version.version={{.Version}} -X github.com/Necoro/feed2imap-go/pkg/version.commit={{.ShortCommit}}
+    goos:
+        - windows
+        - linux
+        - darwin
+    goarch:
+        - amd64
+archives:
+  -
+    replacements:
+        amd64: x86_64
+        386: x86_32
+
+    format: tar.gz
+    format_overrides:
+        - goos: windows
+          format: zip
+    files:
+        - LICENSE
+        - README.md
+        - config.yml.example
+
+changelog:
+    skip: true

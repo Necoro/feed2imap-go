@@ -52,7 +52,7 @@ func processFeed(feed *feed.Feed, client *imap.Client, dryRun bool) {
 func run() error {
 	flag.Parse()
 	if *printVersion {
-		println("Feed2Imap-Go, version " + version.Version())
+		println("Feed2Imap-Go, " + version.FullVersion())
 		return nil
 	}
 

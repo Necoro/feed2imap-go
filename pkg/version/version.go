@@ -1,11 +1,18 @@
 package version
 
-// the way via debug.BuildInfo does not work -- it'll always return "devel"
-// thus the oldschool way: hardcoded
+// this is set by the linker during build
+var (
+	version = "devel"
+	commit = ""
 
-const version = "0.2.0-devel"
+)
 
-// Current feed2imap version
+// Version returns the current feed2imap-go version
 func Version() string {
 	return version
+}
+
+// FullVersion returns the version including the commit hash
+func FullVersion() string {
+	return "Version " + version + " Commit: " + commit
 }
