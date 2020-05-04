@@ -20,9 +20,20 @@ jobs:
     - name: Checkout
       uses: actions/checkout@v2
 
+    - name: Get Changelog Entry
+      id: changelog_reader
+      uses: mindsers/changelog-reader-action@v1.1.0
+      with:
+        version: ${{ github.ref }}
+        path: ./CHANGELOG.md
+
+    - name: Safe Changelog Text
+      run: echo "${{ steps.changelog_reader.outputs.log_entry }}" >> changelog_entry
+
     - name: Run GoReleaser
       uses: goreleaser/goreleaser-action@v1
       with:
           version: latest
+          args: --release-notes changelog_entry
       env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
