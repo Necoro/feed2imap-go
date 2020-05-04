@@ -7,7 +7,6 @@ import (
 	"io"
 	"io/ioutil"
 	"mime"
-	"net/http"
 	"net/url"
 	"path"
 	"strings"
@@ -19,6 +18,7 @@ import (
 	"github.com/gabriel-vasile/mimetype"
 
 	"github.com/Necoro/feed2imap-go/internal/feed/template"
+	"github.com/Necoro/feed2imap-go/internal/http"
 	"github.com/Necoro/feed2imap-go/internal/msg"
 	"github.com/Necoro/feed2imap-go/pkg/config"
 	"github.com/Necoro/feed2imap-go/pkg/log"
@@ -193,12 +193,12 @@ func (feed *Feed) Messages() (msg.Messages, error) {
 	return mails, nil
 }
 
-func getImage(src string, client *http.Client) ([]byte, string, error) {
-	resp, err := client.Get(src)
+func getImage(src string, timeout int, disableTLS bool) ([]byte, string, error) {
+	resp, cancel, err := http.Get(src, timeout, disableTLS)
 	if err != nil {
 		return nil, "", fmt.Errorf("fetching from '%s': %w", src, err)
 	}
-	defer resp.Body.Close()
+	defer cancel()
 
 	img, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
@@ -270,7 +270,7 @@ func (item *item) buildBody() {
 			return
 		}
 
-		srcUrl,err := url.Parse(src)
+		srcUrl, err := url.Parse(src)
 		if err != nil {
 			log.Errorf("Feed %s: Item %s: Error parsing URL '%s' embedded in item: %s",
 				feed.Name, item.Item.Link, src, err)
@@ -278,7 +278,7 @@ func (item *item) buildBody() {
 		}
 		imgUrl := feedUrl.ResolveReference(srcUrl)
 
-		img, mime, err := getImage(imgUrl.String(), httpClient(feed.NoTLS))
+		img, mime, err := getImage(imgUrl.String(), feed.Global.Timeout, feed.NoTLS)
 		if err != nil {
 			log.Errorf("Feed %s: Item %s: Error fetching image: %s",
 				feed.Name, item.Item.Link, err)

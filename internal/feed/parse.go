@@ -1,56 +1,29 @@
 package feed
 
 import (
-	ctxt "context"
-	"crypto/tls"
 	"fmt"
-	"net/http"
-	"time"
 
 	"github.com/google/uuid"
 	"github.com/mmcdole/gofeed"
 
+	"github.com/Necoro/feed2imap-go/internal/http"
 	"github.com/Necoro/feed2imap-go/pkg/log"
 )
 
-// share HTTP clients
-var (
-	stdHTTPClient    *http.Client
-	unsafeHTTPClient *http.Client
-)
-
-func init() {
-	// std
-	stdHTTPClient = &http.Client{Transport: http.DefaultTransport}
-
-	// unsafe
-	tlsConfig := &tls.Config{InsecureSkipVerify: true}
-	transport := http.DefaultTransport.(*http.Transport).Clone()
-	transport.TLSClientConfig = tlsConfig
-	unsafeHTTPClient = &http.Client{Transport: transport}
-}
-
-func context(timeout int) (ctxt.Context, ctxt.CancelFunc) {
-	return ctxt.WithTimeout(ctxt.Background(), time.Duration(timeout)*time.Second)
-}
-
-func httpClient(disableTLS bool) *http.Client {
-	if disableTLS {
-		return unsafeHTTPClient
-	}
-	return stdHTTPClient
-}
-
 func (feed *Feed) parse() error {
-	ctx, cancel := context(feed.Global.Timeout)
-	defer cancel()
-
 	fp := gofeed.NewParser()
-	fp.Client = httpClient(feed.NoTLS)
 
-	parsedFeed, err := fp.ParseURLWithContext(feed.Url, ctx)
+	// we do not use the http support in gofeed, so that we can control the behavior of http requests
+	// and ensure it to be the same in all places
+	resp, cancel, err := http.Get(feed.Url, feed.Global.Timeout, feed.NoTLS)
 	if err != nil {
 		return fmt.Errorf("while fetching %s from %s: %w", feed.Name, feed.Url, err)
+	}
+	defer cancel() // includes resp.Body.Close
+
+	parsedFeed, err := fp.Parse(resp.Body)
+	if err != nil {
+		return fmt.Errorf("parsing feed '%s': %w", feed.Name, err)
 	}
 
 	feed.feed = parsedFeed
