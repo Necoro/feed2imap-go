@@ -28,8 +28,8 @@ default-email: username@hostname
 # NB: For compatibility with old feed2imap, options existing in feed2imap can also be specified at the toplevel,
 # i.e. not beneath 'options'. Triggers a warning though :)
 options:
-  # Frequency in hours for checking.
-  min-frequency: 1
+  # Frequency in hours for checking. 0 = on each run.
+  min-frequency: 0
   # Include images referenced in the item per URL in the mail.
   # For instance, when a feed item includes <img src="https://some.example/foo.png">, this image is fetched
   # and included in the mail.

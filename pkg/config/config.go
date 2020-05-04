@@ -50,7 +50,7 @@ type Options struct {
 // Default feed options
 var DefaultFeedOptions = Options{
 	Body:        "default",
-	MinFreq:     1,
+	MinFreq:     0,
 	InclImages:  true,
 	EmbedImages: false,
 	IgnHash:     false,
