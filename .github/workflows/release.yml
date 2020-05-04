@@ -28,12 +28,15 @@ jobs:
         path: ./CHANGELOG.md
 
     - name: Safe Changelog Text
-      run: echo "${{ steps.changelog_reader.outputs.log_entry }}" >> changelog_entry
+      run: |
+          echo '${{ steps.changelog_reader.outputs.log_entry }}' >> $HOME/changelog_entry
+          echo "::set-env name=clfile::${HOME}/changelog_entry"
 
     - name: Run GoReleaser
       uses: goreleaser/goreleaser-action@v1
       with:
           version: latest
-          args: --release-notes changelog_entry
+          args: --release-notes ${{ env.clfile }}
       env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
