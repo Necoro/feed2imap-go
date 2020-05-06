@@ -51,7 +51,7 @@ func (item *item) Creator() string {
 }
 
 func (item *item) FeedLink() string {
-	if item.Feed.Link != "" {
+	if item.Feed.FeedLink != "" {
 		// the one in the feed itself
 		return item.Feed.FeedLink
 	}
