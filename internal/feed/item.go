@@ -17,8 +17,8 @@ type feedImage struct {
 }
 
 type item struct {
-	*gofeed.Feed
 	*gofeed.Item
+	Feed       *gofeed.Feed
 	feed       *Feed
 	Body       string
 	updateOnly bool
@@ -28,12 +28,20 @@ type item struct {
 }
 
 // Creator returns the name of the creating author.
-// MUST NOT have `*item` has the receiver, because the template breaks then.
 func (item *item) Creator() string {
-	if item.Item.Author != nil {
-		return item.Item.Author.Name
+	if item.Author != nil {
+		return item.Author.Name
 	}
 	return ""
+}
+
+func (item *item) FeedLink() string {
+	if item.Feed.Link != "" {
+		// the one in the feed itself
+		return item.Feed.FeedLink
+	}
+	// the one in the config
+	return item.feed.Url
 }
 
 func (item *item) addReason(reason string) {

@@ -31,10 +31,10 @@ func address(name, address string) []*mail.Address {
 
 func (item *item) fromAddress() []*mail.Address {
 	switch {
-	case item.Item.Author != nil && item.Item.Author.Email != "":
-		return address(item.Item.Author.Name, item.Item.Author.Email)
-	case item.Item.Author != nil && item.Item.Author.Name != "":
-		return address(item.Item.Author.Name, item.defaultEmail())
+	case item.Author != nil && item.Author.Email != "":
+		return address(item.Author.Name, item.Author.Email)
+	case item.Author != nil && item.Author.Name != "":
+		return address(item.Author.Name, item.defaultEmail())
 	case item.Feed.Author != nil && item.Feed.Author.Email != "":
 		return address(item.Feed.Author.Name, item.Feed.Author.Email)
 	case item.Feed.Author != nil && item.Feed.Author.Name != "":
@@ -63,7 +63,7 @@ func (item *item) buildHeader() message.Header {
 	h.Set("Message-Id", item.messageId())
 
 	{ // date
-		date := item.Item.PublishedParsed
+		date := item.PublishedParsed
 		if date == nil {
 			now := time.Now()
 			date = &now
@@ -71,12 +71,12 @@ func (item *item) buildHeader() message.Header {
 		h.SetDate(*date)
 	}
 	{ // subject
-		subject := item.Item.Title
+		subject := item.Title
 		if subject == "" {
-			subject = item.Item.Published
+			subject = item.Published
 		}
 		if subject == "" {
-			subject = item.Item.Link
+			subject = item.Link
 		}
 		h.SetSubject(subject)
 	}
@@ -244,7 +244,7 @@ func (item *item) buildBody() {
 		panic(fmt.Sprintf("URL '%s' of feed '%s' is not a valid URL. How have we ended up here?", feed.Url, feed.Name))
 	}
 
-	body := getBody(item.Item.Content, item.Item.Description, feed.Body)
+	body := getBody(item.Content, item.Description, feed.Body)
 
 	if !feed.InclImages {
 		item.Body = body
@@ -253,7 +253,7 @@ func (item *item) buildBody() {
 
 	doc, err := goquery.NewDocumentFromReader(strings.NewReader(body))
 	if err != nil {
-		log.Errorf("Feed %s: Item %s: Error while parsing html content: %s", feed.Name, item.Item.Link, err)
+		log.Errorf("Feed %s: Item %s: Error while parsing html content: %s", feed.Name, item.Link, err)
 		if body != "" {
 			item.Body = "<br />" + body
 		}
@@ -273,7 +273,7 @@ func (item *item) buildBody() {
 		srcUrl, err := url.Parse(src)
 		if err != nil {
 			log.Errorf("Feed %s: Item %s: Error parsing URL '%s' embedded in item: %s",
-				feed.Name, item.Item.Link, src, err)
+				feed.Name, item.Link, src, err)
 			return
 		}
 		imgUrl := feedUrl.ResolveReference(srcUrl)
@@ -281,7 +281,7 @@ func (item *item) buildBody() {
 		img, mime, err := getImage(imgUrl.String(), feed.Global.Timeout, feed.NoTLS)
 		if err != nil {
 			log.Errorf("Feed %s: Item %s: Error fetching image: %s",
-				feed.Name, item.Item.Link, err)
+				feed.Name, item.Link, err)
 			return
 		}
 		if img == nil {
@@ -304,7 +304,7 @@ func (item *item) buildBody() {
 		if err != nil {
 			item.clearImages()
 			log.Errorf("Feed %s: Item %s: Error during rendering HTML: %s",
-				feed.Name, item.Item.Link, err)
+				feed.Name, item.Link, err)
 		} else {
 			body = html
 		}

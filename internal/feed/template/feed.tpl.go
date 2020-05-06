@@ -64,10 +64,10 @@ const feedTpl = `{{- /*gotype:github.com/Necoro/feed2imap-go/internal/feed.feedi
 {{end}}
 <hr width="100%"/>
 <table width="100%" cellpadding="0" cellspacing="0">
-  {{template "bottomLine" (dict "descr" "Date:" "content" .Item.Published)}}
+  {{template "bottomLine" (dict "descr" "Date:" "content" .Published)}}
   {{template "bottomLine" (dict "descr" "Author:" "content" .Creator)}}
-  {{template "bottomLine" (dict "descr" "Filed under:" "content" (join ", " .Item.Categories))}}
-  {{with .Feed.FeedLink}}
+  {{template "bottomLine" (dict "descr" "Filed under:" "content" (join ", " .Categories))}}
+  {{with .FeedLink}}
     {{template "bottomLine" (dict "descr" "Feed-Link:" "content" (print "<a style=\"color: #ababab;\" href=\"" . "\">" . "</a>" | html))}}
   {{end}}
 </table>`
