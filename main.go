@@ -62,7 +62,7 @@ func run() error {
 		log.SetVerbose()
 	}
 
-	log.Print("Starting up...")
+	log.Printf("Starting up (%s)...", version.FullVersion())
 
 	cfg, err := config.Load(*cfgFile)
 	if err != nil {
