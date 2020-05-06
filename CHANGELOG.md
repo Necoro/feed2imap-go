@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Default for `min-frequency` is now 0 instead of 1.
 - Fixed date parsing from feed. _Changes cache format!_
+- Misc bug fixes in template rendering.
 
 ## [0.1.1] - 2020-05-04
 
