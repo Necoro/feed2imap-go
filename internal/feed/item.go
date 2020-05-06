@@ -3,6 +3,7 @@ package feed
 import (
 	"encoding/base64"
 	"fmt"
+	"time"
 
 	"github.com/google/uuid"
 	"github.com/mmcdole/gofeed"
@@ -25,6 +26,20 @@ type item struct {
 	reasons    []string
 	images     []feedImage
 	itemId     uuid.UUID
+}
+
+func (item *item) DateParsed() *time.Time {
+	if item.UpdatedParsed == nil || item.UpdatedParsed.IsZero() {
+		return item.PublishedParsed
+	}
+	return item.UpdatedParsed
+}
+
+func (item *item) Date() string {
+	if item.Updated == "" {
+		return item.Published
+	}
+	return item.Updated
 }
 
 // Creator returns the name of the creating author.

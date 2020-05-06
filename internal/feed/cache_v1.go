@@ -41,14 +41,13 @@ type cachedFeed struct {
 type itemHash [sha256.Size]byte
 
 type cachedItem struct {
-	Guid          string
-	Title         string
-	Link          string
-	PublishedDate time.Time
-	UpdatedDate   time.Time
-	UpdatedCache  time.Time
-	Hash          itemHash
-	ID            uuid.UUID
+	Guid         string
+	Title        string
+	Link         string
+	Date         time.Time
+	UpdatedCache time.Time
+	Hash         itemHash
+	ID           uuid.UUID
 }
 
 func (item cachedItem) String() string {
@@ -56,9 +55,8 @@ func (item cachedItem) String() string {
   Title: %q
   Guid: %q
   Link: %q
-  Published: %s
-  Updated: %s
-}`, item.Title, item.Guid, item.Link, util.TimeFormat(item.PublishedDate), util.TimeFormat(item.UpdatedDate))
+  Date: %s
+}`, item.Title, item.Guid, item.Link, util.TimeFormat(item.Date))
 }
 
 func (cf *cachedFeed) Checked(withFailure bool) {
@@ -159,11 +157,8 @@ func (item *item) newCachedItem() cachedItem {
 	ci.ID = item.itemId
 	ci.Title = item.Item.Title
 	ci.Link = item.Item.Link
-	if item.Item.PublishedParsed != nil {
-		ci.PublishedDate = *item.Item.PublishedParsed
-	}
-	if item.Item.UpdatedParsed != nil && !item.Item.UpdatedParsed.Equal(ci.PublishedDate) {
-		ci.UpdatedDate = *item.Item.UpdatedParsed
+	if item.DateParsed() != nil {
+		ci.Date = *item.DateParsed()
 	}
 	ci.Guid = item.Item.GUID
 
@@ -176,7 +171,7 @@ func (item *item) newCachedItem() cachedItem {
 func (item *cachedItem) similarTo(other *cachedItem, ignoreHash bool) bool {
 	return other.Title == item.Title &&
 		other.Link == item.Link &&
-		other.PublishedDate.Equal(item.PublishedDate) &&
+		other.Date.Equal(item.Date) &&
 		(ignoreHash || other.Hash == item.Hash)
 }
 
@@ -215,7 +210,7 @@ func (cf *cachedFeed) filterItems(items []item, ignoreHash, alwaysNew bool) []it
 CACHE_ITEMS:
 	for ci, item := range cacheItems {
 		log.Debugf("Now checking %s", ci)
-		if cf.LastCheck.IsZero() || ci.PublishedDate.After(cf.LastCheck) {
+		if cf.LastCheck.IsZero() || ci.Date.After(cf.LastCheck) {
 			log.Debug("Newer than last check, including.")
 
 			item.addReason("time")

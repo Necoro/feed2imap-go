@@ -63,7 +63,7 @@ func (item *item) buildHeader() message.Header {
 	h.Set("Message-Id", item.messageId())
 
 	{ // date
-		date := item.PublishedParsed
+		date := item.DateParsed()
 		if date == nil {
 			now := time.Now()
 			date = &now
@@ -73,7 +73,7 @@ func (item *item) buildHeader() message.Header {
 	{ // subject
 		subject := item.Title
 		if subject == "" {
-			subject = item.Published
+			subject = item.Date()
 		}
 		if subject == "" {
 			subject = item.Link
