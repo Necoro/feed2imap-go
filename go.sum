@@ -15,6 +15,7 @@ github.com/emersion/go-imap v1.0.4/go.mod h1:yKASt+C3ZiDAiCSssxg9caIckWF/JG7ZQTO
 github.com/emersion/go-imap-uidplus v0.0.0-20200503180755-e75854c361e9 h1:2Kbw3iu7fFeSso6RWIArVNUj1VGG2PvjetnPUW7bnis=
 github.com/emersion/go-imap-uidplus v0.0.0-20200503180755-e75854c361e9/go.mod h1:GfiSiw/du0221I3Cf4F0DqX3Bv5Xe580gIIATrQtnJg=
 github.com/emersion/go-message v0.11.1/go.mod h1:C4jnca5HOTo4bGN9YdqNQM9sITuT3Y0K6bSUw9RklvY=
+github.com/emersion/go-message v0.11.2/go.mod h1:C4jnca5HOTo4bGN9YdqNQM9sITuT3Y0K6bSUw9RklvY=
 github.com/emersion/go-message v0.11.3-0.20200422153910-8c6ac6b57e3d h1:GJ4ATGxKc/zmU4LIgw4LiNc1W+MQii/hMM+gWRDaHLU=
 github.com/emersion/go-message v0.11.3-0.20200422153910-8c6ac6b57e3d/go.mod h1:C4jnca5HOTo4bGN9YdqNQM9sITuT3Y0K6bSUw9RklvY=
 github.com/emersion/go-sasl v0.0.0-20191210011802-430746ea8b9b h1:uhWtEWBHgop1rqEk2klKaxPAkVDCXexai6hSuRQ7Nvs=
@@ -48,6 +49,8 @@ golang.org/x/net v0.0.0-20181220203305-927f97764cc3/go.mod h1:mL1N/T3taQHkDXs73r
 golang.org/x/net v0.0.0-20200202094626-16171245cfb2/go.mod h1:z5CRVTTTmAJ677TzLLGU+0bjPO0LkuOLi4/5GtJWs/s=
 golang.org/x/net v0.0.0-20200501053045-e0ff5e5a1de5 h1:WQ8q63x+f/zpC8Ac1s9wLElVoHhm32p6tudrU72n1QA=
 golang.org/x/net v0.0.0-20200501053045-e0ff5e5a1de5/go.mod h1:qpuaurCH72eLCgpAm/N6yyVIVM9cpaDIP3A8BGJEC5A=
+golang.org/x/net v0.0.0-20200506145744-7e3656a0809f h1:QBjCr1Fz5kw158VqdE9JfI9cJnl/ymnJWAdMuinqL7Y=
+golang.org/x/net v0.0.0-20200506145744-7e3656a0809f/go.mod h1:qpuaurCH72eLCgpAm/N6yyVIVM9cpaDIP3A8BGJEC5A=
 golang.org/x/sys v0.0.0-20190215142949-d0b11bdaac8a/go.mod h1:STP8DvDyc/dI5b8T5hshtkjS+E42TnysNCUPdjciGhY=
 golang.org/x/sys v0.0.0-20200323222414-85ca7c5b95cd/go.mod h1:h1NjWce9XRLGQEsW7wpKNCjG9DtNlClVuFLEZdDNbEs=
 golang.org/x/text v0.3.0/go.mod h1:NqM8EUOU14njkJ3fqMW+pc6Ldnwhi/IjpwHt7yyuwOQ=
@@ -60,3 +63,5 @@ gopkg.in/check.v1 v0.0.0-20161208181325-20d25e280405 h1:yhCVgyC4o1eVCa2tZl7eS0r+
 gopkg.in/check.v1 v0.0.0-20161208181325-20d25e280405/go.mod h1:Co6ibVJAznAaIkqp8huTwlJQCZ016jof/cbN4VW5Yz0=
 gopkg.in/yaml.v3 v3.0.0-20200313102051-9f266ea9e77c h1:dUUwHk2QECo/6vqA44rthZ8ie2QXMNeKRTHCNY2nXvo=
 gopkg.in/yaml.v3 v3.0.0-20200313102051-9f266ea9e77c/go.mod h1:K4uyk7z7BCEPqu6E+C64Yfv1cQ7kz7rIZviUmN+EgEM=
+gopkg.in/yaml.v3 v3.0.0-20200506231410-2ff61e1afc86 h1:OfFoIUYv/me30yv7XlMy4F9RJw8DEm8WQ6QG1Ph4bH0=
+gopkg.in/yaml.v3 v3.0.0-20200506231410-2ff61e1afc86/go.mod h1:K4uyk7z7BCEPqu6E+C64Yfv1cQ7kz7rIZviUmN+EgEM=
