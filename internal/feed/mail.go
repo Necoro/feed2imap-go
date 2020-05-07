@@ -57,10 +57,13 @@ func (item *item) buildHeader() message.Header {
 	h.SetContentType("multipart/alternative", nil)
 	h.SetAddressList("From", item.fromAddress())
 	h.SetAddressList("To", item.toAddress())
+	h.Set("Message-Id", item.messageId())
 	h.Set(msg.VersionHeader, version.Version())
 	h.Set(msg.ReasonHeader, strings.Join(item.reasons, ","))
 	h.Set(msg.IdHeader, item.id())
-	h.Set("Message-Id", item.messageId())
+	if item.GUID != "" {
+		h.Set(msg.GuidHeader, item.GUID)
+	}
 
 	{ // date
 		date := item.DateParsed()

@@ -12,6 +12,7 @@ const (
 	VersionHeader = "X-Feed2Imap-Version"
 	ReasonHeader  = "X-Feed2Imap-Reason"
 	IdHeader      = "X-Feed2Imap-Item"
+	GuidHeader    = "X-Feed2Imap-Guid"
 )
 
 type Messages []Message
