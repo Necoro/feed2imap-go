@@ -16,7 +16,6 @@ import (
 	"github.com/emersion/go-message"
 	"github.com/emersion/go-message/mail"
 	"github.com/gabriel-vasile/mimetype"
-	"golang.org/x/net/html"
 
 	"github.com/Necoro/feed2imap-go/internal/feed/template"
 	"github.com/Necoro/feed2imap-go/internal/http"
@@ -241,13 +240,6 @@ func getBody(content, description string, bodyCfg config.Body) string {
 	}
 }
 
-func startsWithText(str string) bool {
-	reader := strings.NewReader(str)
-	tokenizer := html.NewTokenizerFragment(reader, "")
-
-	return tokenizer.Next() == html.TextToken
-}
-
 func (item *item) buildBody() {
 	feed := item.feed
 	feedUrl, err := url.Parse(feed.Url)
@@ -256,9 +248,6 @@ func (item *item) buildBody() {
 	}
 
 	body := getBody(item.Content, item.Description, feed.Body)
-	if body != "" && startsWithText(body) {
-		body = "<br />" + body
-	}
 
 	if !feed.InclImages {
 		item.Body = body
