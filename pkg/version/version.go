@@ -3,8 +3,7 @@ package version
 // this is set by the linker during build
 var (
 	version = "devel"
-	commit = ""
-
+	commit  = ""
 )
 
 // Version returns the current feed2imap-go version
