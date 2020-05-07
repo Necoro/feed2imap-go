@@ -2,6 +2,7 @@ package feed
 
 import (
 	"crypto/sha256"
+	"encoding/hex"
 	"fmt"
 	"strconv"
 	"time"
@@ -40,6 +41,10 @@ type cachedFeed struct {
 
 type itemHash [sha256.Size]byte
 
+func (h itemHash) String() string {
+	return hex.EncodeToString(h[:])
+}
+
 type cachedItem struct {
 	Guid         string
 	Title        string
@@ -56,7 +61,8 @@ func (item cachedItem) String() string {
   Guid: %q
   Link: %q
   Date: %s
-}`, item.Title, item.Guid, item.Link, util.TimeFormat(item.Date))
+  Hash: %s
+}`, item.Title, item.Guid, item.Link, util.TimeFormat(item.Date), item.Hash)
 }
 
 func (cf *cachedFeed) Checked(withFailure bool) {
