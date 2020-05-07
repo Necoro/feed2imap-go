@@ -210,13 +210,6 @@ func (cf *cachedFeed) filterItems(items []item, ignoreHash, alwaysNew bool) []it
 CACHE_ITEMS:
 	for ci, item := range cacheItems {
 		log.Debugf("Now checking %s", ci)
-		if cf.LastCheck.IsZero() || ci.Date.After(cf.LastCheck) {
-			log.Debug("Newer than last check, including.")
-
-			item.addReason("time")
-			app(item, ci, nil)
-			continue
-		}
 
 		if ci.Guid != "" {
 			for idx, oldItem := range cf.Items {
