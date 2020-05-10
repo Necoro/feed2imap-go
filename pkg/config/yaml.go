@@ -216,12 +216,14 @@ func buildFeeds(cfg []configGroupFeed, target []string, feeds Feeds, globalFeedO
 			}
 
 		case f.isGroup():
-			if err := buildFeeds(f.Group.Feeds, target, feeds, globalFeedOptions); err != nil {
-				return err
+			opt, unknown := buildOptions(globalFeedOptions, f.Options)
+
+			for _, optName := range unknown {
+				log.Warnf("Unknown option '%s' for group '%s'. Ignored!", optName, f.Group.Group)
 			}
 
-			for optName := range f.Options {
-				log.Warnf("Unknown option '%s' for group '%s'. Ignored!", optName, f.Group.Group)
+			if err := buildFeeds(f.Group.Feeds, target, feeds, &opt); err != nil {
+				return err
 			}
 		}
 	}
