@@ -49,7 +49,7 @@ func (item *item) toAddress() []*mail.Address {
 }
 
 func (item *item) writeHtml(writer io.Writer) error {
-	return template.Feed.Execute(writer, item)
+	return template.Html.Execute(writer, item)
 }
 
 func (item *item) buildHeader() message.Header {

@@ -1,6 +1,6 @@
 package template
 
-var Feed = fromString("Feed", feedTpl)
+var Html = fromString("Feed", feedTpl)
 
 //noinspection HtmlDeprecatedAttribute,HtmlUnknownTarget
 const feedTpl = `{{- /*gotype:github.com/Necoro/feed2imap-go/internal/feed.feeditem*/ -}}
