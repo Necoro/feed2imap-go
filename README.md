@@ -53,7 +53,6 @@ warning is issued when an option should now be in another place or is no longer 
 * IMAP-Target per Feed ([issue #6][i6]); targets only specify the folder relative to the global target
 * Maildir ([issue #4][i4])
 * Scripts for generating/filtering feeds
-* Planned for the nearer future: Text-Support ([issue #7][i7]): Currently, only HTML mails are produced.
 
 ## Installation
 
@@ -92,7 +91,6 @@ and b) the update process is not clear, especially regarding the dependencies.
 
 
 [i6]: https://github.com/Necoro/feed2imap-go/issues/6
-[i7]: https://github.com/Necoro/feed2imap-go/issues/7
 [i4]: https://github.com/Necoro/feed2imap-go/issues/4
 [i9]: https://github.com/Necoro/feed2imap-go/issues/9
 [nec]: https://github.com/Necoro/feed2imap

@@ -5,11 +5,13 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+
+## [0.3.0] - 2020-05-10
 ### Added
 - Options are now also allowed on group-level (closes #12)
+- Render text parts in mails (closes #7)
 
 ## [0.2.0] - 2020-05-10
-
 ### Added
 - New header X-Feed2Imap-Guid
 
@@ -31,7 +33,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 Initial release
 
-[Unreleased]: https://github.com/Necoro/feed2imap-go/compare/v0.2.0...HEAD
+[Unreleased]: https://github.com/Necoro/feed2imap-go/compare/v0.3.0...HEAD
+[0.3.0]: https://github.com/Necoro/feed2imap-go/compare/v0.2.0...v0.3.0
 [0.2.0]: https://github.com/Necoro/feed2imap-go/compare/v0.1.1...v0.2.0
 [0.1.1]: https://github.com/Necoro/feed2imap-go/compare/v0.1.0...v0.1.1
 [0.1.0]: https://github.com/Necoro/feed2imap-go/releases/tag/v0.1.0
