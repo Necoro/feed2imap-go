@@ -108,7 +108,9 @@ func run() error {
 		defer c.Disconnect()
 	}
 
-	if !*buildCache {
+	if *buildCache {
+		state.Foreach((*feed.Feed).MarkSuccess)
+	} else {
 		state.ForeachGo(func(f *feed.Feed) {
 			processFeed(f, c, *dryRun)
 		})
