@@ -1,5 +1,5 @@
-github.com/Necoro/html2text v0.0.0-20200510154123-c8759788e76c h1:AXxZamrf3VrhWgYBPrT4dAP0lWVLYNnOyFgML8r/J6k=
-github.com/Necoro/html2text v0.0.0-20200510154123-c8759788e76c/go.mod h1:D5SSrHqldK3oe5lx1uMRgJzbpykn5I/9C/sctGqCDHU=
+github.com/Necoro/html2text v0.0.0-20200510210108-d7611f0be99f h1:8p10S/q2hJbHlRu4vE4Y5geDc7g6CC2hkHfQvc6x/dA=
+github.com/Necoro/html2text v0.0.0-20200510210108-d7611f0be99f/go.mod h1:9AnGXZMY/GCLWg9ozOQp8a+KcsHkudIrDDWRrjuJtv4=
 github.com/PuerkitoBio/goquery v1.5.0 h1:uGvmFXOA73IKluu/F84Xd1tt/z07GYm8X49XKHP7EJk=
 github.com/PuerkitoBio/goquery v1.5.0/go.mod h1:qD2PgZ9lccMbQlc7eEOjaeRlFQON7xY8kdmcsrnKqMg=
 github.com/PuerkitoBio/goquery v1.5.1 h1:PSPBGne8NIUWw+/7vFBV+kG2J/5MOjbzc7154OaKCSE=
