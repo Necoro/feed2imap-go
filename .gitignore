@@ -1,3 +1,5 @@
 .idea
 config*.yml
 *.cache
+/dist/
+/feed2imap-go
