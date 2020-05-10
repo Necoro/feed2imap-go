@@ -11,11 +11,11 @@ import (
 	"strings"
 	"time"
 
+	"github.com/Necoro/html2text"
 	"github.com/PuerkitoBio/goquery"
 	"github.com/emersion/go-message"
 	"github.com/emersion/go-message/mail"
 	"github.com/gabriel-vasile/mimetype"
-	"github.com/jaytaylor/html2text"
 	"golang.org/x/net/html"
 
 	"github.com/Necoro/feed2imap-go/internal/feed/template"
@@ -266,7 +266,7 @@ func (item *item) buildBody() {
 	}
 
 	if feed.Global.WithPartText() {
-		if item.TextBody, err = html2text.FromHTMLNode(bodyNode); err != nil {
+		if item.TextBody, err = html2text.FromHTMLNode(bodyNode, html2text.Options{CitationStyleLinks: true}); err != nil {
 			log.Errorf("Feed %s: Item %s: Error while converting html to text: %s", feed.Name, item.Link, err)
 		}
 	}
