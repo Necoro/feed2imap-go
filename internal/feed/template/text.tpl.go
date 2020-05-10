@@ -11,11 +11,11 @@ const textTpl = `{{- /*gotype:github.com/Necoro/feed2imap-go/internal/feed.feedi
 {{- with .TextBody -}}
 {{.}}
 {{ end -}}
-{{- with .Item.Enclosures -}}
-Files: 
-  {{- range . -}}
-    {{- .URL}} ({{with .Length}}{{. | byteCount}}, {{end}}{{.Type}})
-  {{- end -}}
+{{- with .Item.Enclosures}}
+Files:
+{{- range . }}
+  {{ .URL}} ({{with .Length}}{{. | byteCount}}, {{end}}{{.Type}})
+{{- end -}}
 {{- end}}
 -- 
 Feed: {{ with .Feed.Title -}}{{.}}{{- end }}
