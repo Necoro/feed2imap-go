@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"encoding/base64"
 	"fmt"
-	"io"
 	"io/ioutil"
 	"mime"
 	"net/url"
@@ -16,6 +15,8 @@ import (
 	"github.com/emersion/go-message"
 	"github.com/emersion/go-message/mail"
 	"github.com/gabriel-vasile/mimetype"
+	"github.com/jaytaylor/html2text"
+	"golang.org/x/net/html"
 
 	"github.com/Necoro/feed2imap-go/internal/feed/template"
 	"github.com/Necoro/feed2imap-go/internal/http"
@@ -46,10 +47,6 @@ func (item *item) fromAddress() []*mail.Address {
 
 func (item *item) toAddress() []*mail.Address {
 	return address(item.feed.Name, item.defaultEmail())
-}
-
-func (item *item) writeHtml(writer io.Writer) error {
-	return template.Html.Execute(writer, item)
 }
 
 func (item *item) buildHeader() message.Header {
@@ -87,9 +84,9 @@ func (item *item) buildHeader() message.Header {
 	return h.Header
 }
 
-func (item *item) writeHtmlPart(w *message.Writer) error {
+func (item *item) writeContentPart(w *message.Writer, typ string, tpl template.Template) error {
 	var ih message.Header
-	ih.SetContentType("text/html", map[string]string{"charset": "utf-8"})
+	ih.SetContentType("text/"+typ, map[string]string{"charset": "utf-8"})
 	ih.SetContentDisposition("inline", nil)
 	ih.Set("Content-Transfer-Encoding", "8bit")
 
@@ -99,11 +96,19 @@ func (item *item) writeHtmlPart(w *message.Writer) error {
 	}
 	defer partW.Close()
 
-	if err = item.writeHtml(w); err != nil {
-		return fmt.Errorf("writing html part: %w", err)
+	if err = tpl.Execute(w, item); err != nil {
+		return fmt.Errorf("writing %s part: %w", typ, err)
 	}
 
 	return nil
+}
+
+func (item *item) writeTextPart(w *message.Writer) error {
+	return item.writeContentPart(w, "plain", template.Text)
+}
+
+func (item *item) writeHtmlPart(w *message.Writer) error {
+	return item.writeContentPart(w, "html", template.Html)
 }
 
 func (img *feedImage) writeImagePart(w *message.Writer, cid string) error {
@@ -128,6 +133,7 @@ func (img *feedImage) writeImagePart(w *message.Writer, cid string) error {
 
 func (item *item) writeToBuffer(b *bytes.Buffer) error {
 	h := item.buildHeader()
+	item.buildBody()
 
 	writer, err := message.CreateWriter(b, h)
 	if err != nil {
@@ -135,9 +141,13 @@ func (item *item) writeToBuffer(b *bytes.Buffer) error {
 	}
 	defer writer.Close()
 
-	if item.feed.Global.WithPartHtml() {
-		item.buildBody()
+	if item.feed.Global.WithPartText() {
+		if err = item.writeTextPart(writer); err != nil {
+			return err
+		}
+	}
 
+	if item.feed.Global.WithPartHtml() {
 		var relWriter *message.Writer
 		if len(item.images) > 0 {
 			var rh message.Header
@@ -160,10 +170,9 @@ func (item *item) writeToBuffer(b *bytes.Buffer) error {
 				return err
 			}
 		}
-
-		item.clearImages() // safe memory
 	}
 
+	item.clearImages() // safe memory
 	return nil
 }
 
@@ -248,18 +257,26 @@ func (item *item) buildBody() {
 	}
 
 	body := getBody(item.Content, item.Description, feed.Body)
-
-	if !feed.InclImages {
-		item.Body = body
-		return
-	}
-
-	doc, err := goquery.NewDocumentFromReader(strings.NewReader(body))
+	bodyNode, err := html.Parse(strings.NewReader(body))
 	if err != nil {
-		log.Errorf("Feed %s: Item %s: Error while parsing html content: %s", feed.Name, item.Link, err)
+		log.Errorf("Feed %s: Item %s: Error while parsing html: %s", feed.Name, item.Link, err)
+		item.Body = body
+		item.TextBody = body
+		return
+	}
+
+	if feed.Global.WithPartText() {
+		if item.TextBody, err = html2text.FromHTMLNode(bodyNode); err != nil {
+			log.Errorf("Feed %s: Item %s: Error while converting html to text: %s", feed.Name, item.Link, err)
+		}
+	}
+
+	if !feed.InclImages || !feed.Global.WithPartHtml() || err != nil {
 		item.Body = body
 		return
 	}
+
+	doc := goquery.NewDocumentFromNode(bodyNode)
 
 	doneAnything := true
 	nodes := doc.Find("img")

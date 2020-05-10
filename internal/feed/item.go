@@ -22,6 +22,7 @@ type item struct {
 	Feed       *gofeed.Feed
 	feed       *Feed
 	Body       string
+	TextBody   string
 	updateOnly bool
 	reasons    []string
 	images     []feedImage

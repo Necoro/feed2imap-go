@@ -2,12 +2,25 @@ package template
 
 import (
 	"fmt"
-	"html/template"
+	html "html/template"
+	"io"
 	"strconv"
 	"strings"
+	text "text/template"
 
 	"github.com/Necoro/feed2imap-go/pkg/log"
 )
+
+type Template interface {
+	Execute(wr io.Writer, data interface{}) error
+}
+
+func must(t Template, err error) Template {
+	if err != nil {
+		panic(err)
+	}
+	return t
+}
 
 func dict(v ...interface{}) map[string]interface{} {
 	dict := make(map[string]interface{})
@@ -53,19 +66,22 @@ func byteCount(str string) string {
 	return fmt.Sprintf("%.1f %cB", float64(b)/float64(div), "KMGTPE"[exp])
 }
 
-func html(s string) template.HTML {
-	return template.HTML(s)
+func _html(s string) html.HTML {
+	return html.HTML(s)
 }
 
-var funcMap = template.FuncMap{
+var funcMap = html.FuncMap{
 	"dict":        dict,
 	"join":        join,
 	"lastUrlPart": lastUrlPart,
 	"byteCount":   byteCount,
-	"html":        html,
+	"html":        _html,
 }
 
-func fromString(name, templateStr string) *template.Template {
-	tpl := template.New(name).Funcs(funcMap)
-	return template.Must(tpl.Parse(templateStr))
+func fromString(name, templateStr string, useHtml bool) Template {
+	if useHtml {
+		return must(html.New(name).Funcs(funcMap).Parse(templateStr))
+	} else {
+		return must(text.New(name).Funcs(text.FuncMap(funcMap)).Parse(templateStr))
+	}
 }
