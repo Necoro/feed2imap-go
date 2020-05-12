@@ -1,0 +1,127 @@
+---
+apiVersion: v1
+data:
+  config.yml: |
+    target: imap://test%40example.com:passw0rd@mail.example.com:143/INBOX/Feeds
+    
+    timeout: 30
+    max-failures:  10
+    parts: ["text", "html"]
+    default-email: username@hostname
+    
+    options:
+      min-frequency: 0
+      include-images: true
+      embed-images: false
+      body: default
+      disable: false
+      tls-no-verify: false
+      ignore-hash: false
+      always-new: false
+      reupload-if-updated: false
+    
+    feeds:
+      - name: XKCD
+        url: http://xkcd.com/rss.xml
+        min-frequency: 12
+      - group: Linux
+        min-frequency: 6
+        feeds:
+          - name: Arch Linux
+            target: Arch
+            url: https://www.archlinux.org/feeds/news/
+          - group: Gentoo
+            target: Gentoo
+            feeds:
+                - name: Planet Gentoo
+                  target:
+                  url: https://planet.gentoo.org/atom.xml
+                  min-frequency: 24
+                - name: Gentoo News
+                  target:
+                  url: https://gentoo.org/feeds/news.xml
+                  min-frequency: 24
+      - group: News
+        feeds:
+          - name: Heise
+            url: http://www.heise.de/newsticker/heise-atom.xml
+            ignore-hash: true
+          - name: Spiegel
+            url: http://www.spiegel.de/schlagzeilen/index.rss
+          - group: Süddeutsche
+            target: SZ
+            feeds:
+              - name: Bayern
+                url: http://rssfeed.sueddeutsche.de/c/795/f/448243/index.rss
+                target:
+              - name: München
+                url: http://rssfeed.sueddeutsche.de/c/795/f/448324/index.rss
+                target:
+          - group: ZEIT Online
+            target: Zeit
+            feeds:
+              - name: Digital
+                url: http://newsfeed.zeit.de/digital/index
+                target:
+kind: ConfigMap
+metadata:
+  name: config-yml
+  namespace: default
+---
+apiVersion: batch/v1beta1
+kind: CronJob
+metadata:
+  name: feed2imap
+spec:
+  schedule: "*/10 * * * *"
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          volumes:
+          - name: feed2imap-pv-storage
+            persistentVolumeClaim:
+              claimName: feed2imap-pv-claim
+          - name: config-yml
+            configMap:
+              name: config-yml # place ConfigMap `config-yml` on /app
+              items:
+                - key: config.yml
+                  path: config.yml
+          containers:
+          - name: feed2imap
+            image: feed2imap-go:latest
+            volumeMounts:
+            - mountPath: /app/data
+              name: feed2imap-pv-storage
+            - mountPath: /app # mount config-yml volumn to /app
+              readOnly: true
+              name: config-yml
+          restartPolicy: OnFailure
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: feed2imap-pv-volume
+  labels:
+    type: local
+spec:
+  storageClassName: manual
+  capacity:
+    storage: 50Mi
+  accessModes:
+    - ReadWriteOnce
+  hostPath:
+    path: "/mnt/data"
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: feed2imap-pv-claim
+spec:
+  storageClassName: manual
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 50Mi

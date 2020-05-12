@@ -110,6 +110,32 @@ Or run with docker-compose:
 ````bash
 docker-compose up
 
+To use the Docker image on other servers push the image into a docker registry
+
+````bash
+docker build -t docker.your.domain/feed2imap .
+
+docker login <your.docker.registry.url>
+
+docker push docker.your.domain/feed2imap
+````
+
+Use in docker-compose `FROM docker.your.domain/feed2imap` in kubernetes yaml `image: docker.your.domain/feed2imap` 
+
+Deploy to Kubernetes as Cronjob. 
+
+Change kubernetes/cronjob.yaml with your data. 
+
+````bash
+kubectl apply -f kubernetes/cronjob.yaml
+configmap/config-yml created
+cronjob.batch/feed2imap created
+persistentvolume/feed2imap-pv-volume created
+persistentvolumeclaim/feed2imap-pv-claim created
+````
+
+
+
 Next Todo: Run scheduled kubernetes job in k8s cluster 
 
 [i6]: https://github.com/Necoro/feed2imap-go/issues/6
