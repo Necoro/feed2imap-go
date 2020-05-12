@@ -31,6 +31,13 @@ jobs:
       run: |
           echo '${{ steps.changelog_reader.outputs.log_entry }}' >> $HOME/changelog_entry
           echo "::set-env name=clfile::${HOME}/changelog_entry"
+          
+    - name: Docker Login
+      uses: azure/docker-login@v1
+      with:
+         login-server: 'docker.pkg.github.com'
+         username: ${{ github.repository_owner }} 
+         password: ${{ secrets.GITHUB_TOKEN }}
 
     - name: Run GoReleaser
       uses: goreleaser/goreleaser-action@v1
