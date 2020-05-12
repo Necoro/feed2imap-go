@@ -1,6 +1,7 @@
 FROM alpine
 
-COPY feed2imap-go /
+RUN mkdir /app
+COPY feed2imap-go /app
 
-ENTRYPOINT ["/feed2imap-go"]
-CMD ["-c", "/data/feed.cache", "-f", "/data/config.yml"]
+ENTRYPOINT ["/app/feed2imap-go"]
+CMD ["-c", "/app/data/feed.cache", "-f", "/app/data/config.yml"]
