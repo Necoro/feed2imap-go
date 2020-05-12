@@ -4,7 +4,8 @@ before:
   hooks:
     - go mod download
 builds:
-  -  
+  -
+    id: standalone
     binary: feed2imap-go
     ldflags:
         - -s -w -X github.com/Necoro/feed2imap-go/pkg/version.version={{.Version}} -X github.com/Necoro/feed2imap-go/pkg/version.commit={{.ShortCommit}}
@@ -14,8 +15,40 @@ builds:
         - darwin
     goarch:
         - amd64
+
+  # for DOCKER we explicitly disable CGO
+  # we keep it enabled for the standalone version, b/c it might have advantages on
+  # more complicated setups, where the go internal implementations call out to glibc
+  -
+    id: docker
+    binary: feed2imap-go
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+        - -s -w -X github.com/Necoro/feed2imap-go/pkg/version.version={{.Version}} -X github.com/Necoro/feed2imap-go/pkg/version.commit={{.ShortCommit}}
+    goos:
+        - linux
+    goarch:
+        - amd64
+
+dockers:
+  -
+    builds:
+        - docker
+    goos: linux
+    goarch: amd64
+    binaries:
+        - feed2imap-go
+    image_templates:
+        - "feed2imap-go:latest"
+        - "feed2imap-go:{{ .Version }}"
+        - "docker.pkg.github.com/necoro/feed2imap-go/feed2imap-go:latest"
+        - "docker.pkg.github.com/necoro/feed2imap-go/feed2imap-go:{{ .Version }}"
+
 archives:
   -
+    builds:
+        - standalone
     replacements:
         amd64: x86_64
         386: x86_32
