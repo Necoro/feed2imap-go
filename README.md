@@ -135,9 +135,6 @@ persistentvolumeclaim/feed2imap-pv-claim created
 ````
 
 
-
-Next Todo: Run scheduled kubernetes job in k8s cluster 
-
 [i6]: https://github.com/Necoro/feed2imap-go/issues/6
 [i4]: https://github.com/Necoro/feed2imap-go/issues/4
 [i9]: https://github.com/Necoro/feed2imap-go/issues/9
