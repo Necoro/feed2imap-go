@@ -40,8 +40,6 @@ dockers:
     binaries:
         - feed2imap-go
     image_templates:
-        - "feed2imap-go:latest"
-        - "feed2imap-go:{{ .Version }}"
         - "docker.pkg.github.com/necoro/feed2imap-go/feed2imap-go:latest"
         - "docker.pkg.github.com/necoro/feed2imap-go/feed2imap-go:{{ .Version }}"
 
