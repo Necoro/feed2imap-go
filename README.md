@@ -109,6 +109,7 @@ Or run with docker-compose:
 
 ````bash
 docker-compose up
+````
 
 To use the Docker image on other servers push the image into a docker registry
 
@@ -133,7 +134,6 @@ cronjob.batch/feed2imap created
 persistentvolume/feed2imap-pv-volume created
 persistentvolumeclaim/feed2imap-pv-claim created
 ````
-
 
 [i6]: https://github.com/Necoro/feed2imap-go/issues/6
 [i4]: https://github.com/Necoro/feed2imap-go/issues/4
