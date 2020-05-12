@@ -90,6 +90,28 @@ Note that this is not recommended, because it is a) not obvious which version yo
 and b) the update process is not clear, especially regarding the dependencies.
 
 
+### Run in docker
+
+Build docker image:
+
+````bash
+docker build -t feed2imap-go .
+````
+
+Run docker-command:
+
+````bash
+docker volume create docker_feeddata
+docker container run -v feeddata:/app/data feed2imap-go
+````
+
+Or run with docker-compose:
+
+````bash
+docker-compose up
+
+Next Todo: Run scheduled kubernetes job in k8s cluster 
+
 [i6]: https://github.com/Necoro/feed2imap-go/issues/6
 [i4]: https://github.com/Necoro/feed2imap-go/issues/4
 [i9]: https://github.com/Necoro/feed2imap-go/issues/9
