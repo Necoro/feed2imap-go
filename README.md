@@ -92,12 +92,12 @@ and b) the update process is not clear, especially regarding the dependencies.
 
 ### Run in docker
 
-Most times, putting feed2imap-go somewhere and adding a cron job does everything you need. For the times where it isn't, we provide docker containers for your convenience at [Github Packages](https://github.com/Necoro/feed2imap-go/packages).
+Most times, putting feed2imap-go somewhere and adding a cron job does everything you need. For the times where it isn't, we provide docker containers for your convenience at [Github Packages](https://github.com/Necoro/feed2imap-go/packages) and at [Docker Hub](https://hub.docker.com/r/necorodm/feed2imap-go).
 
 The container is configured to expect both config file and cache under `/app/data/`, thus needs it mounted there.
 When both are stored in `~/feed`, you can do:
 ````bash
-docker run -v ~/feed:/app/data docker.pkg.github.com/necoro/feed2imap-go/feed2imap-go:latest
+docker run -v ~/feed:/app/data necorodm/feed2imap-go:latest
 ````
 
 Alternatively, build the docker image yourself (requires the `feed2imap-go` binary at toplevel):
