@@ -2,27 +2,27 @@ package imap
 
 import (
 	"fmt"
-	"net/url"
 	"strings"
 
 	imapClient "github.com/emersion/go-imap/client"
 
+	"github.com/Necoro/feed2imap-go/pkg/config"
 	"github.com/Necoro/feed2imap-go/pkg/log"
 )
 
-func newImapClient(url *URL, forceTls bool) (*imapClient.Client, error) {
+func newImapClient(url config.Url) (*imapClient.Client, error) {
 	var (
 		c   *imapClient.Client
 		err error
 	)
 
-	if forceTls {
-		if c, err = imapClient.DialTLS(url.Host, nil); err != nil {
+	if url.ForceTLS() {
+		if c, err = imapClient.DialTLS(url.HostPort(), nil); err != nil {
 			return nil, fmt.Errorf("connecting (TLS) to %s: %w", url.Host, err)
 		}
-		log.Print("Connected to ", url.Host, " (TLS)")
+		log.Print("Connected to ", url.HostPort(), " (TLS)")
 	} else {
-		if c, err = imapClient.Dial(url.Host); err != nil {
+		if c, err = imapClient.Dial(url.HostPort()); err != nil {
 			return nil, fmt.Errorf("connecting to %s: %w", url.Host, err)
 		}
 	}
@@ -30,32 +30,29 @@ func newImapClient(url *URL, forceTls bool) (*imapClient.Client, error) {
 	return c, nil
 }
 
-func (cl *Client) connect(url *URL, forceTls bool) (*connection, error) {
-	c, err := newImapClient(url, forceTls)
+func (cl *Client) connect(url config.Url) (*connection, error) {
+	c, err := newImapClient(url)
 	if err != nil {
 		return nil, err
 	}
 
 	conn := cl.createConnection(c)
 
-	if !forceTls {
+	if !url.ForceTLS() {
 		if err = conn.startTls(); err != nil {
 			return nil, err
 		}
 	}
 
-	pwd, _ := url.User.Password()
-	if err = c.Login(url.User.Username(), pwd); err != nil {
+	if err = c.Login(url.User, url.Password); err != nil {
 		return nil, fmt.Errorf("login to %s: %w", url.Host, err)
 	}
 
 	return conn, nil
 }
 
-func Connect(_url *url.URL) (*Client, error) {
+func Connect(url config.Url) (*Client, error) {
 	var err error
-	url := NewUrl(_url)
-	forceTls := url.ForceTLS()
 
 	client := NewClient()
 	client.host = url.Host
@@ -66,7 +63,7 @@ func Connect(_url *url.URL) (*Client, error) {
 	}()
 
 	var conn *connection // the main connection
-	if conn, err = client.connect(url, forceTls); err != nil {
+	if conn, err = client.connect(url); err != nil {
 		return nil, err
 	}
 
@@ -76,7 +73,7 @@ func Connect(_url *url.URL) (*Client, error) {
 	}
 	client.delimiter = delim
 
-	toplevel := url.Path
+	toplevel := url.Root
 	if toplevel[0] == '/' {
 		toplevel = toplevel[1:]
 	}
@@ -90,7 +87,7 @@ func Connect(_url *url.URL) (*Client, error) {
 
 	// the other connections
 	for i := 1; i < len(client.connections); i++ {
-		if _, err := client.connect(url, forceTls); err != nil { // explicitly new var 'err', b/c these are now harmless
+		if _, err := client.connect(url); err != nil { // explicitly new var 'err', b/c these are now harmless
 			log.Warnf("connecting #%d: %s", i, err)
 		}
 	}

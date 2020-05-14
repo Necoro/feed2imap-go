@@ -19,7 +19,7 @@ type Map map[string]interface{}
 type GlobalOptions struct {
 	Timeout      int      `yaml:"timeout"`
 	DefaultEmail string   `yaml:"default-email"`
-	Target       string   `yaml:"target"`
+	Target       Url      `yaml:"target"`
 	Parts        []string `yaml:"parts"`
 	MaxFailures  int      `yaml:"max-failures"`
 }
@@ -29,7 +29,7 @@ var DefaultGlobalOptions = GlobalOptions{
 	Timeout:      30,
 	MaxFailures:  10,
 	DefaultEmail: username() + "@" + Hostname(),
-	Target:       "",
+	Target:       Url{},
 	Parts:        []string{"text", "html"},
 }
 
@@ -77,7 +77,7 @@ func WithDefault() *Config {
 
 // Validates the configuration against common mistakes
 func (cfg *Config) Validate() error {
-	if cfg.Target == "" {
+	if cfg.Target.Empty() {
 		return fmt.Errorf("No target set!")
 	}
 
