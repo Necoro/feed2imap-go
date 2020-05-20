@@ -5,6 +5,7 @@ import (
 
 	"github.com/mmcdole/gofeed"
 
+	"github.com/Necoro/feed2imap-go/internal/feed/filter"
 	"github.com/Necoro/feed2imap-go/pkg/config"
 	"github.com/Necoro/feed2imap-go/pkg/log"
 )
@@ -12,6 +13,7 @@ import (
 type Feed struct {
 	*config.Feed
 	feed   *gofeed.Feed
+	filter *filter.Filter
 	items  []item
 	cached CachedFeed
 	Global config.GlobalOptions

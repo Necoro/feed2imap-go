@@ -36,15 +36,16 @@ var DefaultGlobalOptions = GlobalOptions{
 // Per feed options
 // NB: Always specify a yaml name, as it is later used in processing
 type Options struct {
-	MinFreq     int  `yaml:"min-frequency"`
-	InclImages  bool `yaml:"include-images"`
-	EmbedImages bool `yaml:"embed-images"`
-	Disable     bool `yaml:"disable"`
-	IgnHash     bool `yaml:"ignore-hash"`
-	AlwaysNew   bool `yaml:"always-new"`
-	Reupload    bool `yaml:"reupload-if-updated"`
-	NoTLS       bool `yaml:"tls-no-verify"`
-	Body        Body `yaml:"body"`
+	MinFreq     int    `yaml:"min-frequency"`
+	InclImages  bool   `yaml:"include-images"`
+	EmbedImages bool   `yaml:"embed-images"`
+	Disable     bool   `yaml:"disable"`
+	IgnHash     bool   `yaml:"ignore-hash"`
+	AlwaysNew   bool   `yaml:"always-new"`
+	Reupload    bool   `yaml:"reupload-if-updated"`
+	NoTLS       bool   `yaml:"tls-no-verify"`
+	ItemFilter  string `yaml:"item-filter"`
+	Body        Body   `yaml:"body"`
 }
 
 // Default feed options
@@ -57,6 +58,7 @@ var DefaultFeedOptions = Options{
 	AlwaysNew:   false,
 	Disable:     false,
 	NoTLS:       false,
+	ItemFilter:  "",
 }
 
 // Config holds the global configuration options and the configured feeds

@@ -85,7 +85,10 @@ func run() error {
 		return fmt.Errorf("Configuration invalid: %w", err)
 	}
 
-	state := feed.NewState(cfg)
+	state, err := feed.NewState(cfg)
+	if err != nil {
+		return err
+	}
 
 	err = state.LoadCache(cacheFile, buildCache)
 	if err != nil {

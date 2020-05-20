@@ -1,8 +1,13 @@
 package feed
 
 import (
+	"encoding/json"
+	"fmt"
 	"sync"
 
+	"github.com/mmcdole/gofeed"
+
+	"github.com/Necoro/feed2imap-go/internal/feed/filter"
 	"github.com/Necoro/feed2imap-go/pkg/config"
 	"github.com/Necoro/feed2imap-go/pkg/log"
 )
@@ -77,15 +82,52 @@ func (state *State) Fetch() int {
 	return ctr
 }
 
+func printItem(item *gofeed.Item) string {
+	// analogous to gofeed.Feed.String
+	json, _ := json.MarshalIndent(item, "", "    ")
+	return string(json)
+}
+
+func (feed *Feed) filterItems() []item {
+	if feed.filter == nil {
+		return feed.items
+	}
+
+	items := make([]item, 0, len(feed.items))
+
+	for _, item := range feed.items {
+		res, err := feed.filter.Run(item.Item)
+		if err != nil {
+			log.Errorf("Feed %s: Item %s: Error applying item filter: %s", feed.Name, printItem(item.Item), err)
+			res = true // include
+		}
+
+		if res {
+			items = append(items, item)
+		} else if log.IsDebug() { // printItem is not for free
+			log.Debugf("Filter '%s' matches for item %s, removing.", feed.ItemFilter, printItem(item.Item))
+		}
+	}
+	return items
+}
+
 func filterFeed(feed *Feed) {
 	if len(feed.items) > 0 {
 		origLen := len(feed.items)
 
 		log.Debugf("Filtering %s. Starting with %d items", feed.Name, origLen)
-		items := feed.cached.filterItems(feed.items, feed.IgnHash, feed.AlwaysNew)
+
+		items := feed.filterItems()
+		newLen := len(items)
+		if newLen < origLen {
+			log.Printf("Item filter on %s: Reduced from %d to %d items.", feed.Name, origLen, newLen)
+			origLen = newLen
+		}
+
+		items = feed.cached.filterItems(items, feed.IgnHash, feed.AlwaysNew)
 		feed.items = items
 
-		newLen := len(feed.items)
+		newLen = len(feed.items)
 		if newLen < origLen {
 			log.Printf("Filtered %s. Reduced from %d to %d items.", feed.Name, origLen, newLen)
 		} else {
@@ -106,7 +148,7 @@ func (state *State) Filter() {
 	}
 }
 
-func NewState(cfg *config.Config) *State {
+func NewState(cfg *config.Config) (*State, error) {
 	state := State{
 		feeds: map[string]*Feed{},
 		cache: nil, // loaded later on
@@ -114,10 +156,17 @@ func NewState(cfg *config.Config) *State {
 	}
 
 	for name, parsedFeed := range cfg.Feeds {
-		state.feeds[name] = &Feed{Feed: parsedFeed, Global: cfg.GlobalOptions}
+		var itemFilter *filter.Filter
+		var err error
+		if parsedFeed.ItemFilter != "" {
+			if itemFilter, err = filter.New(parsedFeed.ItemFilter); err != nil {
+				return nil, fmt.Errorf("Feed %s: Parsing item-filter: %w", parsedFeed.Name, err)
+			}
+		}
+		state.feeds[name] = &Feed{Feed: parsedFeed, Global: cfg.GlobalOptions, filter: itemFilter}
 	}
 
-	return &state
+	return &state, nil
 }
 
 func (state *State) RemoveUndue() {
