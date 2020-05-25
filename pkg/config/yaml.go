@@ -32,6 +32,7 @@ type group struct {
 type feed struct {
 	Name string
 	Url  string
+	Exec []string
 }
 
 type configGroupFeed struct {
@@ -46,7 +47,7 @@ func (grpFeed *configGroupFeed) isGroup() bool {
 }
 
 func (grpFeed *configGroupFeed) isFeed() bool {
-	return grpFeed.Feed.Name != "" || grpFeed.Feed.Url != ""
+	return grpFeed.Feed.Name != "" || grpFeed.Feed.Url != "" || len(grpFeed.Feed.Exec) > 0
 }
 
 func (grpFeed *configGroupFeed) target() string {
@@ -211,6 +212,7 @@ func buildFeeds(cfg []configGroupFeed, target []string, feeds Feeds, globalFeedO
 			feeds[name] = &Feed{
 				Name:    name,
 				Url:     f.Feed.Url,
+				Exec:    f.Feed.Exec,
 				Options: opt,
 				Target:  target,
 			}

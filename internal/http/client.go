@@ -35,7 +35,7 @@ func init() {
 	unsafeClient = &http.Client{Transport: transport}
 }
 
-func context(timeout int) (ctxt.Context, ctxt.CancelFunc) {
+func Context(timeout int) (ctxt.Context, ctxt.CancelFunc) {
 	return ctxt.WithTimeout(ctxt.Background(), time.Duration(timeout)*time.Second)
 }
 
@@ -50,7 +50,7 @@ var noop ctxt.CancelFunc = func() {}
 
 func Get(url string, timeout int, disableTLS bool) (resp *http.Response, cancel ctxt.CancelFunc, err error) {
 	prematureExit := true
-	ctx, ctxCancel := context(timeout)
+	ctx, ctxCancel := Context(timeout)
 
 	cancel = func() {
 		if resp != nil {

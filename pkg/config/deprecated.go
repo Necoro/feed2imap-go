@@ -19,7 +19,7 @@ var unsupported = deprecated{
 var deprecatedOpts = map[string]deprecated{
 	"dumpdir":       unsupported,
 	"debug-updated": {"Use '-d' as option instead.", nil},
-	"execurl":       unsupported,
+	"execurl":       {"Use 'exec' instead.", nil},
 	"filter":        {"Use 'item-filter' instead.", nil},
 	"disable-ssl-verification": {"Interpreted as 'tls-no-verify'.", func(i interface{}, global *GlobalOptions, opts *Options) {
 		val, ok := i.(bool)

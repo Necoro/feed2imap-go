@@ -5,6 +5,7 @@ type Feed struct {
 	Name   string
 	Target []string
 	Url    string
+	Exec   []string
 	Options
 }
 

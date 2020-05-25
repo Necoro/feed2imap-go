@@ -83,6 +83,12 @@ func (cfg *Config) Validate() error {
 		return fmt.Errorf("No target set!")
 	}
 
+	for _, feed := range cfg.Feeds {
+		if feed.Url != "" && len(feed.Exec) > 0 {
+			return fmt.Errorf("Feed %s: Both 'Url' and 'Exec' set, unsure what to do.", feed.Name)
+		}
+	}
+
 	return nil
 }
 

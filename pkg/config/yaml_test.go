@@ -234,6 +234,25 @@ feeds:
 				Options: Map{"include-images": true, "unknown-option": "foo"},
 			}}, Map{"something": 1})},
 
+		{name: "Feed with Exec",
+			inp: `
+feeds:
+  - name: Foo
+    exec: [whatever, -i, http://foo.bar]
+    target: bar
+    include-images: true
+    unknown-option: foo
+`,
+			wantErr: false,
+			config: defaultConfig([]configGroupFeed{{
+				Target: n("bar"),
+				Feed: feed{
+					Name: "Foo",
+					Exec:  []string{"whatever", "-i", "http://foo.bar"},
+				},
+				Options: Map{"include-images": true, "unknown-option": "foo"},
+			}}, nil)},
+
 		{name: "Feeds",
 			inp: `
 feeds:

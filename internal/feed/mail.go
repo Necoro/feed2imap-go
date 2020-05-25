@@ -251,9 +251,19 @@ func getBody(content, description string, bodyCfg config.Body) string {
 
 func (item *item) buildBody() {
 	feed := item.feed
-	feedUrl, err := url.Parse(feed.Url)
-	if err != nil {
-		panic(fmt.Sprintf("URL '%s' of feed '%s' is not a valid URL. How have we ended up here?", feed.Url, feed.Name))
+
+	var feedUrl *url.URL
+	var err error
+	if feed.Url != "" {
+		feedUrl, err = url.Parse(feed.Url)
+		if err != nil {
+			panic(fmt.Sprintf("URL '%s' of feed '%s' is not a valid URL. How have we ended up here?", feed.Url, feed.Name))
+		}
+	} else if feed.feed.Link != "" {
+		feedUrl, err = url.Parse(feed.feed.Link)
+		if err != nil {
+			panic(fmt.Sprintf("Link '%s' of feed '%s' is not a valid URL.", feed.feed.Link, feed.Name))
+		}
 	}
 
 	body := getBody(item.Content, item.Description, feed.Body)
@@ -288,13 +298,15 @@ func (item *item) buildBody() {
 			return
 		}
 
-		srcUrl, err := url.Parse(src)
+		imgUrl, err := url.Parse(src)
 		if err != nil {
 			log.Errorf("Feed %s: Item %s: Error parsing URL '%s' embedded in item: %s",
 				feed.Name, item.Link, src, err)
 			return
 		}
-		imgUrl := feedUrl.ResolveReference(srcUrl)
+		if feedUrl != nil {
+			imgUrl = feedUrl.ResolveReference(imgUrl)
+		}
 
 		img, mime, err := getImage(imgUrl.String(), feed.Global.Timeout, feed.NoTLS)
 		if err != nil {

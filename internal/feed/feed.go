@@ -1,6 +1,7 @@
 package feed
 
 import (
+	"strings"
 	"time"
 
 	"github.com/mmcdole/gofeed"
@@ -25,9 +26,15 @@ type feedDescriptor struct {
 }
 
 func (feed *Feed) descriptor() feedDescriptor {
+	var url string
+	if feed.Url != "" {
+		url = feed.Url
+	} else {
+		url = "exec://" + strings.Join(feed.Exec, "/")
+	}
 	return feedDescriptor{
 		Name: feed.Name,
-		Url:  feed.Url,
+		Url:  url,
 	}
 }
 
