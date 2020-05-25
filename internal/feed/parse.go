@@ -70,7 +70,7 @@ func handleFeed(feed *Feed) {
 
 	err := feed.parse()
 	if err != nil {
-		if feed.cached.Failures() >= feed.Global.MaxFailures {
+		if feed.Url == "" || feed.cached.Failures() >= feed.Global.MaxFailures {
 			log.Error(err)
 		} else {
 			log.Print(err)
