@@ -12,7 +12,7 @@ It also includes the features that up to now only lived on [my own branch][nec].
 It aims to be compatible in functionality and configuration, and should mostly work as a drop-in replacement 
 (but see [Changes](#changes)).
 
-An example configuration can be found [here](config.yml.example).
+An example configuration can be found [here](config.yml.example) with additional information in the [wiki](https://github.com/Necoro/feed2imap-go/wiki/Detailed-Options).
 
 See [the Installation section](#installation) on how to install feed2imap-go. (Spoiler: It's easy ;)).
 
@@ -38,6 +38,7 @@ as inline base64-encoded data (the old default behavior of feed2imap).
 * Improved image inclusion: Support any relative URLs, including `//example.com/foo.png`
 * Use HTML-Parser instead of regular expressions for modifying the HTML content.
 * STARTTLS-Support. As it turned out only in testing, the old feed2imap never supported it...
+* `item-filter` option that allows to specify an inline filter expression on the items of a feed.
 
 ### Subtle differences
 
@@ -52,7 +53,6 @@ warning is issued when an option should now be in another place or is no longer 
 
 * IMAP-Target per Feed ([issue #6][i6]); targets only specify the folder relative to the global target
 * Maildir ([issue #4][i4])
-* Scripts for generating/filtering feeds
 
 ## Installation
 

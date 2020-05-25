@@ -70,9 +70,12 @@ options:
   # If an item is updated, but has been deleted on the server already, it is re-uploaded when this option is true.
   # Else it is ignored.
   reupload-if-updated: false
+  # Items of a feed may be filtered. In general there is no real use in specifying this globally.
+  # For full information about this feature, visit https://github.com/Necoro/feed2imap-go/wiki/Detailed-Options.
+  item-filter: 'Author.Name != "Weirdo"'
 
 ## Feeds
-# Each feed must have a name and a URL. The name must be unique.
+# Each feed must have a name, and a URL or Exec argument. The name must be unique.
 # The name also determines the folder to use for that feed, which can be overwritten with an explicit target.
 # Groups can be used to build a hierarchy, with arbitrary nesting.
 feeds:
@@ -91,7 +94,9 @@ feeds:
         # Considering the global `target` the final folder will be:
         #  INBOX/Feeds/Linux/Arch
         target: Arch
-        url: https://www.archlinux.org/feeds/news/
+        # Use `exec` instead of `url` when fetching is not enough and script magic is needed.
+        # See https://github.com/Necoro/feed2imap-go/wiki/Detailed-Options for details.
+        exec: ["wget", "https://www.archlinux.org/feeds/news/", "-O", "-"]
         # Groups can be nested...
       - group: Gentoo
         # and also specify a target (which is superfluous here, because it is identical to the group name)

@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Verbose variant of 'target' in config: Do not hassle with urlencoded passwords anymore!
 - New feed option 'item-filter' for filtering out specific items from feed.
+- New feed option 'exec', allowing to specify a command to execute instead of a Url to fetch from.
 
 ## [0.3.1] - 2020-05-12
 - Docker Setup
