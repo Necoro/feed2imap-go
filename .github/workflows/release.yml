@@ -43,7 +43,7 @@ jobs:
       uses: azure/docker-login@v1
       with:
          login-server: 'https://index.docker.io/v1/'
-         username: necorodm
+         username: ${{ secrets.DOCKER_USERNAME }}
          password: ${{ secrets.DOCKER_TOKEN }}
 
     - name: Run GoReleaser
