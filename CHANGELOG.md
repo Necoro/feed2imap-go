@@ -6,6 +6,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.4.1] - 2020-06-20
+### Fixed
+- Fix a bug, where cached items get deleted when a feed runs dry. 
+This resulted in duplicate entries as soon as the feed contained (possibly older) entries again. 
+
 ## [0.4.0] - 2020-05-25
 ### Added
 - Verbose variant of 'target' in config: Do not hassle with urlencoded passwords anymore!
@@ -42,7 +47,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 Initial release
 
-[Unreleased]: https://github.com/Necoro/feed2imap-go/compare/v0.4.0...HEAD
+[Unreleased]: https://github.com/Necoro/feed2imap-go/compare/v0.4.1...HEAD
+[0.4.1]: https://github.com/Necoro/feed2imap-go/compare/v0.4.0...v0.4.1
 [0.4.0]: https://github.com/Necoro/feed2imap-go/compare/v0.3.1...v0.4.0
 [0.3.1]: https://github.com/Necoro/feed2imap-go/compare/v0.3.0...v0.3.1
 [0.3.0]: https://github.com/Necoro/feed2imap-go/compare/v0.2.0...v0.3.0
