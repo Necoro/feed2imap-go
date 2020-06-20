@@ -85,8 +85,10 @@ func (cf *cachedFeed) Checked(withFailure bool) {
 }
 
 func (cf *cachedFeed) Commit() {
-	cf.Items = cf.newItems
-	cf.newItems = nil
+	if cf.newItems != nil {
+		cf.Items = cf.newItems
+		cf.newItems = nil
+	}
 	cf.LastCheck = cf.currentCheck
 }
 
