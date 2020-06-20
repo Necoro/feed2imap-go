@@ -2,6 +2,7 @@ package feed
 
 import (
 	"crypto/sha256"
+	"encoding/base64"
 	"encoding/hex"
 	"fmt"
 	"strconv"
@@ -207,6 +208,7 @@ func (cf *cachedFeed) filterItems(items []item, ignoreHash, alwaysNew bool) []it
 			prevId := cf.Items[*oldIdx].ID
 			ci.ID = prevId
 			item.itemId = prevId
+			log.Debugf("oldIdx: %d, prevId: %s, item.id: %s", *oldIdx, prevId, item.id())
 			cf.deleteItem(*oldIdx)
 		}
 		filtered = append(filtered, *item)
@@ -225,7 +227,7 @@ CACHE_ITEMS:
 						item.addReason("guid (upd)")
 						app(item, ci, &idx)
 					} else {
-						log.Debugf("Similar, ignoring")
+						log.Debugf("Similar, ignoring item %s", base64.RawURLEncoding.EncodeToString(oldItem.ID[:]))
 					}
 
 					continue CACHE_ITEMS

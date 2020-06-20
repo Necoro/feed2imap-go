@@ -103,9 +103,12 @@ func (feed *Feed) filterItems() []item {
 		}
 
 		if res {
+			if log.IsDebug() {
+				log.Debugf("Filter '%s' matches for item %s", feed.ItemFilter, printItem(item.Item))
+			}
 			items = append(items, item)
 		} else if log.IsDebug() { // printItem is not for free
-			log.Debugf("Filter '%s' matches for item %s, removing.", feed.ItemFilter, printItem(item.Item))
+			log.Debugf("Filter '%s' does not match for item %s", feed.ItemFilter, printItem(item.Item))
 		}
 	}
 	return items
