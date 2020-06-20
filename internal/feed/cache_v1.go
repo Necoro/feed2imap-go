@@ -6,6 +6,7 @@ import (
 	"encoding/hex"
 	"fmt"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/google/uuid"
@@ -23,6 +24,11 @@ type feedId uint64
 
 func (id feedId) String() string {
 	return strconv.FormatUint(uint64(id), 16)
+}
+
+func idFromString(s string) feedId {
+	id, _ := strconv.ParseUint(s, 16, 64)
+	return feedId(id)
 }
 
 type v1Cache struct {
@@ -58,12 +64,15 @@ type cachedItem struct {
 
 func (item cachedItem) String() string {
 	return fmt.Sprintf(`{
+  ID: %s
   Title: %q
   Guid: %q
   Link: %q
   Date: %s
   Hash: %s
-}`, item.Title, item.Guid, item.Link, util.TimeFormat(item.Date), item.Hash)
+}`,
+		base64.RawURLEncoding.EncodeToString(item.ID[:]),
+		item.Title, item.Guid, item.Link, util.TimeFormat(item.Date), item.Hash)
 }
 
 func (cf *cachedFeed) Checked(withFailure bool) {
@@ -95,6 +104,46 @@ func (cf *cachedFeed) ID() string {
 
 func (cache *v1Cache) Version() Version {
 	return v1Version
+}
+
+func (cache *v1Cache) Info() string {
+	b := strings.Builder{}
+	for descr, id := range cache.Ids {
+		b.WriteString(fmt.Sprintf("%3s: %s (%s)\n", id.String(), descr.Name, descr.Url))
+	}
+	return b.String()
+}
+
+func (cache *v1Cache) SpecificInfo(i interface{}) string {
+	id := idFromString(i.(string))
+
+	b := strings.Builder{}
+	feed := cache.Feeds[id]
+
+	for descr, fId := range cache.Ids {
+		if id == fId {
+			b.WriteString(descr.Name)
+			b.WriteString(" -- ")
+			b.WriteString(descr.Url)
+			b.WriteByte('\n')
+			break
+		}
+	}
+
+	b.WriteString(fmt.Sprintf(`
+Last Check: %s
+Num Failures: %d
+Num Items: %d
+`,
+		util.TimeFormat(feed.LastCheck),
+		feed.NumFailures,
+		len(feed.Items)))
+
+	for _, item := range feed.Items {
+		b.WriteString("\n--------------------\n")
+		b.WriteString(item.String())
+	}
+	return b.String()
 }
 
 func newV1Cache() *v1Cache {

@@ -20,6 +20,8 @@ const (
 type Cache interface {
 	findItem(*Feed) CachedFeed
 	Version() Version
+	Info() string
+	SpecificInfo(interface{}) string
 	transformToCurrent() (Cache, error)
 }
 
@@ -75,7 +77,7 @@ func newCache() (Cache, error) {
 	return cacheForVersion(currentVersion)
 }
 
-func loadCache(fileName string) (Cache, error) {
+func LoadCache(fileName string) (Cache, error) {
 	f, err := os.Open(fileName)
 	if err != nil {
 		if errors.Is(err, os.ErrNotExist) {
