@@ -13,6 +13,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   When set to `false`, a missing `target` is identical to specifying `null` or `""` for the target.  
   When set to `true` (the default), the standard behavior of falling back onto the name is used.
 
+### Fixed
+- [Issue #24](https://github.com/Necoro/feed2imap-go/issues/24): Patched gofeed to support atom tags in RSS feeds
+
 ## [0.4.1] - 2020-06-20
 ### Fixed
 - Fix a bug, where cached items get deleted when a feed runs dry. 
