@@ -29,7 +29,8 @@ for details.
 
 ### Additions to feed2imap
 
-* groups (_details TBD_)
+* Groups: Have the ability to group feeds that share characteristics, most often the same parent folder in the hiearchy.
+  But also allows to share options between feeds. Usages: Categories ("News", "Linux") and merging different feeds of the same origin.
 * Heavier use of parallel processing (it's Go after all ;)). Also, it is way faster.
 * Global `target` and each feed only specifies the folder relative to that target. 
 (feature contained also in [fork of the original][nec]) 
