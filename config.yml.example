@@ -32,6 +32,10 @@ parts: ["text", "html"]
 # Email-Address to use in 'From' and 'To' when not specified in feed.
 # Default uses 'current user'@hostname
 default-email: username@hostname
+# Whether the target folder determination for each feed shall fallback on the feed's/group's name.
+# When `true`, omitting a target is identical to specifying the name as the target.
+# When `false`, omitting a target is identical to specifying `null` or `""` as the target.
+auto-target: true
 
 ## Per-Feed Options
 # Defaults for options per feed, overridable in each feed and group
@@ -77,12 +81,19 @@ options:
 ## Feeds
 # Each feed must have a name, and a URL or Exec argument. The name must be unique.
 # The name also determines the folder to use for that feed, which can be overwritten with an explicit target.
+# This behavior can be changed by toggling the global option `auto-target` (see above).
 # Groups can be used to build a hierarchy, with arbitrary nesting.
 feeds:
   - name: XKCD
     url: http://xkcd.com/rss.xml
     # specify any per feed option to overwrite it for this feed
     min-frequency: 12
+    # No target has been defined, so it falls back onto the feed's name.
+    # Combined with the global `target`, the final folder will be:
+    #   INBOX/Feeds/XKCD
+    # Would the global option `auto-target` been set to `false`, this fallback would not occur,
+    # and the final folder would be:
+    #   INBOX/Feeds
   # Groups can be used for, well, grouping.
   - group: Linux
     # You can specify options on group level that are then used for all feeds contained
