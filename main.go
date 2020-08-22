@@ -94,6 +94,7 @@ func run() error {
 	if err != nil {
 		return err
 	}
+	defer state.UnlockCache()
 
 	state.RemoveUndue()
 

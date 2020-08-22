@@ -77,7 +77,7 @@ func lock(fileName string) (lock lockfile.Lockfile, err error) {
 	return
 }
 
-func storeCache(cache Cache, fileName string) error {
+func (cache *Cache) store(fileName string) error {
 	if cache.CacheImpl == nil {
 		return fmt.Errorf("trying to store nil cache")
 	}
@@ -104,15 +104,16 @@ func storeCache(cache Cache, fileName string) error {
 	writer.Flush()
 	log.Printf("Stored cache to '%s'.", fileName)
 
-	return UnlockCache(cache)
+	return cache.Unlock()
 }
 
-func UnlockCache(cache Cache) error {
+func (cache *Cache) Unlock() error {
 	if cache.locked {
 		if err := cache.lock.Unlock(); err != nil {
 			return fmt.Errorf("Unlocking cache: %w", err)
 		}
 	}
+	cache.locked = false
 	return nil
 }
 

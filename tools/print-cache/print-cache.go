@@ -27,7 +27,7 @@ func main() {
 		log.Fatal(err)
 	}
 
-	defer func() {_ = feed.UnlockCache(cache)}()
+	defer cache.Unlock()
 
 	fmt.Printf("Cache version %d\n", cache.Version())
 	if feedId != "" {

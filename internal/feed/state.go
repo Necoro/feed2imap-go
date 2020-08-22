@@ -63,7 +63,11 @@ func (state *State) LoadCache(fileName string, forceNew bool) error {
 }
 
 func (state *State) StoreCache(fileName string) error {
-	return storeCache(state.cache, fileName)
+	return state.cache.store(fileName)
+}
+
+func (state *State) UnlockCache() {
+	_ = state.cache.Unlock()
 }
 
 func (state *State) Fetch() int {
