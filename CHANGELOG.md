@@ -8,6 +8,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Cache files are now explicitly locked. This avoids two instances of feed2imap-go running at the same time.
 - Updated to Go 1.15.
+- New global option `auto-target` to change the default behavior of omitted `target` fields.  
+  When set to `false`, a missing `target` is identical to specifying `null` or `""` for the target.  
+  When set to `true` (the default), the standard behavior of falling back onto the name is used.
 
 ## [0.4.1] - 2020-06-20
 ### Fixed
