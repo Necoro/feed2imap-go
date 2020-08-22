@@ -5,6 +5,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+
+## [0.5.0] - 2020-08-22
 ### Added
 - Cache files are now explicitly locked. This avoids two instances of feed2imap-go running at the same time.
 - New header `X-Feed2Imap-Create-Date` holding the date of creation of that mail. Mostly needed for debugging issues.
@@ -57,7 +59,8 @@ This resulted in duplicate entries as soon as the feed contained (possibly older
 
 Initial release
 
-[Unreleased]: https://github.com/Necoro/feed2imap-go/compare/v0.4.1...HEAD
+[Unreleased]: https://github.com/Necoro/feed2imap-go/compare/v0.5.0...HEAD
+[0.5.0]: https://github.com/Necoro/feed2imap-go/compare/v0.4.1...v0.5.0
 [0.4.1]: https://github.com/Necoro/feed2imap-go/compare/v0.4.0...v0.4.1
 [0.4.0]: https://github.com/Necoro/feed2imap-go/compare/v0.3.1...v0.4.0
 [0.3.1]: https://github.com/Necoro/feed2imap-go/compare/v0.3.0...v0.3.1
