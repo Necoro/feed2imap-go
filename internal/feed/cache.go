@@ -104,8 +104,12 @@ func storeCache(cache Cache, fileName string) error {
 	writer.Flush()
 	log.Printf("Stored cache to '%s'.", fileName)
 
+	return UnlockCache(cache)
+}
+
+func UnlockCache(cache Cache) error {
 	if cache.locked {
-		if err = cache.lock.Unlock(); err != nil {
+		if err := cache.lock.Unlock(); err != nil {
 			return fmt.Errorf("Unlocking cache: %w", err)
 		}
 	}
