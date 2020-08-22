@@ -22,6 +22,7 @@ type GlobalOptions struct {
 	Target       Url      `yaml:"target"`
 	Parts        []string `yaml:"parts"`
 	MaxFailures  int      `yaml:"max-failures"`
+	AutoTarget   bool     `yaml:"auto-target"`
 }
 
 // Default global options
@@ -31,6 +32,7 @@ var DefaultGlobalOptions = GlobalOptions{
 	DefaultEmail: username() + "@" + Hostname(),
 	Target:       Url{},
 	Parts:        []string{"text", "html"},
+	AutoTarget:   true,
 }
 
 // Per feed options

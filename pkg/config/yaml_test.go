@@ -61,11 +61,12 @@ func TestBuildOptions(tst *testing.T) {
 
 func TestBuildFeeds(tst *testing.T) {
 	tests := []struct {
-		name    string
-		wantErr bool
-		target  string
-		feeds   []configGroupFeed
-		result  Feeds
+		name         string
+		wantErr      bool
+		target       string
+		feeds        []configGroupFeed
+		result       Feeds
+		noAutoTarget bool
 	}{
 		{name: "Empty input", wantErr: false, target: "", feeds: nil, result: Feeds{}},
 		{name: "Empty Feed", wantErr: true, target: "",
@@ -93,11 +94,23 @@ func TestBuildFeeds(tst *testing.T) {
 			},
 			result: Feeds{"muh": &Feed{Name: "muh", Target: t("moep.foo")}},
 		},
+		{name: "Simple With Target and NoAutoTarget", wantErr: false, target: "moep", noAutoTarget: true,
+			feeds: []configGroupFeed{
+				{Target: n("foo"), Feed: feed{Name: "muh"}},
+			},
+			result: Feeds{"muh": &Feed{Name: "muh", Target: t("moep.foo")}},
+		},
 		{name: "Simple Without Target", wantErr: false, target: "moep",
 			feeds: []configGroupFeed{
 				{Feed: feed{Name: "muh"}},
 			},
 			result: Feeds{"muh": &Feed{Name: "muh", Target: t("moep.muh")}},
+		},
+		{name: "Simple Without Target and NoAutoTarget", wantErr: false, target: "moep", noAutoTarget: true,
+			feeds: []configGroupFeed{
+				{Feed: feed{Name: "muh"}},
+			},
+			result: Feeds{"muh": &Feed{Name: "muh", Target: t("moep")}},
 		},
 		{name: "Simple With Nil Target", wantErr: false, target: "moep",
 			feeds: []configGroupFeed{
@@ -141,6 +154,20 @@ func TestBuildFeeds(tst *testing.T) {
 				"F3": &Feed{Name: "F3", Target: t("G1.F3")},
 			},
 		},
+		{name: "Simple Group, NoAutoTarget", wantErr: false, target: "IN", noAutoTarget: true,
+			feeds: []configGroupFeed{
+				{Group: group{Group: "G1", Feeds: []configGroupFeed{
+					{Target: n("bar"), Feed: feed{Name: "F1"}},
+					{Target: n(""), Feed: feed{Name: "F2"}},
+					{Feed: feed{Name: "F3"}},
+				}}},
+			},
+			result: Feeds{
+				"F1": &Feed{Name: "F1", Target: t("IN.bar")},
+				"F2": &Feed{Name: "F2", Target: t("IN")},
+				"F3": &Feed{Name: "F3", Target: t("IN")},
+			},
+		},
 		{name: "Nested Groups", wantErr: false, target: "",
 			feeds: []configGroupFeed{
 				{Group: group{Group: "G1", Feeds: []configGroupFeed{
@@ -165,7 +192,7 @@ func TestBuildFeeds(tst *testing.T) {
 		tst.Run(tt.name, func(tst *testing.T) {
 			var feeds = Feeds{}
 			var opts = Options{}
-			err := buildFeeds(tt.feeds, t(tt.target), feeds, &opts)
+			err := buildFeeds(tt.feeds, t(tt.target), feeds, &opts, !tt.noAutoTarget)
 			if (err != nil) != tt.wantErr {
 				tst.Errorf("buildFeeds() error = %v, wantErr %v", err, tt.wantErr)
 				return
@@ -248,7 +275,7 @@ feeds:
 				Target: n("bar"),
 				Feed: feed{
 					Name: "Foo",
-					Exec:  []string{"whatever", "-i", "http://foo.bar"},
+					Exec: []string{"whatever", "-i", "http://foo.bar"},
 				},
 				Options: Map{"include-images": true, "unknown-option": "foo"},
 			}}, nil)},

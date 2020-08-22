@@ -50,7 +50,7 @@ func (grpFeed *configGroupFeed) isFeed() bool {
 	return grpFeed.Feed.Name != "" || grpFeed.Feed.Url != "" || len(grpFeed.Feed.Exec) > 0
 }
 
-func (grpFeed *configGroupFeed) target() string {
+func (grpFeed *configGroupFeed) target(autoTarget bool) string {
 	tag := grpFeed.Target.ShortTag()
 	switch tag {
 	case strTag:
@@ -58,7 +58,10 @@ func (grpFeed *configGroupFeed) target() string {
 	case nullTag:
 		return ""
 	case emptyTag:
-		// tag not set: continue on
+		if !autoTarget {
+			return ""
+		}
+		// tag not set and autoTarget is on: continue on
 	default:
 		panic("unexpected tag " + tag + " for target node")
 	}
@@ -122,7 +125,7 @@ func (cfg *Config) parse(in io.Reader) error {
 
 	cfg.fixGlobalOptions(parsedCfg.GlobalConfig)
 
-	if err := buildFeeds(parsedCfg.Feeds, []string{}, cfg.Feeds, &cfg.FeedOptions); err != nil {
+	if err := buildFeeds(parsedCfg.Feeds, []string{}, cfg.Feeds, &cfg.FeedOptions, cfg.AutoTarget); err != nil {
 		return fmt.Errorf("while parsing: %w", err)
 	}
 
@@ -185,9 +188,9 @@ func buildOptions(globalFeedOptions *Options, options Map) (feedOptions Options,
 }
 
 // Fetch the group structure and populate the `targetStr` fields in the feeds
-func buildFeeds(cfg []configGroupFeed, target []string, feeds Feeds, globalFeedOptions *Options) error {
+func buildFeeds(cfg []configGroupFeed, target []string, feeds Feeds, globalFeedOptions *Options, autoTarget bool) error {
 	for _, f := range cfg {
-		target := appTarget(target, f.target())
+		target := appTarget(target, f.target(autoTarget))
 		switch {
 		case f.isFeed() && f.isGroup():
 			return fmt.Errorf("Entry with targetStr %s is both a Feed and a group", target)
@@ -224,7 +227,7 @@ func buildFeeds(cfg []configGroupFeed, target []string, feeds Feeds, globalFeedO
 				log.Warnf("Unknown option '%s' for group '%s'. Ignored!", optName, f.Group.Group)
 			}
 
-			if err := buildFeeds(f.Group.Feeds, target, feeds, &opt); err != nil {
+			if err := buildFeeds(f.Group.Feeds, target, feeds, &opt, autoTarget); err != nil {
 				return err
 			}
 		}
