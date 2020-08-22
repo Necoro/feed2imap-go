@@ -1,6 +1,6 @@
 module github.com/Necoro/feed2imap-go
 
-go 1.14
+go 1.15
 
 require (
 	github.com/Necoro/html2text v0.0.0-20200510210108-d7611f0be99f
