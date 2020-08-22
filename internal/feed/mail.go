@@ -58,6 +58,7 @@ func (item *item) buildHeader() message.Header {
 	h.Set(msg.VersionHeader, version.Version())
 	h.Set(msg.ReasonHeader, strings.Join(item.reasons, ","))
 	h.Set(msg.IdHeader, item.id())
+	h.Set(msg.CreateHeader, time.Now().Format(time.RFC1123Z))
 	if item.GUID != "" {
 		h.Set(msg.GuidHeader, item.GUID)
 	}
