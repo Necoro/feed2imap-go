@@ -17,3 +17,5 @@ require (
 	golang.org/x/net v0.0.0-20200506145744-7e3656a0809f
 	gopkg.in/yaml.v3 v3.0.0-20200506231410-2ff61e1afc86
 )
+
+replace github.com/mmcdole/gofeed => github.com/Necoro/gofeed v1.0.1-0.20200822192128-d9090592eb44
