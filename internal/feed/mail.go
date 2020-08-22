@@ -11,7 +11,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/Necoro/html2text"
+	"github.com/jaytaylor/html2text"
 	"github.com/PuerkitoBio/goquery"
 	"github.com/emersion/go-message"
 	"github.com/emersion/go-message/mail"
