@@ -70,7 +70,7 @@ func lock(fileName string) (lock lockfile.Lockfile, err error) {
 	}
 
 	if err = lock.TryLock(); err != nil {
-		err = fmt.Errorf("Locking: %w", err)
+		err = fmt.Errorf("Locking cache: %w", err)
 		return
 	}
 
