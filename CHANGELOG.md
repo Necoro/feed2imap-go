@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 ### Added
 - Cache files are now explicitly locked. This avoids two instances of feed2imap-go running at the same time.
+- New header `X-Feed2Imap-Create-Date` holding the date of creation of that mail. Mostly needed for debugging issues.
 - Updated to Go 1.15.
 - New global option `auto-target` to change the default behavior of omitted `target` fields.  
   When set to `false`, a missing `target` is identical to specifying `null` or `""` for the target.  
