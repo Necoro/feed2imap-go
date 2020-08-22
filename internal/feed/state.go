@@ -154,7 +154,7 @@ func (state *State) Filter() {
 func NewState(cfg *config.Config) (*State, error) {
 	state := State{
 		feeds: map[string]*Feed{},
-		cache: nil, // loaded later on
+		cache: Cache{}, // loaded later on
 		cfg:   cfg,
 	}
 

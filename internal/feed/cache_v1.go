@@ -157,7 +157,7 @@ func newV1Cache() *v1Cache {
 	return &cache
 }
 
-func (cache *v1Cache) transformToCurrent() (Cache, error) {
+func (cache *v1Cache) transformToCurrent() (CacheImpl, error) {
 	return cache, nil
 }
 

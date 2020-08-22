@@ -13,6 +13,7 @@ require (
 	github.com/google/go-cmp v0.5.1
 	github.com/google/uuid v1.1.1
 	github.com/mmcdole/gofeed v1.0.0
+	github.com/nightlyone/lockfile v1.0.0
 	golang.org/x/net v0.0.0-20200506145744-7e3656a0809f
 	gopkg.in/yaml.v3 v3.0.0-20200506231410-2ff61e1afc86
 )
