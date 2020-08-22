@@ -97,7 +97,7 @@ func storeCache(cache Cache, fileName string) error {
 	}
 
 	encoder := gob.NewEncoder(writer)
-	if err = encoder.Encode(cache); err != nil {
+	if err = encoder.Encode(cache.CacheImpl); err != nil {
 		return fmt.Errorf("encoding cache: %w", err)
 	}
 
