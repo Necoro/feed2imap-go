@@ -6,6 +6,7 @@ import (
 	"errors"
 	"fmt"
 	"os"
+	"path/filepath"
 	"time"
 
 	"github.com/nightlyone/lockfile"
@@ -51,12 +52,16 @@ func cacheForVersion(version Version) (CacheImpl, error) {
 	}
 }
 
-func lockName(fileName string) string {
-	return fileName + ".lck"
+func lockName(fileName string) (string, error) {
+	return filepath.Abs(fileName + ".lck")
 }
 
 func lock(fileName string) (lock lockfile.Lockfile, err error) {
-	lockFile := lockName(fileName)
+	var lockFile string
+
+	if lockFile, err = lockName(fileName); err != nil {
+		return
+	}
 	log.Debugf("Handling lock file '%s'", lockFile)
 
 	if lock, err = lockfile.New(lockFile); err != nil {
