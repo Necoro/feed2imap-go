@@ -9,7 +9,7 @@ require (
 	github.com/emersion/go-imap-uidplus v0.0.0-20200503180755-e75854c361e9
 	github.com/emersion/go-message v0.12.0
 	github.com/gabriel-vasile/mimetype v1.1.1
-	github.com/google/go-cmp v0.5.1
+	github.com/google/go-cmp v0.5.2
 	github.com/google/uuid v1.1.1
 	github.com/jaytaylor/html2text v0.0.0-20200412013138-3577fbdbcff7
 	github.com/mmcdole/gofeed v1.0.0
@@ -19,6 +19,6 @@ require (
 )
 
 replace (
-    github.com/mmcdole/gofeed => github.com/Necoro/gofeed v1.0.1-0.20200822192128-d9090592eb44
-    github.com/jaytaylor/html2text => github.com/Necoro/html2text v0.0.0-20200822202223-2e8e4cfbb241
+	github.com/jaytaylor/html2text => github.com/Necoro/html2text v0.0.0-20200822202223-2e8e4cfbb241
+	github.com/mmcdole/gofeed => github.com/Necoro/gofeed v1.0.1-0.20200822192128-d9090592eb44
 )
