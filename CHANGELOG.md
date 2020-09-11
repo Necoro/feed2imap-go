@@ -6,6 +6,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.5.1] - 2020-09-11
+- Update of gofeed dependency: Now supports json feeds
+- Make sure, cache locks are deleted on shutdown (looks cleaner)
+
 ## [0.5.0] - 2020-08-22
 ### Added
 - Cache files are now explicitly locked. This avoids two instances of feed2imap-go running at the same time.
