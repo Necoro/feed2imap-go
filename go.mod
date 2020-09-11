@@ -12,7 +12,7 @@ require (
 	github.com/google/go-cmp v0.5.2
 	github.com/google/uuid v1.1.2
 	github.com/jaytaylor/html2text v0.0.0-20200412013138-3577fbdbcff7
-	github.com/mmcdole/gofeed v1.0.1
+	github.com/mmcdole/gofeed v1.1.0
 	github.com/nightlyone/lockfile v1.0.0
 	golang.org/x/net v0.0.0-20200822124328-c89045814202
 	gopkg.in/yaml.v3 v3.0.0-20200615113413-eeeca48fe776
