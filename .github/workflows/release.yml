@@ -30,7 +30,7 @@ jobs:
     - name: Safe Changelog Text
       run: |
           echo '${{ steps.changelog_reader.outputs.log_entry }}' >> $HOME/changelog_entry
-          echo "::set-env name=clfile::${HOME}/changelog_entry"
+          echo "clfile=${HOME}/changelog_entry" >> $GITHUB_ENV
 
     - name: Docker Login
       uses: azure/docker-login@v1
