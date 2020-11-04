@@ -12,7 +12,7 @@ jobs:
     steps:
 
     - name: Set up Go 1.15
-      uses: actions/setup-go@v1
+      uses: actions/setup-go@v2
       with:
         go-version: 1.15
       id: go
@@ -22,14 +22,14 @@ jobs:
 
     - name: Get Changelog Entry
       id: changelog_reader
-      uses: mindsers/changelog-reader-action@v1.1.0
+      uses: mindsers/changelog-reader-action@v2
       with:
         version: ${{ github.ref }}
         path: ./CHANGELOG.md
 
     - name: Safe Changelog Text
       run: |
-          echo '${{ steps.changelog_reader.outputs.log_entry }}' >> $HOME/changelog_entry
+          echo '${{ steps.changelog_reader.outputs.changes }}' >> $HOME/changelog_entry
           echo "clfile=${HOME}/changelog_entry" >> $GITHUB_ENV
 
     - name: Docker Login
@@ -47,7 +47,7 @@ jobs:
          password: ${{ secrets.DOCKER_TOKEN }}
 
     - name: Run GoReleaser
-      uses: goreleaser/goreleaser-action@v1
+      uses: goreleaser/goreleaser-action@v2
       with:
           version: latest
           args: --release-notes ${{ env.clfile }}
