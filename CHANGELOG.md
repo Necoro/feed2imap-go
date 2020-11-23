@@ -6,6 +6,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.5.2] - 2020-11-23
+- Update of libraries
+- This now also includes the updated gofeed dependency, that was promised with the last version but not included...
+
 ## [0.5.1] - 2020-09-11
 - Update of gofeed dependency: Now supports json feeds
 - Make sure, cache locks are deleted on shutdown (looks cleaner)
@@ -63,7 +67,8 @@ This resulted in duplicate entries as soon as the feed contained (possibly older
 
 Initial release
 
-[Unreleased]: https://github.com/Necoro/feed2imap-go/compare/v0.5.1...HEAD
+[Unreleased]: https://github.com/Necoro/feed2imap-go/compare/v0.5.2...HEAD
+[0.5.2]: https://github.com/Necoro/feed2imap-go/compare/v0.5.1...v0.5.2
 [0.5.1]: https://github.com/Necoro/feed2imap-go/compare/v0.5.0...v0.5.1
 [0.5.0]: https://github.com/Necoro/feed2imap-go/compare/v0.4.1...v0.5.0
 [0.4.1]: https://github.com/Necoro/feed2imap-go/compare/v0.4.0...v0.4.1
