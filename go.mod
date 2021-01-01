@@ -10,7 +10,7 @@ require (
 	github.com/emersion/go-message v0.14.0
 	github.com/gabriel-vasile/mimetype v1.1.2
 	github.com/google/go-cmp v0.5.4
-	github.com/google/uuid v1.1.2
+	github.com/google/uuid v1.1.3
 	github.com/jaytaylor/html2text v0.0.0-20200412013138-3577fbdbcff7
 	github.com/mmcdole/gofeed v1.1.0
 	github.com/nightlyone/lockfile v1.0.0
