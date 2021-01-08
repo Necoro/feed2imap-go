@@ -22,8 +22,8 @@ github.com/emersion/go-imap v1.0.6/go.mod h1:yKASt+C3ZiDAiCSssxg9caIckWF/JG7ZQTO
 github.com/emersion/go-imap-uidplus v0.0.0-20200503180755-e75854c361e9 h1:2Kbw3iu7fFeSso6RWIArVNUj1VGG2PvjetnPUW7bnis=
 github.com/emersion/go-imap-uidplus v0.0.0-20200503180755-e75854c361e9/go.mod h1:GfiSiw/du0221I3Cf4F0DqX3Bv5Xe580gIIATrQtnJg=
 github.com/emersion/go-message v0.11.1/go.mod h1:C4jnca5HOTo4bGN9YdqNQM9sITuT3Y0K6bSUw9RklvY=
-github.com/emersion/go-message v0.14.0 h1:RMEs13hsCJ6I+bsjwD/pq38+bYEj8nMqb/0LUw/PEG8=
-github.com/emersion/go-message v0.14.0/go.mod h1:N1JWdZQ2WRUalmdHAX308CWBq747VJ8oUorFI3VCBwU=
+github.com/emersion/go-message v0.14.1 h1:j3rj9F+7VtXE9c8P5UHBq8FTHLW/AjnmvSRre6AHoYI=
+github.com/emersion/go-message v0.14.1/go.mod h1:N1JWdZQ2WRUalmdHAX308CWBq747VJ8oUorFI3VCBwU=
 github.com/emersion/go-sasl v0.0.0-20191210011802-430746ea8b9b h1:uhWtEWBHgop1rqEk2klKaxPAkVDCXexai6hSuRQ7Nvs=
 github.com/emersion/go-sasl v0.0.0-20191210011802-430746ea8b9b/go.mod h1:G/dpzLu16WtQpBfQ/z3LYiYJn3ZhKSGWn83fyoyQe/k=
 github.com/emersion/go-textwrapper v0.0.0-20160606182133-d0e65e56babe h1:40SWqY0zE3qCi6ZrtTf5OUdNm5lDnGnjRSq9GgmeTrg=
