@@ -3,7 +3,7 @@ module github.com/Necoro/feed2imap-go
 go 1.15
 
 require (
-	github.com/PuerkitoBio/goquery v1.6.0
+	github.com/PuerkitoBio/goquery v1.6.1
 	github.com/antonmedv/expr v1.8.9
 	github.com/emersion/go-imap v1.0.6
 	github.com/emersion/go-imap-uidplus v0.0.0-20200503180755-e75854c361e9
