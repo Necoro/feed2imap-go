@@ -11,11 +11,11 @@ import (
 	"strings"
 	"time"
 
-	"github.com/jaytaylor/html2text"
 	"github.com/PuerkitoBio/goquery"
 	"github.com/emersion/go-message"
 	"github.com/emersion/go-message/mail"
 	"github.com/gabriel-vasile/mimetype"
+	"github.com/jaytaylor/html2text"
 	"golang.org/x/net/html"
 
 	"github.com/Necoro/feed2imap-go/internal/feed/template"
@@ -23,6 +23,7 @@ import (
 	"github.com/Necoro/feed2imap-go/internal/msg"
 	"github.com/Necoro/feed2imap-go/pkg/config"
 	"github.com/Necoro/feed2imap-go/pkg/log"
+	"github.com/Necoro/feed2imap-go/pkg/util"
 	"github.com/Necoro/feed2imap-go/pkg/version"
 )
 
@@ -97,7 +98,7 @@ func (item *item) writeContentPart(w *message.Writer, typ string, tpl template.T
 	}
 	defer partW.Close()
 
-	if err = tpl.Execute(w, item); err != nil {
+	if err = tpl.Execute(util.FixWriter(w), item); err != nil {
 		return fmt.Errorf("writing %s part: %w", typ, err)
 	}
 
