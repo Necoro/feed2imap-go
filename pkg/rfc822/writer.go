@@ -23,29 +23,31 @@ func (f rfc822Writer) Write(p []byte) (n int, err error) {
 	crFound := false
 	start := 0
 
-	write := func(str []byte) {
+	write := func(str []byte, count bool) {
 		var j int
 		j, err = f.w.Write(str)
-		n = n + j
+		if count {
+			n += j
+		}
 	}
 
 	for idx, b := range p {
 		if crFound && b != '\n' {
 			// insert '\n'
-			if write(p[start:idx]); err != nil {
+			if write(p[start:idx], true); err != nil {
 				return
 			}
-			if write(lf); err != nil {
+			if write(lf, false); err != nil {
 				return
 			}
 
 			start = idx
 		} else if !crFound && b == '\n' {
 			// insert '\r'
-			if write(p[start:idx]); err != nil {
+			if write(p[start:idx], true); err != nil {
 				return
 			}
-			if write(cr); err != nil {
+			if write(cr, false); err != nil {
 				return
 			}
 
@@ -55,12 +57,12 @@ func (f rfc822Writer) Write(p []byte) (n int, err error) {
 	}
 
 	// write the remainder
-	if write(p[start:]); err != nil {
+	if write(p[start:], true); err != nil {
 		return
 	}
 
 	if crFound { // dangling \r
-		write(lf)
+		write(lf, false)
 	}
 
 	return

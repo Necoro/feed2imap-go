@@ -34,9 +34,13 @@ func TestRfc822Writer_Write(t *testing.T) {
 		t.Run(tt.before, func(t *testing.T) {
 			b := bytes.Buffer{}
 			w := Writer(&b)
-			if _, err := io.WriteString(w, tt.before); err != nil {
+			n, err := io.WriteString(w, tt.before)
+			if err != nil {
 				t.Errorf("Error: %v", err)
 				return
+			}
+			if n != len(tt.before) {
+				t.Errorf("Unexpected number of bytes written: %d, expected: %d", n, len(tt.before))
 			}
 			res := b.String()
 			if tt.after != res {
