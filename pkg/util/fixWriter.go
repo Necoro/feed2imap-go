@@ -59,5 +59,5 @@ func (f fixWriter) Write(p []byte) (n int, err error) {
 // Cyrus IMAP really cares about single \r and \n.
 // Implement this fixer to change them into \r\n.
 func FixWriter(w io.Writer) io.Writer {
-	return &fixWriter{w}
+	return fixWriter{w}
 }
