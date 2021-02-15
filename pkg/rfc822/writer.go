@@ -1,15 +1,25 @@
-package util
+// Package rfc822 provides a writer that ensures the intrinsics of RFC 822.
+//
+// Rationale
+//
+// Cyrus IMAP really cares about the hard specifics of RFC 822, namely not allowing single \r and \n.
+//
+// See also: https://www.cyrusimap.org/imap/reference/faqs/interop-barenewlines.html
+// and: https://github.com/Necoro/feed2imap-go/issues/46
+//
+// NB: This package currently only cares about the newlines.
+package rfc822
 
 import "io"
 
-type fixWriter struct {
+type rfc822Writer struct {
 	w io.Writer
 }
 
 var lf = []byte{'\n'}
 var cr = []byte{'\r'}
 
-func (f fixWriter) Write(p []byte) (n int, err error) {
+func (f rfc822Writer) Write(p []byte) (n int, err error) {
 	crFound := false
 	start := 0
 
@@ -56,8 +66,7 @@ func (f fixWriter) Write(p []byte) (n int, err error) {
 	return
 }
 
-// Cyrus IMAP really cares about single \r and \n.
-// Implement this fixer to change them into \r\n.
-func FixWriter(w io.Writer) io.Writer {
-	return fixWriter{w}
+// Writer creates a new RFC 822 conform writer.
+func Writer(w io.Writer) io.Writer {
+	return rfc822Writer{w}
 }

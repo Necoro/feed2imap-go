@@ -23,7 +23,7 @@ import (
 	"github.com/Necoro/feed2imap-go/internal/msg"
 	"github.com/Necoro/feed2imap-go/pkg/config"
 	"github.com/Necoro/feed2imap-go/pkg/log"
-	"github.com/Necoro/feed2imap-go/pkg/util"
+	"github.com/Necoro/feed2imap-go/pkg/rfc822"
 	"github.com/Necoro/feed2imap-go/pkg/version"
 )
 
@@ -98,7 +98,7 @@ func (item *item) writeContentPart(w *message.Writer, typ string, tpl template.T
 	}
 	defer partW.Close()
 
-	if err = tpl.Execute(util.FixWriter(w), item); err != nil {
+	if err = tpl.Execute(rfc822.Writer(w), item); err != nil {
 		return fmt.Errorf("writing %s part: %w", typ, err)
 	}
 

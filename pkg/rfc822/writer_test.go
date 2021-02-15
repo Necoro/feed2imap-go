@@ -1,4 +1,4 @@
-package util
+package rfc822
 
 import (
 	"bytes"
@@ -6,7 +6,7 @@ import (
 	"testing"
 )
 
-func TestFixWriter_Write(t *testing.T) {
+func TestRfc822Writer_Write(t *testing.T) {
 	tests := []struct {
 		before string
 		after  string
@@ -33,7 +33,7 @@ func TestFixWriter_Write(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.before, func(t *testing.T) {
 			b := bytes.Buffer{}
-			w := FixWriter(&b)
+			w := Writer(&b)
 			if _, err := io.WriteString(w, tt.before); err != nil {
 				t.Errorf("Error: %v", err)
 				return
