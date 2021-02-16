@@ -33,12 +33,10 @@ builds:
 
 dockers:
   -
-    builds:
+    ids:
         - docker
     goos: linux
     goarch: amd64
-    binaries:
-        - feed2imap-go
     image_templates:
         - "necorodm/feed2imap-go:latest"
         - "necorodm/feed2imap-go:{{ .Version }}"
