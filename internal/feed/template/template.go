@@ -1,6 +1,7 @@
 package template
 
 import (
+	_ "embed"
 	"fmt"
 	html "html/template"
 	"io"
