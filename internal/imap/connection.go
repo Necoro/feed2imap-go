@@ -225,6 +225,7 @@ func (conn *connection) replace(folder Folder, header, value, newContent string,
 func (conn *connection) searchHeader(header, value string) ([]uint32, error) {
 	criteria := imap.NewSearchCriteria()
 	criteria.Header.Set(header, value)
+	criteria.WithoutFlags = []string{imap.DeletedFlag}
 	ids, err := conn.search(criteria)
 	if err != nil {
 		return nil, fmt.Errorf("searching for header %q=%q: %w", header, value, err)
