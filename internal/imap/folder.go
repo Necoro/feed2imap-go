@@ -21,9 +21,17 @@ func (f Folder) Append(other Folder) Folder {
 	}
 }
 
+func buildFolderName(path []string, delimiter string) (name string) {
+	name = strings.Join(path, delimiter)
+	if delimiter != "" {
+		name = strings.Trim(name, delimiter[0:1])
+	}
+	return
+}
+
 func (cl *Client) folderName(path []string) Folder {
 	return Folder{
-		strings.Join(path, cl.delimiter),
+		buildFolderName(path, cl.delimiter),
 		cl.delimiter,
 	}
 }
