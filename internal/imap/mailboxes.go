@@ -26,6 +26,14 @@ func (mbs *mailboxes) unlocking(elem Folder) {
 
 func (mbs *mailboxes) locking(elem Folder) bool {
 	mbs.mu.Lock()
+
+	// check again, if the folder has been created in the meantime
+	_, ok := mbs.mb[elem.str]
+	if ok {
+		mbs.mu.Unlock()
+		return true
+	}
+
 	ch, ok := mbs.changeLocks[elem.str]
 	if !ok {
 		ch = make(chan struct{})
