@@ -328,6 +328,11 @@ func (item *item) buildBody() {
 			cid := "cid:" + cidNr(idx)
 			selection.SetAttr(attr, cid)
 		}
+
+		// srcset overrides src and would reload all the images
+		// we do not want to include all images in the srcset either, so just strip it
+		selection.RemoveAttr("srcset")
+
 		doneAnything = true
 	})
 

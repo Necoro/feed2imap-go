@@ -5,8 +5,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+### Added
+- Remove `srcset` attribute of `img` tags when including images in mail
 ### Fixed
-- [Issue #39](https://github.com/Necoro/feed2imap-go/issues/39): Re-introduce deleted mails, even though `reupload-if-updated` is false.
+- [Issue #39](https://github.com/Necoro/feed2imap-go/issues/39): Do not re-introduce deleted mails, even though `reupload-if-updated` is false.
 
 ## [0.6.0] - 2021-02-14
 ### Fixed
