@@ -45,7 +45,7 @@ func TestBuildOptions(tst *testing.T) {
 		tst.Run(tt.name, func(tst *testing.T) {
 			out, unk := buildOptions(&tt.opts, tt.inp)
 
-			if diff := cmp.Diff(out, tt.out); diff != "" {
+			if diff := cmp.Diff(tt.out, out); diff != "" {
 				tst.Error(diff)
 			}
 
@@ -197,7 +197,7 @@ func TestBuildFeeds(tst *testing.T) {
 				tst.Errorf("buildFeeds() error = %v, wantErr %v", err, tt.wantErr)
 				return
 			}
-			if diff := cmp.Diff(feeds, tt.result); !tt.wantErr && diff != "" {
+			if diff := cmp.Diff(tt.result, feeds); !tt.wantErr && diff != "" {
 				tst.Error(diff)
 			}
 		})
@@ -373,7 +373,7 @@ feeds:
 			}
 
 			if err == nil {
-				if diff := cmp.Diff(got, tt.config, eqNode); diff != "" {
+				if diff := cmp.Diff(tt.config, got, eqNode); diff != "" {
 					tst.Error(diff)
 				}
 			}
