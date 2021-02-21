@@ -1,0 +1,5 @@
+# Default
+* text=auto
+
+# Templates should have CRLF
+*.tpl text eol=crlf

@@ -1,6 +1,7 @@
 package template
 
 import (
+	_ "embed"
 	"fmt"
 	html "html/template"
 	"io"
@@ -14,6 +15,15 @@ import (
 type Template interface {
 	Execute(wr io.Writer, data interface{}) error
 }
+
+//go:embed html.tpl
+var htmlTpl string
+
+//go:embed text.tpl
+var textTpl string
+
+var Html = fromString("Feed", htmlTpl, true)
+var Text = fromString("Feed", textTpl, false)
 
 func must(t Template, err error) Template {
 	if err != nil {

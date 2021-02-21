@@ -1,9 +1,4 @@
-package template
-
-var Text = fromString("Feed", textTpl, false)
-
-//noinspection HtmlDeprecatedAttribute,HtmlUnknownTarget
-const textTpl = `{{- /*gotype:github.com/Necoro/feed2imap-go/internal/feed.feeditem*/ -}}
+{{- /*gotype:github.com/Necoro/feed2imap-go/internal/feed.feeditem*/ -}}
 {{- with .Item.Link -}}
 <{{.}}>
 
@@ -17,7 +12,7 @@ Files:
   {{ .URL}} ({{with .Length}}{{. | byteCount}}, {{end}}{{.Type}})
 {{- end -}}
 {{- end}}
--- 
+--
 Feed: {{ with .Feed.Title -}}{{.}}{{- end }}
 {{ with .Feed.Link -}}
   <{{.}}>
@@ -31,12 +26,12 @@ Item: {{ with .Item.Title -}}
 {{ with .Date -}}
   Date: {{.}}
 {{ end -}}
-{{ with .Creator -}} 
+{{ with .Creator -}}
   Author: {{.}}
 {{ end -}}
-{{ with (join ", " .Categories) -}} 
+{{ with (join ", " .Categories) -}}
   Filed under: {{.}}
 {{ end -}}
 {{ with .FeedLink -}}
   Feed-Link: {{.}}
-{{ end -}}`
+{{ end -}}
