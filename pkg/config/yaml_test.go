@@ -94,6 +94,12 @@ func TestBuildFeeds(tst *testing.T) {
 			},
 			result: Feeds{"muh": &Feed{Name: "muh", Target: t("moep.foo")}},
 		},
+		{name: "Simple With Target and Whitespace", wantErr: false, target: "moep",
+			feeds: []configGroupFeed{
+				{Target: n("\r\nfoo "), Feed: feed{Name: "muh"}},
+			},
+			result: Feeds{"muh": &Feed{Name: "muh", Target: t("moep.foo")}},
+		},
 		{name: "Simple With Target and NoAutoTarget", wantErr: false, target: "moep", noAutoTarget: true,
 			feeds: []configGroupFeed{
 				{Target: n("foo"), Feed: feed{Name: "muh"}},
@@ -121,6 +127,12 @@ func TestBuildFeeds(tst *testing.T) {
 		{name: "Simple With Empty Target", wantErr: false, target: "moep",
 			feeds: []configGroupFeed{
 				{Target: n(""), Feed: feed{Name: "muh"}},
+			},
+			result: Feeds{"muh": &Feed{Name: "muh", Target: t("moep")}},
+		},
+		{name: "Simple With Blank Target", wantErr: false, target: "moep",
+			feeds: []configGroupFeed{
+				{Target: n(" "), Feed: feed{Name: "muh"}},
 			},
 			result: Feeds{"muh": &Feed{Name: "muh", Target: t("moep")}},
 		},

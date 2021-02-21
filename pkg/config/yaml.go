@@ -133,6 +133,7 @@ func (cfg *Config) parse(in io.Reader) error {
 }
 
 func appTarget(target []string, app string) []string {
+	app = strings.TrimSpace(app)
 	switch {
 	case len(target) == 0 && app == "":
 		return []string{}
