@@ -27,11 +27,11 @@ type Message struct {
 func (m Messages) Upload(client *imap.Client, folder imap.Folder, reupload bool) error {
 	toStore := make([]string, 0, len(m))
 
-	msgs := make(chan Message, 5)
+	updateMsgs := make(chan Message, 5)
 	ok := make(chan bool)
-	go func() {
+	go func() { /* update goroutine */
 		errHappened := false
-		for msg := range msgs {
+		for msg := range updateMsgs {
 			if err := client.Replace(folder, IdHeader, msg.ID, msg.Content, reupload); err != nil {
 				log.Errorf("Error while updating mail with id '%s' in folder '%s'. Skipping.: %s",
 					msg.ID, folder, err)
@@ -46,11 +46,11 @@ func (m Messages) Upload(client *imap.Client, folder imap.Folder, reupload bool)
 		if !msg.IsUpdate {
 			toStore = append(toStore, msg.Content)
 		} else {
-			msgs <- msg
+			updateMsgs <- msg
 		}
 	}
 
-	close(msgs)
+	close(updateMsgs)
 
 	putErr := client.PutMessages(folder, toStore)
 	updOk := <-ok
