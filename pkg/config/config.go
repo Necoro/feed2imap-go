@@ -104,7 +104,7 @@ func (opt GlobalOptions) WithPartHtml() bool {
 	return util.StrContains(opt.Parts, "html")
 }
 
-// Load configuration from file
+// Load configuration from file and validate it
 func Load(path string) (*Config, error) {
 	log.Printf("Reading configuration file '%s'", path)
 
@@ -116,6 +116,10 @@ func Load(path string) (*Config, error) {
 	cfg := WithDefault()
 	if err = cfg.parse(f); err != nil {
 		return nil, fmt.Errorf("while parsing: %w", err)
+	}
+
+	if err = cfg.Validate(); err != nil {
+		return nil, fmt.Errorf("Configuration invalid: %w", err)
 	}
 
 	return cfg, nil

@@ -1,6 +1,7 @@
 package feed
 
 import (
+	"fmt"
 	"strings"
 	"time"
 
@@ -57,4 +58,15 @@ func (feed *Feed) MarkSuccess() {
 	if feed.cached != nil {
 		feed.cached.Commit()
 	}
+}
+
+func Create(parsedFeed *config.Feed, global config.GlobalOptions) (*Feed, error) {
+	var itemFilter *filter.Filter
+	var err error
+	if parsedFeed.ItemFilter != "" {
+		if itemFilter, err = filter.New(parsedFeed.ItemFilter); err != nil {
+			return nil, fmt.Errorf("Feed %s: Parsing item-filter: %w", parsedFeed.Name, err)
+		}
+	}
+	return &Feed{Feed: parsedFeed, Global: global, filter: itemFilter}, nil
 }

@@ -2,12 +2,10 @@ package feed
 
 import (
 	"encoding/json"
-	"fmt"
 	"sync"
 
 	"github.com/mmcdole/gofeed"
 
-	"github.com/Necoro/feed2imap-go/internal/feed/filter"
 	"github.com/Necoro/feed2imap-go/pkg/config"
 	"github.com/Necoro/feed2imap-go/pkg/log"
 )
@@ -163,14 +161,11 @@ func NewState(cfg *config.Config) (*State, error) {
 	}
 
 	for name, parsedFeed := range cfg.Feeds {
-		var itemFilter *filter.Filter
-		var err error
-		if parsedFeed.ItemFilter != "" {
-			if itemFilter, err = filter.New(parsedFeed.ItemFilter); err != nil {
-				return nil, fmt.Errorf("Feed %s: Parsing item-filter: %w", parsedFeed.Name, err)
-			}
+		feed, err := Create(parsedFeed, cfg.GlobalOptions)
+		if err != nil {
+			return nil, err
 		}
-		state.feeds[name] = &Feed{Feed: parsedFeed, Global: cfg.GlobalOptions, filter: itemFilter}
+		state.feeds[name] = feed
 	}
 
 	return &state, nil

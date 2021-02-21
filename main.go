@@ -81,10 +81,6 @@ func run() error {
 		return err
 	}
 
-	if err = cfg.Validate(); err != nil {
-		return fmt.Errorf("Configuration invalid: %w", err)
-	}
-
 	state, err := feed.NewState(cfg)
 	if err != nil {
 		return err
