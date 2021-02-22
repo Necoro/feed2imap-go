@@ -43,9 +43,9 @@ func (state *State) LoadCache(fileName string, forceNew bool) error {
 	)
 
 	if forceNew {
-		cache, err = newCache()
+		cache, err = create()
 	} else {
-		cache, err = LoadCache(fileName)
+		cache, err = Load(fileName)
 	}
 
 	if err != nil {

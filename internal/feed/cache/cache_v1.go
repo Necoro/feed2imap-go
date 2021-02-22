@@ -208,7 +208,7 @@ func (cache *v1Cache) cachedFeed(f *feed.Feed) CachedFeed {
 	return cf
 }
 
-func newCachedItem(item *feed.Item) cachedItem {
+func (cf *cachedFeed) cachedItem(item *feed.Item) cachedItem {
 	var ci cachedItem
 
 	ci.ID = item.ID
@@ -245,8 +245,11 @@ func (cf *cachedFeed) Filter(items []feed.Item, ignoreHash, alwaysNew bool) []fe
 
 	cacheItems := make(map[cachedItem]*feed.Item, len(items))
 	for idx := range items {
+		i := &items[idx]
+		ci := cf.cachedItem(i)
+
 		// remove complete duplicates on the go
-		cacheItems[newCachedItem(&items[idx])] = &items[idx]
+		cacheItems[ci] = i
 	}
 	log.Debugf("%d items after deduplication", len(cacheItems))
 

@@ -50,7 +50,7 @@ type CachedFeed interface {
 	Feed() *feed.Feed
 }
 
-func cacheForVersion(version Version) (Impl, error) {
+func forVersion(version Version) (Impl, error) {
 	switch version {
 	case v1Version:
 		return newV1Cache(), nil
@@ -124,8 +124,8 @@ func (cache *Cache) Unlock() error {
 	return nil
 }
 
-func newCache() (Cache, error) {
-	cache, err := cacheForVersion(currentVersion)
+func create() (Cache, error) {
+	cache, err := forVersion(currentVersion)
 	if err != nil {
 		return Cache{}, err
 	}
@@ -135,12 +135,12 @@ func newCache() (Cache, error) {
 	}, nil
 }
 
-func LoadCache(fileName string) (Cache, error) {
+func Load(fileName string) (Cache, error) {
 	f, err := os.Open(fileName)
 	if err != nil {
 		if errors.Is(err, os.ErrNotExist) {
 			// no cache there yet -- make new
-			return newCache()
+			return create()
 		}
 		return Cache{}, fmt.Errorf("opening cache at '%s': %w", fileName, err)
 	}
@@ -159,7 +159,7 @@ func LoadCache(fileName string) (Cache, error) {
 		return Cache{}, fmt.Errorf("reading from '%s': %w", fileName, err)
 	}
 
-	cache, err := cacheForVersion(Version(version))
+	cache, err := forVersion(Version(version))
 	if err != nil {
 		return Cache{}, err
 	}
