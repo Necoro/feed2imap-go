@@ -1,4 +1,4 @@
-{{- /*gotype:github.com/Necoro/feed2imap-go/internal/feed.feeditem*/ -}}
+{{- /*gotype:github.com/Necoro/feed2imap-go/internal/feed.Item*/ -}}
 {{- with .Item.Link -}}
 <{{.}}>
 

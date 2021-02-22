@@ -1,4 +1,4 @@
-{{- /*gotype:github.com/Necoro/feed2imap-go/internal/feed.feeditem*/ -}}
+{{- /*gotype:github.com/Necoro/feed2imap-go/internal/feed.Item*/ -}}
 {{define "bottomLine"}}
   {{if .content}}
     <tr>
@@ -16,7 +16,7 @@
     <td style="text-align: right; padding: 4px"><strong>Feed</strong></td>
     <td style="width: 100%; padding: 4px">
       {{with .Feed.Link}}<a href="{{.}}">{{end}}
-        <strong>{{or .Feed.Title .Feed.Link "Unnammed feed"}}</strong>
+        <strong>{{or .Feed.Title .Feed.Link "Unnamed feed"}}</strong>
         {{if .Feed.Link}}</a>{{end}}
     </td>
   </tr>

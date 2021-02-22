@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/Necoro/feed2imap-go/internal/feed"
+	"github.com/Necoro/feed2imap-go/internal/feed/cache"
 )
 
 // flags
@@ -22,7 +22,7 @@ func init() {
 func main() {
 	flag.Parse()
 
-	cache, err := feed.LoadCache(cacheFile)
+	cache, err := cache.LoadCache(cacheFile)
 	if err != nil {
 		log.Fatal(err)
 	}

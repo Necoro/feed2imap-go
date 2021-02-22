@@ -1,4 +1,4 @@
-package feed
+package cache
 
 import (
 	"crypto/sha256"
@@ -11,6 +11,7 @@ import (
 
 	"github.com/google/uuid"
 
+	"github.com/Necoro/feed2imap-go/internal/feed"
 	"github.com/Necoro/feed2imap-go/pkg/log"
 	"github.com/Necoro/feed2imap-go/pkg/util"
 )
@@ -32,12 +33,13 @@ func idFromString(s string) feedId {
 }
 
 type v1Cache struct {
-	Ids    map[feedDescriptor]feedId
+	Ids    map[feed.Descriptor]feedId
 	NextId uint64
 	Feeds  map[feedId]*cachedFeed
 }
 
 type cachedFeed struct {
+	feed         *feed.Feed
 	id           feedId // not saved, has to be set on loading
 	LastCheck    time.Time
 	currentCheck time.Time
@@ -100,8 +102,8 @@ func (cf *cachedFeed) Last() time.Time {
 	return cf.LastCheck
 }
 
-func (cf *cachedFeed) ID() string {
-	return cf.id.String()
+func (cf *cachedFeed) Feed() *feed.Feed {
+	return cf.feed
 }
 
 func (cache *v1Cache) Version() Version {
@@ -150,18 +152,18 @@ Num Items: %d
 
 func newV1Cache() *v1Cache {
 	cache := v1Cache{
-		Ids:    map[feedDescriptor]feedId{},
+		Ids:    map[feed.Descriptor]feedId{},
 		Feeds:  map[feedId]*cachedFeed{},
 		NextId: startFeedId,
 	}
 	return &cache
 }
 
-func (cache *v1Cache) transformToCurrent() (CacheImpl, error) {
+func (cache *v1Cache) transformToCurrent() (Impl, error) {
 	return cache, nil
 }
 
-func (cache *v1Cache) getItem(id feedId) CachedFeed {
+func (cache *v1Cache) getItem(id feedId) *cachedFeed {
 	feed, ok := cache.Feeds[id]
 	if !ok {
 		feed = &cachedFeed{}
@@ -171,15 +173,11 @@ func (cache *v1Cache) getItem(id feedId) CachedFeed {
 	return feed
 }
 
-func (cache *v1Cache) findItem(feed *Feed) CachedFeed {
-	if feed.cached != nil {
-		return feed.cached.(*cachedFeed)
-	}
-
-	fDescr := feed.descriptor()
+func (cache *v1Cache) cachedFeed(f *feed.Feed) CachedFeed {
+	fDescr := f.Descriptor()
 	id, ok := cache.Ids[fDescr]
 	if !ok {
-		var otherId feedDescriptor
+		var otherId feed.Descriptor
 		changed := false
 		for otherId, id = range cache.Ids {
 			if otherId.Name == fDescr.Name {
@@ -204,15 +202,16 @@ func (cache *v1Cache) findItem(feed *Feed) CachedFeed {
 		cache.Ids[fDescr] = id
 	}
 
-	item := cache.getItem(id)
-	feed.cached = item
-	return item
+	cf := cache.getItem(id)
+	cf.feed = f
+	f.SetExtID(id)
+	return cf
 }
 
-func (item *item) newCachedItem() cachedItem {
+func newCachedItem(item *feed.Item) cachedItem {
 	var ci cachedItem
 
-	ci.ID = item.itemId
+	ci.ID = item.ID
 	ci.Title = item.Item.Title
 	ci.Link = item.Item.Link
 	if item.DateParsed() != nil {
@@ -239,27 +238,27 @@ func (cf *cachedFeed) deleteItem(index int) {
 	cf.Items = cf.Items[:len(cf.Items)-1]
 }
 
-func (cf *cachedFeed) filterItems(items []item, ignoreHash, alwaysNew bool) []item {
+func (cf *cachedFeed) Filter(items []feed.Item, ignoreHash, alwaysNew bool) []feed.Item {
 	if len(items) == 0 {
 		return items
 	}
 
-	cacheItems := make(map[cachedItem]*item, len(items))
+	cacheItems := make(map[cachedItem]*feed.Item, len(items))
 	for idx := range items {
 		// remove complete duplicates on the go
-		cacheItems[items[idx].newCachedItem()] = &items[idx]
+		cacheItems[newCachedItem(&items[idx])] = &items[idx]
 	}
 	log.Debugf("%d items after deduplication", len(cacheItems))
 
-	filtered := make([]item, 0, len(items))
+	filtered := make([]feed.Item, 0, len(items))
 	cacheadd := make([]cachedItem, 0, len(items))
-	app := func(item *item, ci cachedItem, oldIdx *int) {
+	app := func(item *feed.Item, ci cachedItem, oldIdx *int) {
 		if oldIdx != nil {
-			item.updateOnly = true
+			item.UpdateOnly = true
 			prevId := cf.Items[*oldIdx].ID
 			ci.ID = prevId
-			item.itemId = prevId
-			log.Debugf("oldIdx: %d, prevId: %s, item.id: %s", *oldIdx, prevId, item.id())
+			item.ID = prevId
+			log.Debugf("oldIdx: %d, prevId: %s, item.id: %s", *oldIdx, prevId, item.Id())
 			cf.deleteItem(*oldIdx)
 		}
 		filtered = append(filtered, *item)
@@ -275,7 +274,7 @@ CACHE_ITEMS:
 				if oldItem.Guid == ci.Guid {
 					log.Debugf("Guid matches with: %s", oldItem)
 					if !oldItem.similarTo(&ci, ignoreHash) {
-						item.addReason("guid (upd)")
+						item.AddReason("guid (upd)")
 						app(item, ci, &idx)
 					} else {
 						log.Debugf("Similar, ignoring item %s", base64.RawURLEncoding.EncodeToString(oldItem.ID[:]))
@@ -286,7 +285,7 @@ CACHE_ITEMS:
 			}
 
 			log.Debug("Found no matching GUID, including.")
-			item.addReason("guid")
+			item.AddReason("guid")
 			app(item, ci, nil)
 			continue
 		}
@@ -300,11 +299,11 @@ CACHE_ITEMS:
 			if oldItem.Link == ci.Link {
 				if alwaysNew {
 					log.Debugf("Link matches, but `always-new`.")
-					item.addReason("always-new")
+					item.AddReason("always-new")
 					continue
 				}
 				log.Debugf("Link matches, updating: %s", oldItem)
-				item.addReason("link (upd)")
+				item.AddReason("link (upd)")
 				app(item, ci, &idx)
 
 				continue CACHE_ITEMS
@@ -312,7 +311,7 @@ CACHE_ITEMS:
 		}
 
 		log.Debugf("No match found, inserting.")
-		item.addReason("new")
+		item.AddReason("new")
 		app(item, ci, nil)
 	}
 

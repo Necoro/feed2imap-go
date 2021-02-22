@@ -1,4 +1,4 @@
-package feed
+package cache
 
 import (
 	"bufio"
@@ -11,6 +11,7 @@ import (
 
 	"github.com/nightlyone/lockfile"
 
+	"github.com/Necoro/feed2imap-go/internal/feed"
 	"github.com/Necoro/feed2imap-go/pkg/log"
 )
 
@@ -20,30 +21,36 @@ const (
 	currentVersion Version = 1
 )
 
-type CacheImpl interface {
-	findItem(*Feed) CachedFeed
+type Impl interface {
+	cachedFeed(*feed.Feed) CachedFeed
+	transformToCurrent() (Impl, error)
 	Version() Version
 	Info() string
 	SpecificInfo(interface{}) string
-	transformToCurrent() (CacheImpl, error)
 }
 
 type Cache struct {
-	CacheImpl
+	Impl
 	lock   lockfile.Lockfile
 	locked bool
 }
 
 type CachedFeed interface {
+	// Checked marks the feed as being a failure or a success on last check.
 	Checked(withFailure bool)
+	// Failures of this feed up to now.
 	Failures() int
+	// The Last time, this feed has been checked
 	Last() time.Time
-	ID() string
-	filterItems(items []item, ignoreHash bool, alwaysNew bool) []item
+	// Filter the given items against the cached items.
+	Filter(items []feed.Item, ignoreHash bool, alwaysNew bool) []feed.Item
+	// Commit any changes done to the cache state.
 	Commit()
+	// The Feed, that is cached.
+	Feed() *feed.Feed
 }
 
-func cacheForVersion(version Version) (CacheImpl, error) {
+func cacheForVersion(version Version) (Impl, error) {
 	switch version {
 	case v1Version:
 		return newV1Cache(), nil
@@ -78,7 +85,7 @@ func lock(fileName string) (lock lockfile.Lockfile, err error) {
 }
 
 func (cache *Cache) store(fileName string) error {
-	if cache.CacheImpl == nil {
+	if cache.Impl == nil {
 		return fmt.Errorf("trying to store nil cache")
 	}
 	if cache.Version() != currentVersion {
@@ -97,7 +104,7 @@ func (cache *Cache) store(fileName string) error {
 	}
 
 	encoder := gob.NewEncoder(writer)
-	if err = encoder.Encode(cache.CacheImpl); err != nil {
+	if err = encoder.Encode(cache.Impl); err != nil {
 		return fmt.Errorf("encoding cache: %w", err)
 	}
 
@@ -123,8 +130,8 @@ func newCache() (Cache, error) {
 		return Cache{}, err
 	}
 	return Cache{
-		CacheImpl: cache,
-		locked:    false,
+		Impl:   cache,
+		locked: false,
 	}, nil
 }
 

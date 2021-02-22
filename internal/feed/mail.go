@@ -31,7 +31,7 @@ func address(name, address string) []*mail.Address {
 	return []*mail.Address{{Name: name, Address: address}}
 }
 
-func (item *item) fromAddress() []*mail.Address {
+func (item *Item) fromAddress() []*mail.Address {
 	switch {
 	case item.Author != nil && item.Author.Email != "":
 		return address(item.Author.Name, item.Author.Email)
@@ -46,11 +46,11 @@ func (item *item) fromAddress() []*mail.Address {
 	}
 }
 
-func (item *item) toAddress() []*mail.Address {
+func (item *Item) toAddress() []*mail.Address {
 	return address(item.feed.Name, item.defaultEmail())
 }
 
-func (item *item) buildHeader() message.Header {
+func (item *Item) buildHeader() message.Header {
 	var h mail.Header
 	h.SetContentType("multipart/alternative", nil)
 	h.SetAddressList("From", item.fromAddress())
@@ -58,7 +58,7 @@ func (item *item) buildHeader() message.Header {
 	h.Set("Message-Id", item.messageId())
 	h.Set(msg.VersionHeader, version.Version())
 	h.Set(msg.ReasonHeader, strings.Join(item.reasons, ","))
-	h.Set(msg.IdHeader, item.id())
+	h.Set(msg.IdHeader, item.Id())
 	h.Set(msg.CreateHeader, time.Now().Format(time.RFC1123Z))
 	if item.GUID != "" {
 		h.Set(msg.GuidHeader, item.GUID)
@@ -86,7 +86,7 @@ func (item *item) buildHeader() message.Header {
 	return h.Header
 }
 
-func (item *item) writeContentPart(w *message.Writer, typ string, tpl template.Template) error {
+func (item *Item) writeContentPart(w *message.Writer, typ string, tpl template.Template) error {
 	var ih message.Header
 	ih.SetContentType("text/"+typ, map[string]string{"charset": "utf-8"})
 	ih.SetContentDisposition("inline", nil)
@@ -105,11 +105,11 @@ func (item *item) writeContentPart(w *message.Writer, typ string, tpl template.T
 	return nil
 }
 
-func (item *item) writeTextPart(w *message.Writer) error {
+func (item *Item) writeTextPart(w *message.Writer) error {
 	return item.writeContentPart(w, "plain", template.Text)
 }
 
-func (item *item) writeHtmlPart(w *message.Writer) error {
+func (item *Item) writeHtmlPart(w *message.Writer) error {
 	return item.writeContentPart(w, "html", template.Html)
 }
 
@@ -133,7 +133,7 @@ func (img *feedImage) writeImagePart(w *message.Writer, cid string) error {
 	return nil
 }
 
-func (item *item) writeToBuffer(b *bytes.Buffer) error {
+func (item *Item) writeToBuffer(b *bytes.Buffer) error {
 	h := item.buildHeader()
 	item.buildBody()
 
@@ -178,7 +178,7 @@ func (item *item) writeToBuffer(b *bytes.Buffer) error {
 	return nil
 }
 
-func (item *item) message() (msg.Message, error) {
+func (item *Item) message() (msg.Message, error) {
 	var b bytes.Buffer
 
 	if err := item.writeToBuffer(&b); err != nil {
@@ -187,8 +187,8 @@ func (item *item) message() (msg.Message, error) {
 
 	msg := msg.Message{
 		Content:  b.String(),
-		IsUpdate: item.updateOnly,
-		ID:       item.id(),
+		IsUpdate: item.UpdateOnly,
+		ID:       item.Id(),
 	}
 
 	return msg, nil
@@ -251,7 +251,7 @@ func getBody(content, description string, bodyCfg config.Body) string {
 	}
 }
 
-func (item *item) buildBody() {
+func (item *Item) buildBody() {
 	feed := item.feed
 
 	var feedUrl *url.URL

@@ -9,10 +9,9 @@ import (
 	"github.com/mmcdole/gofeed"
 
 	"github.com/Necoro/feed2imap-go/internal/http"
-	"github.com/Necoro/feed2imap-go/pkg/log"
 )
 
-func (feed *Feed) parse() error {
+func (feed *Feed) Parse() error {
 	fp := gofeed.NewParser()
 
 	var reader io.Reader
@@ -58,22 +57,9 @@ func (feed *Feed) parse() error {
 	}
 
 	feed.feed = parsedFeed
-	feed.items = make([]item, len(parsedFeed.Items))
+	feed.items = make([]Item, len(parsedFeed.Items))
 	for idx, feedItem := range parsedFeed.Items {
-		feed.items[idx] = item{Feed: parsedFeed, Item: feedItem, itemId: uuid.New(), feed: feed}
+		feed.items[idx] = Item{Feed: parsedFeed, feed: feed, Item: feedItem, ID: uuid.New()}
 	}
 	return cleanup()
-}
-
-func handleFeed(feed *Feed) {
-	log.Printf("Fetching %s from %s", feed.Name, feed.Url)
-
-	err := feed.parse()
-	if err != nil {
-		if feed.Url == "" || feed.cached.Failures() >= feed.Global.MaxFailures {
-			log.Error(err)
-		} else {
-			log.Print(err)
-		}
-	}
 }

@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/Necoro/feed2imap-go/internal/feed"
+	"github.com/Necoro/feed2imap-go/internal/feed/cache"
 	"github.com/Necoro/feed2imap-go/internal/imap"
 	"github.com/Necoro/feed2imap-go/pkg/config"
 	"github.com/Necoro/feed2imap-go/pkg/log"
@@ -33,7 +33,8 @@ func init() {
 	flag.BoolVar(&debug, "d", debug, "enable debug output")
 }
 
-func processFeed(feed *feed.Feed, client *imap.Client, dryRun bool) {
+func processFeed(cf cache.CachedFeed, client *imap.Client, dryRun bool) {
+	feed := cf.Feed()
 	msgs, err := feed.Messages()
 	if err != nil {
 		log.Errorf("Processing items of feed %s: %s", feed.Name, err)
@@ -41,7 +42,7 @@ func processFeed(feed *feed.Feed, client *imap.Client, dryRun bool) {
 	}
 
 	if dryRun || len(msgs) == 0 {
-		feed.MarkSuccess()
+		cf.Commit()
 		return
 	}
 
@@ -58,7 +59,7 @@ func processFeed(feed *feed.Feed, client *imap.Client, dryRun bool) {
 
 	log.Printf("Uploaded %d messages to '%s' @ %s", len(msgs), feed.Name, folder)
 
-	feed.MarkSuccess()
+	cf.Commit()
 }
 
 func run() error {
@@ -81,7 +82,7 @@ func run() error {
 		return err
 	}
 
-	state, err := feed.NewState(cfg)
+	state, err := cache.NewState(cfg)
 	if err != nil {
 		return err
 	}
@@ -116,9 +117,9 @@ func run() error {
 	}
 
 	if buildCache {
-		state.Foreach((*feed.Feed).MarkSuccess)
+		state.Foreach(cache.CachedFeed.Commit)
 	} else {
-		state.ForeachGo(func(f *feed.Feed) {
+		state.ForeachGo(func(f cache.CachedFeed) {
 			processFeed(f, c, dryRun)
 		})
 	}
