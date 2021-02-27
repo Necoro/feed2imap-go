@@ -30,7 +30,7 @@ for details.
 ### Additions to feed2imap
 
 * Groups: Have the ability to group feeds that share characteristics, most often the same parent folder in the hiearchy.
-  But also allows to share options between feeds. Usages: Categories ("News", "Linux") and merging different feeds of the same origin.
+  It also allows sharing options between feeds. Usages: Categories ("News", "Linux") and merging different feeds of the same origin.
 * Heavier use of parallel processing (it's Go after all ;)). Also, it is way faster.
 * Global `target` and each feed only specifies the folder relative to that target. 
 (feature contained also in [fork of the original][nec]) 
@@ -93,7 +93,7 @@ and b) the update process is not clear, especially regarding the dependencies.
 
 ### Run in docker
 
-Most times, putting feed2imap-go somewhere and adding a cron job does everything you need. For the times where it isn't, we provide docker containers for your convenience at [Github Packages](https://github.com/Necoro/feed2imap-go/packages) and at [Docker Hub](https://hub.docker.com/r/necorodm/feed2imap-go).
+Most times, putting feed2imap-go somewhere and adding a cron job does everything you need. For the times when it isn't, we provide docker containers for your convenience at [Github Packages](https://github.com/Necoro/feed2imap-go/packages) and at [Docker Hub](https://hub.docker.com/r/necorodm/feed2imap-go).
 
 The container is configured to expect both config file and cache under `/app/data/`, thus needs it mounted there.
 When both are stored in `~/feed`, you can do:
@@ -109,7 +109,7 @@ Note that the supplied binary must not be linked to glibc, i.e. has to be built 
 
 Or you can roll your own Dockerfile, supplying a glibc...
 
-**NB**: feed2imap-go employs no server-mode. Thus, each run terminates directly after a couple seconds. Therefore, the docker container in itself is not that useful and you have to have a mechanism in place to spin up the container regularly.
+**NB**: feed2imap-go employs no server-mode. Thus, each run terminates directly after a couple seconds. Therefore, the docker container in itself is not that useful, and you have to have a mechanism in place to spin up the container regularly.
 
 ## Support
 
