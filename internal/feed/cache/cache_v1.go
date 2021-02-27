@@ -18,8 +18,9 @@ import (
 )
 
 const (
-	v1Version   Version = 1
-	startFeedId uint64  = 1
+	v1Version    Version = 1
+	startFeedId  uint64  = 1
+	maxCacheSize         = 1000
 )
 
 type feedId uint64
@@ -63,6 +64,7 @@ type cachedItem struct {
 	UpdatedCache time.Time
 	Hash         itemHash
 	ID           uuid.UUID
+	deleted      bool
 }
 
 func (item cachedItem) String() string {
@@ -246,10 +248,8 @@ func (item *cachedItem) similarTo(other *cachedItem, ignoreHash bool) bool {
 		(ignoreHash || other.Hash == item.Hash)
 }
 
-func (cf *cachedFeed) deleteItem(index int) {
-	copy(cf.Items[index:], cf.Items[index+1:])
-	cf.Items[len(cf.Items)-1] = cachedItem{}
-	cf.Items = cf.Items[:len(cf.Items)-1]
+func (cf *cachedFeed) markItemDeleted(index int) {
+	cf.Items[index].deleted = true
 }
 
 func (cf *cachedFeed) Filter(items []feed.Item, ignoreHash, alwaysNew bool) []feed.Item {
@@ -276,9 +276,15 @@ func (cf *cachedFeed) Filter(items []feed.Item, ignoreHash, alwaysNew bool) []fe
 			ci.ID = prevId
 			item.ID = prevId
 			log.Debugf("oldIdx: %d, prevId: %s, item.id: %s", *oldIdx, prevId, item.Id())
-			cf.deleteItem(*oldIdx)
+			cf.markItemDeleted(*oldIdx)
 		}
 		filtered = append(filtered, *item)
+		cacheadd = append(cacheadd, ci)
+	}
+
+	seen := func(oldIdx int) {
+		ci := cf.Items[oldIdx]
+		cf.markItemDeleted(oldIdx)
 		cacheadd = append(cacheadd, ci)
 	}
 
@@ -295,6 +301,7 @@ CACHE_ITEMS:
 						app(item, ci, &idx)
 					} else {
 						log.Debugf("Similar, ignoring item %s", base64.RawURLEncoding.EncodeToString(oldItem.ID[:]))
+						seen(idx)
 					}
 
 					continue CACHE_ITEMS
@@ -310,6 +317,7 @@ CACHE_ITEMS:
 		for idx, oldItem := range cf.Items {
 			if oldItem.similarTo(&ci, ignoreHash) {
 				log.Debugf("Similarity matches, ignoring: %s", oldItem)
+				seen(idx)
 				continue CACHE_ITEMS
 			}
 
@@ -334,7 +342,29 @@ CACHE_ITEMS:
 
 	log.Debugf("%d items after filtering", len(filtered))
 
-	cf.newItems = append(cacheadd, cf.Items...)
+	cf.newItems = append(cacheadd, filterItems(cf.Items)...)
 
 	return filtered
+}
+
+func filterItems(items []cachedItem) []cachedItem {
+	var n int
+
+	if len(items) < maxCacheSize {
+		n = len(items)
+	} else {
+		n = maxCacheSize
+	}
+
+	copiedItems := make([]cachedItem, 0, n)
+	for _, item := range items {
+		if !item.deleted {
+			copiedItems = append(copiedItems, item)
+			if len(copiedItems) >= n {
+				break
+			}
+		}
+	}
+
+	return copiedItems
 }
