@@ -23,6 +23,7 @@ const (
 	v1Version    Version = 1
 	startFeedId  uint64  = 1
 	maxCacheSize         = 1000
+	maxCacheDays         = 180
 )
 
 type feedId uint64
@@ -374,6 +375,21 @@ func filterItems(items []cachedItem) []cachedItem {
 	}
 
 	return copiedItems
+}
+
+func (cache *v1Cache) cleanup(knownDescriptors map[feed.Descriptor]bool) {
+	for descr, id := range cache.Ids {
+		if knownDescriptors[descr] {
+			// do not delete stuff still known to us
+			continue
+		}
+
+		cf := cache.Feeds[id]
+		if cf.LastCheck.IsZero() || util.Days(time.Since(cf.LastCheck)) > maxCacheDays {
+			delete(cache.Feeds, id)
+			delete(cache.Ids, descr)
+		}
+	}
 }
 
 func (cache *v1Cache) load(reader io.Reader) error {

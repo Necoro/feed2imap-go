@@ -11,6 +11,7 @@ import (
 type State struct {
 	feeds       map[string]*feed.Feed
 	cachedFeeds map[string]CachedFeed
+	knownFeeds  map[feed.Descriptor]bool
 	cache       Cache
 	cfg         *config.Config
 }
@@ -55,6 +56,7 @@ func (state *State) LoadCache(fileName string, forceNew bool) error {
 
 	for name, feed := range state.feeds {
 		state.cachedFeeds[name] = cache.cachedFeed(feed)
+		state.knownFeeds[feed.Descriptor()] = true
 	}
 
 	// state.feeds should not be used after loading the cache --> enforce a panic
@@ -64,6 +66,7 @@ func (state *State) LoadCache(fileName string, forceNew bool) error {
 }
 
 func (state *State) StoreCache(fileName string) error {
+	state.cache.cleanup(state.knownFeeds)
 	return state.cache.store(fileName)
 }
 
@@ -115,9 +118,11 @@ func (state *State) Filter() {
 }
 
 func NewState(cfg *config.Config) (*State, error) {
+	numFeeds := len(cfg.Feeds)
 	state := State{
-		feeds:       map[string]*feed.Feed{},
-		cachedFeeds: map[string]CachedFeed{},
+		feeds:       make(map[string]*feed.Feed, numFeeds),
+		cachedFeeds: make(map[string]CachedFeed, numFeeds),
+		knownFeeds:  make(map[feed.Descriptor]bool, numFeeds),
 		cache:       Cache{}, // loaded later on
 		cfg:         cfg,
 	}

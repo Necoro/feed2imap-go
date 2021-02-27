@@ -29,6 +29,10 @@ func (cache *v2Cache) transformTo(v Version) (Impl, error) {
 	return nil, fmt.Errorf("Transformation not supported")
 }
 
+func (cache *v2Cache) cleanup(knownDescriptors map[feed.Descriptor]bool) {
+	cache.asV1().cleanup(knownDescriptors)
+}
+
 func (cache *v2Cache) Version() Version {
 	return v2Version
 }

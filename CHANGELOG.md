@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Support for JSON v1.1 feed (via [gofeed](https://github.com/mmcdole/gofeed/pull/169))
 ### Changed
 - Caches store now 1000 old entries (i.e., not included in the last fetch) at maximum. This will clean obsolete cruft and drastically reduce cache size.
+- Feeds not updated (and not part of the config) for 180 days are now automatically removed from the cache.
 
 ## [0.7.0] - 2021-02-21
 ### Changed
