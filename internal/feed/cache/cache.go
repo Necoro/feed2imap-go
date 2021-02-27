@@ -18,7 +18,7 @@ import (
 type Version byte
 
 const (
-	currentVersion Version = v1Version
+	currentVersion Version = v2Version
 )
 
 type Impl interface {
@@ -56,6 +56,8 @@ func forVersion(version Version) (Impl, error) {
 	switch version {
 	case v1Version:
 		return newV1Cache(), nil
+	case v2Version:
+		return newV2Cache(), nil
 	default:
 		return nil, fmt.Errorf("unknown cache version '%d'", version)
 	}
@@ -169,11 +171,15 @@ func Load(fileName string) (Cache, error) {
 		return Cache{}, fmt.Errorf("decoding for version '%d' from '%s': %w", version, fileName, err)
 	}
 
-	if cache, err = cache.transformTo(currentVersion); err != nil {
-		return Cache{}, fmt.Errorf("cannot transform from version %d to %d: %w", version, currentVersion, err)
-	}
+	if currentVersion != cache.Version() {
+		if cache, err = cache.transformTo(currentVersion); err != nil {
+			return Cache{}, fmt.Errorf("cannot transform from version %d to %d: %w", version, currentVersion, err)
+		}
 
-	log.Printf("Loaded cache (version %d), transformed to version %d.", version, currentVersion)
+		log.Printf("Loaded cache (version %d), transformed to version %d.", version, currentVersion)
+	} else {
+		log.Printf("Loaded cache (version %d)", version)
+	}
 
 	return Cache{cache, lock, true}, nil
 }

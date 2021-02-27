@@ -179,8 +179,8 @@ func newV1Cache() *v1Cache {
 
 func (cache *v1Cache) transformTo(v Version) (Impl, error) {
 	switch v {
-	case v1Version:
-		return cache, nil
+	case v2Version:
+		return (*v2Cache)(cache), nil
 	default:
 		return nil, fmt.Errorf("Transformation not supported")
 	}
