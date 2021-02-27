@@ -23,7 +23,7 @@ func (state *State) Foreach(f func(CachedFeed)) {
 
 func (state *State) ForeachGo(goFunc func(CachedFeed)) {
 	var wg sync.WaitGroup
-	wg.Add(len(state.feeds))
+	wg.Add(len(state.cachedFeeds))
 
 	f := func(feed CachedFeed, wg *sync.WaitGroup) {
 		goFunc(feed)
