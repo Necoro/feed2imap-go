@@ -4,6 +4,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+### Added
+- New cache format v2 that uses gzip compression
+- Support for JSON v1.1 feed (via [gofeed](https://github.com/mmcdole/gofeed/pull/169))
+### Changed
+- Caches store now 1000 old entries (i.e., not included in the last fetch) at maximum. This will clean obsolete cruft and drastically reduce cache size.
+
 ## [0.7.0] - 2021-02-21
 ### Changed
 - Remove `srcset` attribute of `img` tags when including images in mail
