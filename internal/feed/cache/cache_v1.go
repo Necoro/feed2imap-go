@@ -5,6 +5,7 @@ import (
 	"encoding/base64"
 	"encoding/hex"
 	"fmt"
+	"sort"
 	"strconv"
 	"strings"
 	"time"
@@ -111,9 +112,22 @@ func (cache *v1Cache) Version() Version {
 }
 
 func (cache *v1Cache) Info() string {
+	descriptors := make([]feed.Descriptor, len(cache.Ids))
+	i := 0
+	for descr := range cache.Ids {
+		descriptors[i] = descr
+		i++
+	}
+
+	sort.Slice(descriptors, func(i, j int) bool {
+		return descriptors[i].Name < descriptors[j].Name
+	})
+
 	b := strings.Builder{}
-	for descr, id := range cache.Ids {
-		b.WriteString(fmt.Sprintf("%3s: %s (%s)\n", id.String(), descr.Name, descr.Url))
+	for _, descr := range descriptors {
+		id := cache.Ids[descr]
+		feed := cache.Feeds[id]
+		b.WriteString(fmt.Sprintf("%3s: %s (%s) (%d items)\n", id.String(), descr.Name, descr.Url, len(feed.Items)))
 	}
 	return b.String()
 }
