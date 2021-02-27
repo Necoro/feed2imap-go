@@ -18,12 +18,12 @@ import (
 type Version byte
 
 const (
-	currentVersion Version = 1
+	currentVersion Version = v1Version
 )
 
 type Impl interface {
 	cachedFeed(*feed.Feed) CachedFeed
-	transformToCurrent() (Impl, error)
+	transformTo(Version) (Impl, error)
 	Version() Version
 	Info() string
 	SpecificInfo(interface{}) string
@@ -169,7 +169,7 @@ func Load(fileName string) (Cache, error) {
 		return Cache{}, fmt.Errorf("decoding for version '%d' from '%s': %w", version, fileName, err)
 	}
 
-	if cache, err = cache.transformToCurrent(); err != nil {
+	if cache, err = cache.transformTo(currentVersion); err != nil {
 		return Cache{}, fmt.Errorf("cannot transform from version %d to %d: %w", version, currentVersion, err)
 	}
 

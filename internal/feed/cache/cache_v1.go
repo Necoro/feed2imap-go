@@ -175,8 +175,13 @@ func newV1Cache() *v1Cache {
 	return &cache
 }
 
-func (cache *v1Cache) transformToCurrent() (Impl, error) {
-	return cache, nil
+func (cache *v1Cache) transformTo(v Version) (Impl, error) {
+	switch v {
+	case v1Version:
+		return cache, nil
+	default:
+		return nil, fmt.Errorf("Transformation not supported")
+	}
 }
 
 func (cache *v1Cache) getItem(id feedId) *cachedFeed {
