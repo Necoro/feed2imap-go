@@ -16,6 +16,7 @@ import (
 	"github.com/emersion/go-message/mail"
 	"github.com/gabriel-vasile/mimetype"
 	"github.com/jaytaylor/html2text"
+	"github.com/mmcdole/gofeed"
 	"golang.org/x/net/html"
 
 	"github.com/Necoro/feed2imap-go/internal/feed/template"
@@ -31,16 +32,25 @@ func address(name, address string) []*mail.Address {
 	return []*mail.Address{{Name: name, Address: address}}
 }
 
+func author(authors []*gofeed.Person) *gofeed.Person {
+	if len(authors) > 0 {
+		return authors[0]
+	}
+	return nil
+}
+
 func (item *Item) fromAddress() []*mail.Address {
+	itemAuthor := author(item.Authors)
+	feedAuthor := author(item.Feed.Authors)
 	switch {
-	case item.Author != nil && item.Author.Email != "":
-		return address(item.Author.Name, item.Author.Email)
-	case item.Author != nil && item.Author.Name != "":
-		return address(item.Author.Name, item.defaultEmail())
-	case item.Feed.Author != nil && item.Feed.Author.Email != "":
-		return address(item.Feed.Author.Name, item.Feed.Author.Email)
-	case item.Feed.Author != nil && item.Feed.Author.Name != "":
-		return address(item.Feed.Author.Name, item.defaultEmail())
+	case itemAuthor != nil && itemAuthor.Email != "":
+		return address(itemAuthor.Name, itemAuthor.Email)
+	case itemAuthor != nil && itemAuthor.Name != "":
+		return address(itemAuthor.Name, item.defaultEmail())
+	case feedAuthor != nil && feedAuthor.Email != "":
+		return address(feedAuthor.Name, feedAuthor.Email)
+	case feedAuthor != nil && feedAuthor.Name != "":
+		return address(feedAuthor.Name, item.defaultEmail())
 	default:
 		return address(item.feed.Name, item.defaultEmail())
 	}

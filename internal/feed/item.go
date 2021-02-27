@@ -4,6 +4,7 @@ import (
 	"encoding/base64"
 	"encoding/json"
 	"fmt"
+	"strings"
 	"time"
 
 	"github.com/google/uuid"
@@ -44,12 +45,13 @@ func (item *Item) Date() string {
 	return item.Updated
 }
 
-// Creator returns the name of the creating author.
+// Creator returns the name of the creating authors (comma separated).
 func (item *Item) Creator() string {
-	if item.Author != nil {
-		return item.Author.Name
+	names := make([]string, len(item.Authors))
+	for i, p := range item.Authors {
+		names[i] = p.Name
 	}
-	return ""
+	return strings.Join(names, ", ")
 }
 
 func (item *Item) FeedLink() string {
