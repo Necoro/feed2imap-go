@@ -2,9 +2,9 @@ package cache
 
 import (
 	"bufio"
-	"encoding/gob"
 	"errors"
 	"fmt"
+	"io"
 	"os"
 	"path/filepath"
 	"time"
@@ -24,6 +24,8 @@ const (
 type Impl interface {
 	cachedFeed(*feed.Feed) CachedFeed
 	transformTo(Version) (Impl, error)
+	load(io.Reader) error
+	store(io.Writer) error
 	Version() Version
 	Info() string
 	SpecificInfo(interface{}) string
@@ -103,8 +105,7 @@ func (cache *Cache) store(fileName string) error {
 		return fmt.Errorf("writing to '%s': %w", fileName, err)
 	}
 
-	encoder := gob.NewEncoder(writer)
-	if err = encoder.Encode(cache.Impl); err != nil {
+	if err = cache.Impl.store(writer); err != nil {
 		return fmt.Errorf("encoding cache: %w", err)
 	}
 
@@ -164,8 +165,7 @@ func Load(fileName string) (Cache, error) {
 		return Cache{}, err
 	}
 
-	decoder := gob.NewDecoder(reader)
-	if err = decoder.Decode(cache); err != nil {
+	if err = cache.load(reader); err != nil {
 		return Cache{}, fmt.Errorf("decoding for version '%d' from '%s': %w", version, fileName, err)
 	}
 

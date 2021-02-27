@@ -3,8 +3,10 @@ package cache
 import (
 	"crypto/sha256"
 	"encoding/base64"
+	"encoding/gob"
 	"encoding/hex"
 	"fmt"
+	"io"
 	"sort"
 	"strconv"
 	"strings"
@@ -372,4 +374,14 @@ func filterItems(items []cachedItem) []cachedItem {
 	}
 
 	return copiedItems
+}
+
+func (cache *v1Cache) load(reader io.Reader) error {
+	decoder := gob.NewDecoder(reader)
+	return decoder.Decode(cache)
+}
+
+func (cache *v1Cache) store(writer io.Writer) error {
+	encoder := gob.NewEncoder(writer)
+	return encoder.Encode(cache)
 }
