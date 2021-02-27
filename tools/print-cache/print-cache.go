@@ -22,7 +22,7 @@ func init() {
 func main() {
 	flag.Parse()
 
-	cache, err := cache.Load(cacheFile)
+	cache, err := cache.Load(cacheFile, false)
 	if err != nil {
 		log.Fatal(err)
 	}

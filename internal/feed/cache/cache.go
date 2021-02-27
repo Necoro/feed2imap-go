@@ -138,7 +138,7 @@ func create() (Cache, error) {
 	}, nil
 }
 
-func Load(fileName string) (Cache, error) {
+func Load(fileName string, upgrade bool) (Cache, error) {
 	f, err := os.Open(fileName)
 	if err != nil {
 		if errors.Is(err, os.ErrNotExist) {
@@ -171,7 +171,7 @@ func Load(fileName string) (Cache, error) {
 		return Cache{}, fmt.Errorf("decoding for version '%d' from '%s': %w", version, fileName, err)
 	}
 
-	if currentVersion != cache.Version() {
+	if upgrade && currentVersion != cache.Version() {
 		if cache, err = cache.transformTo(currentVersion); err != nil {
 			return Cache{}, fmt.Errorf("cannot transform from version %d to %d: %w", version, currentVersion, err)
 		}
