@@ -101,24 +101,32 @@ func run() error {
 		return nil
 	}
 
+	imapErr := make(chan error, 1)
+	var c *imap.Client
+	if !dryRun && !buildCache {
+		go func() {
+			var err error
+			c, err = imap.Connect(cfg.Target)
+			imapErr <- err
+		}()
+
+		defer c.Disconnect()
+	}
+
 	if success := state.Fetch(); success == 0 {
 		return fmt.Errorf("No successful feed fetch.")
 	}
 
 	state.Filter()
 
-	var c *imap.Client
-	if !dryRun && !buildCache {
-		if c, err = imap.Connect(cfg.Target); err != nil {
-			return err
-		}
-
-		defer c.Disconnect()
-	}
-
 	if buildCache {
 		state.Foreach(cache.CachedFeed.Commit)
 	} else {
+		if !dryRun {
+			if err = <-imapErr; err != nil {
+				return err
+			}
+		}
 		state.ForeachGo(func(f cache.CachedFeed) {
 			processFeed(f, c, dryRun)
 		})
