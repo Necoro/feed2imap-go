@@ -2,68 +2,16 @@ package imap
 
 import (
 	"fmt"
-	"net"
 	"strings"
-	"time"
-
-	imapClient "github.com/emersion/go-imap/client"
 
 	"github.com/Necoro/feed2imap-go/pkg/config"
 	"github.com/Necoro/feed2imap-go/pkg/log"
 )
 
-var dialer imapClient.Dialer
-
-func init() {
-	dialer = &net.Dialer{Timeout: 30 * time.Second}
-}
-
-func newImapClient(url config.Url) (*imapClient.Client, error) {
-	var (
-		c   *imapClient.Client
-		err error
-	)
-
-	if url.ForceTLS() {
-		if c, err = imapClient.DialWithDialerTLS(dialer, url.HostPort(), nil); err != nil {
-			return nil, fmt.Errorf("connecting (TLS) to %s: %w", url.Host, err)
-		}
-		log.Print("Connected to ", url.HostPort(), " (TLS)")
-	} else {
-		if c, err = imapClient.DialWithDialer(dialer, url.HostPort()); err != nil {
-			return nil, fmt.Errorf("connecting to %s: %w", url.Host, err)
-		}
-	}
-
-	return c, nil
-}
-
-func (cl *Client) connect(url config.Url) (*connection, error) {
-	c, err := newImapClient(url)
-	if err != nil {
-		return nil, err
-	}
-
-	conn := cl.createConnection(c)
-
-	if !url.ForceTLS() {
-		if err = conn.startTls(); err != nil {
-			return nil, err
-		}
-	}
-
-	if err = c.Login(url.User, url.Password); err != nil {
-		return nil, fmt.Errorf("login to %s: %w", url.Host, err)
-	}
-
-	cl.connChannel <- conn
-	return conn, nil
-}
-
 func Connect(url config.Url) (*Client, error) {
 	var err error
 
-	client := NewClient()
+	client := newClient()
 	client.host = url.Host
 	defer func() {
 		if err != nil {
