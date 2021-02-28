@@ -11,6 +11,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Caches store now 1000 old entries (i.e., not included in the last fetch) at maximum. This will clean obsolete cruft and drastically reduce cache size.
 - Feeds not updated (and not part of the config) for 180 days are now automatically removed from the cache.
+- Connecting to the IMAP server now happens in the background and in parallel, using connections directly as they are established. This should yield a speed-up with slow IMAP servers.
+- IMAP connections now can time out during establishment.
 
 ## [0.7.0] - 2021-02-21
 ### Changed
