@@ -2,13 +2,21 @@ package imap
 
 import (
 	"fmt"
+	"net"
 	"strings"
+	"time"
 
 	imapClient "github.com/emersion/go-imap/client"
 
 	"github.com/Necoro/feed2imap-go/pkg/config"
 	"github.com/Necoro/feed2imap-go/pkg/log"
 )
+
+var dialer imapClient.Dialer
+
+func init() {
+	dialer = &net.Dialer{Timeout: 30 * time.Second}
+}
 
 func newImapClient(url config.Url) (*imapClient.Client, error) {
 	var (
@@ -17,12 +25,12 @@ func newImapClient(url config.Url) (*imapClient.Client, error) {
 	)
 
 	if url.ForceTLS() {
-		if c, err = imapClient.DialTLS(url.HostPort(), nil); err != nil {
+		if c, err = imapClient.DialWithDialerTLS(dialer, url.HostPort(), nil); err != nil {
 			return nil, fmt.Errorf("connecting (TLS) to %s: %w", url.Host, err)
 		}
 		log.Print("Connected to ", url.HostPort(), " (TLS)")
 	} else {
-		if c, err = imapClient.Dial(url.HostPort()); err != nil {
+		if c, err = imapClient.DialWithDialer(dialer, url.HostPort()); err != nil {
 			return nil, fmt.Errorf("connecting to %s: %w", url.Host, err)
 		}
 	}
