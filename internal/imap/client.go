@@ -1,6 +1,8 @@
 package imap
 
 import (
+	"sync/atomic"
+
 	uidplus "github.com/emersion/go-imap-uidplus"
 	imapClient "github.com/emersion/go-imap/client"
 
@@ -17,15 +19,17 @@ type connConf struct {
 
 type Client struct {
 	connConf
-	mailboxes     *mailboxes
-	commander     *commander
-	connections   [numberConns]*connection
-	nextFreeIndex int
+	mailboxes   *mailboxes
+	commander   *commander
+	connections [numberConns]*connection
+	idxCounter  int32
+	connChannel chan *connection
 }
 
 func (cl *Client) Disconnect() {
 	if cl != nil {
 		cl.stopCommander()
+		close(cl.connChannel)
 
 		connected := false
 		for _, conn := range cl.connections {
@@ -39,7 +43,9 @@ func (cl *Client) Disconnect() {
 }
 
 func (cl *Client) createConnection(c *imapClient.Client) *connection {
-	if cl.nextFreeIndex >= len(cl.connections) {
+	nextIndex := int(atomic.AddInt32(&cl.idxCounter, 1)) - 1
+
+	if nextIndex >= len(cl.connections) {
 		panic("Too many connections")
 	}
 
@@ -51,12 +57,14 @@ func (cl *Client) createConnection(c *imapClient.Client) *connection {
 		c:         client,
 	}
 
-	cl.connections[cl.nextFreeIndex] = conn
-	cl.nextFreeIndex++
+	cl.connections[nextIndex] = conn
 
 	return conn
 }
 
 func NewClient() *Client {
-	return &Client{mailboxes: NewMailboxes()}
+	return &Client{
+		mailboxes:   NewMailboxes(),
+		connChannel: make(chan *connection, 0),
+	}
 }

@@ -48,6 +48,7 @@ func (cl *Client) connect(url config.Url) (*connection, error) {
 		return nil, fmt.Errorf("login to %s: %w", url.Host, err)
 	}
 
+	cl.connChannel <- conn
 	return conn, nil
 }
 
@@ -61,6 +62,7 @@ func Connect(url config.Url) (*Client, error) {
 			client.Disconnect()
 		}
 	}()
+	client.startCommander()
 
 	var conn *connection // the main connection
 	if conn, err = client.connect(url); err != nil {
@@ -87,12 +89,12 @@ func Connect(url config.Url) (*Client, error) {
 
 	// the other connections
 	for i := 1; i < len(client.connections); i++ {
-		if _, err := client.connect(url); err != nil { // explicitly new var 'err', b/c these are now harmless
-			log.Warnf("connecting #%d: %s", i, err)
-		}
+		go func(id int) {
+			if _, err := client.connect(url); err != nil { // explicitly new var 'err', b/c these are now harmless
+				log.Warnf("connecting #%d: %s", id, err)
+			}
+		}(i)
 	}
-
-	client.startCommander()
 
 	return client, nil
 }

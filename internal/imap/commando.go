@@ -50,11 +50,11 @@ func (cl *Client) startCommander() {
 
 	cl.commander = &commander{cl, pipe, done}
 
-	for _, conn := range cl.connections {
-		if conn != nil {
+	go func() {
+		for conn := range cl.connChannel {
 			go executioner(conn, pipe, done)
 		}
-	}
+	}()
 }
 
 func (cl *Client) stopCommander() {
