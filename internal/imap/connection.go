@@ -170,7 +170,14 @@ func (conn *connection) fetchFlags(uid uint32) ([]string, error) {
 		done <- conn.c.UidFetch(seqSet, fetchItem, messages)
 	}()
 
-	msg := <-messages
+	var msg *imap.Message
+	for m := range messages {
+		if msg == nil {
+			msg = m
+		} else {
+			panic(fmt.Sprintf("Duplicate message for uid %d. Found: %s(%d) and %s(%d)", uid, msg.Envelope.MessageId, msg.SeqNum, m.Envelope.MessageId, m.SeqNum))
+		}
+	}
 	err := <-done
 
 	if err != nil {
