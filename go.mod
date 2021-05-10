@@ -5,7 +5,7 @@ go 1.16
 require (
 	github.com/PuerkitoBio/goquery v1.6.1
 	github.com/antonmedv/expr v1.8.9
-	github.com/emersion/go-imap v1.0.7-0.20201107145532-de4b254f4d93
+	github.com/emersion/go-imap v1.0.6
 	github.com/emersion/go-imap-uidplus v0.0.0-20200503180755-e75854c361e9
 	github.com/emersion/go-message v0.14.1
 	github.com/gabriel-vasile/mimetype v1.1.2
