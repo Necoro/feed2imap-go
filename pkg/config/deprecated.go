@@ -22,8 +22,7 @@ var deprecatedOpts = map[string]deprecated{
 	"execurl":       {"Use 'exec' instead.", nil},
 	"filter":        {"Use 'item-filter' instead.", nil},
 	"disable-ssl-verification": {"Interpreted as 'tls-no-verify'.", func(i interface{}, global *GlobalOptions, opts *Options) {
-		val, ok := i.(bool)
-		if ok {
+		if val, ok := i.(bool); ok {
 			if val && !opts.NoTLS {
 				// do not overwrite the set NoTLS flag!
 				opts.NoTLS = val
