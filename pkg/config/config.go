@@ -11,11 +11,11 @@ import (
 	"github.com/Necoro/feed2imap-go/pkg/util"
 )
 
-// Convenience type for the non-mapped configuration options
+// Map is a convenience type for the non-mapped configuration options
 // Mostly used for legacy options
 type Map map[string]interface{}
 
-// Global options, not feed specific
+// GlobalOptions are not feed specific
 type GlobalOptions struct {
 	Timeout      int      `yaml:"timeout"`
 	DefaultEmail string   `yaml:"default-email"`
@@ -25,7 +25,6 @@ type GlobalOptions struct {
 	AutoTarget   bool     `yaml:"auto-target"`
 }
 
-// Default global options
 var DefaultGlobalOptions = GlobalOptions{
 	Timeout:      30,
 	MaxFailures:  10,
@@ -35,7 +34,7 @@ var DefaultGlobalOptions = GlobalOptions{
 	AutoTarget:   true,
 }
 
-// Per feed options
+// Options are feed specific
 // NB: Always specify a yaml name, as it is later used in processing
 type Options struct {
 	MinFreq     int    `yaml:"min-frequency"`
@@ -50,7 +49,6 @@ type Options struct {
 	Body        Body   `yaml:"body"`
 }
 
-// Default feed options
 var DefaultFeedOptions = Options{
 	Body:        "default",
 	MinFreq:     0,
@@ -79,7 +77,7 @@ func WithDefault() *Config {
 	}
 }
 
-// Validates the configuration against common mistakes
+// Validate checks the configuration against common mistakes
 func (cfg *Config) Validate() error {
 	if cfg.Target.Empty() {
 		return fmt.Errorf("No target set!")
@@ -94,12 +92,12 @@ func (cfg *Config) Validate() error {
 	return nil
 }
 
-// Marks whether 'text' part should be included in mails
+// WithPartText marks whether 'text' part should be included in mails
 func (opt GlobalOptions) WithPartText() bool {
 	return util.StrContains(opt.Parts, "text")
 }
 
-// Marks whether 'html' part should be included in mails
+// WithPartHtml marks whether 'html' part should be included in mails
 func (opt GlobalOptions) WithPartHtml() bool {
 	return util.StrContains(opt.Parts, "html")
 }
