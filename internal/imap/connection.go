@@ -1,6 +1,7 @@
 package imap
 
 import (
+	"errors"
 	"fmt"
 	"strings"
 	"time"
@@ -165,25 +166,29 @@ func (conn *connection) fetchFlags(uid uint32) ([]string, error) {
 	seqSet.AddNum(uid)
 
 	messages := make(chan *imap.Message, 1)
-	done := make(chan error, 1)
+	done := make(chan error)
 	go func() {
 		done <- conn.c.UidFetch(seqSet, fetchItem, messages)
 	}()
 
-	var msg *imap.Message
+	var flags []string
 	for m := range messages {
-		if msg == nil {
-			msg = m
-		} else {
-			panic(fmt.Sprintf("Duplicate message for uid %d. Found: %s(%d) and %s(%d)", uid, msg.Envelope.MessageId, msg.SeqNum, m.Envelope.MessageId, m.SeqNum))
+		// unilateral flags messages may be sent by the server, which then clutter our messages
+		// --> filter for our selected UID
+		if m.Uid == uid {
+			flags = m.Flags
 		}
 	}
 	err := <-done
 
-	if err != nil {
-		return nil, fmt.Errorf("fetching flags: %w", err)
+	if err == nil && flags == nil {
+		err = errors.New("no flags returned")
 	}
-	return msg.Flags, nil
+
+	if err != nil {
+		return nil, fmt.Errorf("fetching flags for UID %d: %w", uid, err)
+	}
+	return flags, nil
 }
 
 func (conn *connection) replace(folder Folder, header, value, newContent string, force bool) error {
