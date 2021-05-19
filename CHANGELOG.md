@@ -5,6 +5,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+## [1.0.0] - 2021-05-19
+### Fixed
+- [Issue #47](https://github.com/Necoro/feed2imap-go/issues/47): Fixed occassional deadlocks. Reason was unilateral updates from the server which were ill-handled by go-imap.
+
 ## [0.8.0] - 2021-03-06
 ### Added
 - New cache format v2 that uses gzip compression
@@ -89,7 +93,8 @@ This resulted in duplicate entries as soon as the feed contained (possibly older
 
 Initial release
 
-[Unreleased]: https://github.com/Necoro/feed2imap-go/compare/v0.8.0...HEAD
+[Unreleased]: https://github.com/Necoro/feed2imap-go/compare/v1.0.0...HEAD
+[1.0.0]: https://github.com/Necoro/feed2imap-go/compare/v0.8.0...v1.0.0
 [0.8.0]: https://github.com/Necoro/feed2imap-go/compare/v0.7.0...v0.8.0
 [0.7.0]: https://github.com/Necoro/feed2imap-go/compare/v0.6.0...v0.7.0
 [0.6.0]: https://github.com/Necoro/feed2imap-go/compare/v0.5.2...v0.6.0
