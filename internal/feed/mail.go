@@ -4,7 +4,7 @@ import (
 	"bytes"
 	"encoding/base64"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"mime"
 	"net/url"
 	"path"
@@ -224,7 +224,7 @@ func getImage(src string, timeout int, disableTLS bool) ([]byte, string, error) 
 	}
 	defer cancel()
 
-	img, err := ioutil.ReadAll(resp.Body)
+	img, err := io.ReadAll(resp.Body)
 	if err != nil {
 		return nil, "", fmt.Errorf("reading from '%s': %w", src, err)
 	}
