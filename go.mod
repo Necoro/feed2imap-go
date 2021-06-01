@@ -15,7 +15,7 @@ require (
 	github.com/mmcdole/gofeed v1.1.3
 	github.com/nightlyone/lockfile v1.0.0
 	golang.org/x/net v0.0.0-20210505024714-0287a6fb4125
-	gopkg.in/yaml.v3 v3.0.0-20200615113413-eeeca48fe776
+	gopkg.in/yaml.v3 v3.0.0-20210107192922-496545a6307b
 )
 
 replace (
