@@ -261,22 +261,40 @@ func getBody(content, description string, bodyCfg config.Body) string {
 	}
 }
 
-func (item *Item) buildBody() {
+func (item *Item) downloadImage(src string) string {
 	feed := item.feed
 
-	var feedUrl *url.URL
-	var err error
-	if feed.Url != "" {
-		feedUrl, err = url.Parse(feed.Url)
-		if err != nil {
-			panic(fmt.Sprintf("URL '%s' of feed '%s' is not a valid URL. How have we ended up here?", feed.Url, feed.Name))
-		}
-	} else if feed.feed.Link != "" {
-		feedUrl, err = url.Parse(feed.feed.Link)
-		if err != nil {
-			panic(fmt.Sprintf("Link '%s' of feed '%s' is not a valid URL.", feed.feed.Link, feed.Name))
-		}
+	imgUrl, err := url.Parse(src)
+	if err != nil {
+		log.Errorf("Feed %s: Item %s: Error parsing URL '%s' embedded in item: %s",
+			feed.Name, item.Link, src, err)
+		return ""
 	}
+
+	if feedUrl := feed.url(); feedUrl != nil {
+		imgUrl = feedUrl.ResolveReference(imgUrl)
+	}
+
+	img, mime, err := getImage(imgUrl.String(), feed.Global.Timeout, feed.NoTLS)
+	if err != nil {
+		log.Errorf("Feed %s: Item %s: Error fetching image: %s",
+			feed.Name, item.Link, err)
+		return ""
+	}
+	if img == nil {
+		return ""
+	}
+
+	if feed.EmbedImages {
+		return "data:" + mime + ";base64," + base64.StdEncoding.EncodeToString(img)
+	} else {
+		idx := item.addImage(img, mime)
+		return "cid:" + cidNr(idx)
+	}
+}
+
+func (item *Item) buildBody() {
+	feed := item.feed
 
 	body := getBody(item.Content, item.Description, feed.Body)
 	bodyNode, err := html.Parse(strings.NewReader(body))
@@ -310,33 +328,10 @@ func (item *Item) buildBody() {
 			return
 		}
 
-		imgUrl, err := url.Parse(src)
-		if err != nil {
-			log.Errorf("Feed %s: Item %s: Error parsing URL '%s' embedded in item: %s",
-				feed.Name, item.Link, src, err)
-			return
-		}
-		if feedUrl != nil {
-			imgUrl = feedUrl.ResolveReference(imgUrl)
-		}
-
-		img, mime, err := getImage(imgUrl.String(), feed.Global.Timeout, feed.NoTLS)
-		if err != nil {
-			log.Errorf("Feed %s: Item %s: Error fetching image: %s",
-				feed.Name, item.Link, err)
-			return
-		}
-		if img == nil {
-			return
-		}
-
-		if feed.EmbedImages {
-			imgStr := "data:" + mime + ";base64," + base64.StdEncoding.EncodeToString(img)
-			selection.SetAttr(attr, imgStr)
-		} else {
-			idx := item.addImage(img, mime)
-			cid := "cid:" + cidNr(idx)
-			selection.SetAttr(attr, cid)
+		if !strings.HasPrefix(src, "data:") {
+			if imgStr := item.downloadImage(src); imgStr != "" {
+				selection.SetAttr(attr, imgStr)
+			}
 		}
 
 		// srcset overrides src and would reload all the images

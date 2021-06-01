@@ -2,6 +2,7 @@ package feed
 
 import (
 	"fmt"
+	"net/url"
 	"strings"
 	"time"
 
@@ -133,4 +134,23 @@ func (feed *Feed) id() string {
 		return feed.Name
 	}
 	return feed.extID.String()
+}
+
+func (feed *Feed) url() *url.URL {
+	var feedUrl *url.URL
+	var err error
+
+	if feed.Url != "" {
+		feedUrl, err = url.Parse(feed.Url)
+		if err != nil {
+			panic(fmt.Sprintf("URL '%s' of feed '%s' is not a valid URL. How have we ended up here?", feed.Url, feed.Name))
+		}
+	} else if feed.feed.Link != "" {
+		feedUrl, err = url.Parse(feed.feed.Link)
+		if err != nil {
+			panic(fmt.Sprintf("Link '%s' of feed '%s' is not a valid URL.", feed.feed.Link, feed.Name))
+		}
+	}
+
+	return feedUrl
 }
