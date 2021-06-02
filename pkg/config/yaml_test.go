@@ -20,6 +20,8 @@ func n(s string) (n yaml.Node) {
 	return
 }
 
+var null = yaml.Node{Tag: nullTag}
+
 func TestBuildOptions(tst *testing.T) {
 	tests := []struct {
 		name     string
@@ -120,7 +122,7 @@ func TestBuildFeeds(tst *testing.T) {
 		},
 		{name: "Simple With Nil Target", wantErr: false, target: "moep",
 			feeds: []configGroupFeed{
-				{Target: yaml.Node{Tag: "!!null"}, Feed: feed{Name: "muh"}},
+				{Target: null, Feed: feed{Name: "muh"}},
 			},
 			result: Feeds{"muh": &Feed{Name: "muh", Target: t("moep")}},
 		},
@@ -345,6 +347,8 @@ feeds:
         - name: F1
           url: google.de
      - name: F2
+     - name: F3
+       target:
      - group: G3
 `,
 			wantErr: false,
@@ -363,6 +367,7 @@ feeds:
 							}},
 						},
 						{Feed: feed{Name: "F2"}},
+						{Feed: feed{Name: "F3"}, Target: null},
 						{Group: group{Group: "G3"}},
 					}},
 				},
@@ -390,5 +395,55 @@ feeds:
 				}
 			}
 		})
+	}
+}
+
+func TestCompleteFeed(tst *testing.T) {
+	inp := `
+feeds:
+  - name: Foo
+    url: whatever
+  - group: G1
+    target: target
+    feeds:
+     - group: G2
+       target: ""
+       feeds:
+        - name: F1
+          url: google.de
+     - name: F2
+     - name: F3
+       target:
+     - name: F4
+       target: "G4"
+     - name: F5
+       target: ~
+     - name: F6
+       target: ""
+     - group: G3
+     - group: G4
+       feeds:
+        - name: F7
+`
+	res := Feeds{
+		"Foo": &Feed{Name: "Foo", Target: t("Foo"), Url: "whatever"},
+		"F1":  &Feed{Name: "F1", Target: t("target.F1"), Url: "google.de"},
+		"F2":  &Feed{Name: "F2", Target: t("target.F2")},
+		"F3":  &Feed{Name: "F3", Target: t("target")},
+		"F4":  &Feed{Name: "F4", Target: t("target.G4")},
+		"F5":  &Feed{Name: "F5", Target: t("target")},
+		"F6":  &Feed{Name: "F6", Target: t("target")},
+		"F7":  &Feed{Name: "F7", Target: t("target.G4.F7")},
+	}
+
+	c := WithDefault()
+	c.FeedOptions = Options{}
+
+	if err := c.parse(strings.NewReader(inp)); err != nil {
+		tst.Error(err)
+	} else {
+		if diff := cmp.Diff(res, c.Feeds); diff != "" {
+			tst.Error(diff)
+		}
 	}
 }
