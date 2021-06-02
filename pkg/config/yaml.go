@@ -13,9 +13,8 @@ import (
 )
 
 const (
-	strTag   = "!!str"
-	nullTag  = "!!null"
-	emptyTag = ""
+	strTag  = "!!str"
+	nullTag = "!!null"
 )
 
 type config struct {
@@ -51,19 +50,13 @@ func (grpFeed *configGroupFeed) isFeed() bool {
 }
 
 func (grpFeed *configGroupFeed) target(autoTarget bool) string {
-	tag := grpFeed.Target.ShortTag()
-	switch tag {
-	case strTag:
-		return grpFeed.Target.Value
-	case nullTag:
-		return ""
-	case emptyTag:
-		if !autoTarget {
+	if !autoTarget || !grpFeed.Target.IsZero() {
+		if grpFeed.Target.ShortTag() == nullTag {
+			// null may be represented by ~ or NULL or ...
+			// Value would hold this representation, which we do not want
 			return ""
 		}
-		// tag not set and autoTarget is on: continue on
-	default:
-		panic("unexpected tag " + tag + " for target node")
+		return grpFeed.Target.Value
 	}
 
 	if grpFeed.Feed.Name != "" {
