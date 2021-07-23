@@ -110,7 +110,10 @@ func run() error {
 			imapErr <- err
 		}()
 
-		defer c.Disconnect()
+		defer func() {
+			// capture c and not evaluate it, before connect has run
+			c.Disconnect()
+		}()
 	}
 
 	if success := state.Fetch(); success == 0 {
