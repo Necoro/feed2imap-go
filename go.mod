@@ -19,6 +19,6 @@ require (
 )
 
 replace (
-	github.com/jaytaylor/html2text => github.com/Necoro/html2text v0.0.0-20200822202223-2e8e4cfbb241
+	github.com/jaytaylor/html2text => github.com/Necoro/html2text v0.0.0-20210724110643-65369e0955db
 	github.com/mmcdole/gofeed => github.com/Necoro/gofeed v1.1.1-0.20210423205404-5a9d204f8125
 )
