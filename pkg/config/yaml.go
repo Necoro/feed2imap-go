@@ -191,6 +191,7 @@ func buildFeeds(cfg []configGroupFeed, target []string, feeds Feeds,
 		rawTarget := f.target(autoTarget)
 		if isRecognizedUrl(rawTarget) {
 			// deprecated old-style URLs as target
+			// as the full path is specified, `target` is ignored
 			if fTarget, err = handleUrlTarget(rawTarget, &f.Target, globalTarget); err != nil {
 				return err
 			}
@@ -268,6 +269,5 @@ func handleUrlTarget(targetStr string, targetNode *yaml.Node, globalTarget *Url)
 			globalTarget.BaseUrl())
 	}
 
-	return url.RootPath(), // we are given the absolute path, so now appending trickery
-		nil
+	return url.RootPath(), nil
 }
