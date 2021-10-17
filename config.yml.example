@@ -12,9 +12,9 @@ target:
   host: mail.example.com
   # port; optional if scheme is given
   port: 143
-  # root denotes the root of the hierarchy for all feeds. Probably should start with INBOX.
-  # Allowed delimiters in PATH are '/' -- they will be replaced by the correct delimiter. If you know yours, you can
-  # also use that.
+  # root denotes the root of the hierarchy for all feeds. Probably should start with INBOX, but may also be empty.
+  # The allowed delimiter in the path is either '/' as a default, or the one used by your mailserver, if so known (for
+  # example: '.').
   root: INBOX/Feeds
 # Instead of the verbose target, specifiying a URI is also legitimate. Be sure to properly url-encode user and password.
 # The example from above would read:
