@@ -39,8 +39,10 @@ func Connect(url config.Url) (*Client, error) {
 
 	log.Printf("Determined '%s' as toplevel, with '%s' as delimiter", client.toplevel, client.delimiter)
 
-	if err = conn.ensureFolder(client.toplevel); err != nil {
-		return nil, err
+	if toplevel != "" {
+		if err = conn.ensureFolder(client.toplevel); err != nil {
+			return nil, err
+		}
 	}
 
 	// the other connections

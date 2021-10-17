@@ -120,8 +120,5 @@ func (u *Url) validate() (errors []string) {
 		errors = append(errors, "Host not set")
 	}
 
-	if u.Root == "" || u.Root == "/" {
-		errors = append(errors, "Root path not set")
-	}
 	return
 }
