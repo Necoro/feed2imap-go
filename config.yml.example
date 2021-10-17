@@ -21,6 +21,8 @@ target:
 # target: imap://test%40example.com:passw0rd@mail.example.com:143/INBOX/Feeds
 
 ## Global Options
+# Location of the cache. Can also be overwritten on the command line.
+cache: "feed.cache"
 # Timeout in seconds for fetching feeds.
 timeout: 30
 # Maximum number of failures allowed before they are reported in normal mode.

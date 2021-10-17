@@ -17,6 +17,7 @@ type Map map[string]interface{}
 
 // GlobalOptions are not feed specific
 type GlobalOptions struct {
+	Cache        string   `yaml:"cache"`
 	Timeout      int      `yaml:"timeout"`
 	DefaultEmail string   `yaml:"default-email"`
 	Target       Url      `yaml:"target"`
@@ -26,6 +27,7 @@ type GlobalOptions struct {
 }
 
 var DefaultGlobalOptions = GlobalOptions{
+	Cache:        "feed.cache",
 	Timeout:      30,
 	MaxFailures:  10,
 	DefaultEmail: username() + "@" + Hostname(),

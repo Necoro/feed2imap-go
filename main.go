@@ -15,17 +15,17 @@ import (
 // flags
 var (
 	cfgFile      string = "config.yml"
-	cacheFile    string = "feed.cache"
-	printVersion bool   = false
-	dryRun       bool   = false
-	buildCache   bool   = false
-	verbose      bool   = false
-	debug        bool   = false
+	cacheFile    string
+	printVersion bool = false
+	dryRun       bool = false
+	buildCache   bool = false
+	verbose      bool = false
+	debug        bool = false
 )
 
 func init() {
 	flag.StringVar(&cfgFile, "f", cfgFile, "configuration file")
-	flag.StringVar(&cacheFile, "c", cacheFile, "cache file")
+	flag.StringVar(&cacheFile, "c", "", "override cache file location")
 	flag.BoolVar(&printVersion, "version", printVersion, "print version and exit")
 	flag.BoolVar(&dryRun, "dry-run", dryRun, "do everything short of uploading and writing the cache")
 	flag.BoolVar(&buildCache, "build-cache", buildCache, "only (re)build the cache; useful after migration or when the cache is lost or corrupted")
@@ -87,7 +87,13 @@ func run() error {
 		return err
 	}
 
-	err = state.LoadCache(cacheFile, buildCache)
+	cacheLocation := cacheFile
+	if cacheLocation == "" {
+		cacheLocation = cfg.Cache
+	}
+	log.Debugf("Using '%s' as cache location", cacheLocation)
+
+	err = state.LoadCache(cacheLocation, buildCache)
 	if err != nil {
 		return err
 	}
@@ -136,7 +142,7 @@ func run() error {
 	}
 
 	if !dryRun {
-		if err = state.StoreCache(cacheFile); err != nil {
+		if err = state.StoreCache(cacheLocation); err != nil {
 			return err
 		}
 	}
