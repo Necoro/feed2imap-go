@@ -16,6 +16,10 @@ func (f Folder) Append(other Folder) Folder {
 		panic("Delimiters do not match")
 	}
 
+	if other.str == "" {
+		return f
+	}
+
 	var prefix string
 	if f.str == "" {
 		prefix = ""
