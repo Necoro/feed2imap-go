@@ -171,6 +171,12 @@ func TestBuildFeeds(tst *testing.T) {
 			},
 			result: Feeds{},
 		},
+		{name: "Maildir URL Target", wantErr: true, target: "",
+			feeds: []configGroupFeed{
+				{Target: n("maildir:///home/foo/INBOX/Feed"), Feed: feed{Name: "muh"}},
+			},
+			result: Feeds{},
+		},
 		{name: "Empty Group", wantErr: false, target: "",
 			feeds: []configGroupFeed{
 				{Group: group{Group: "G1"}},
