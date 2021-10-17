@@ -64,12 +64,18 @@ func (u *Url) UnmarshalYAML(value *yaml.Node) (err error) {
 }
 
 func (u *Url) String() string {
+	scheme := u.Scheme + "://"
+
 	var pwd string
 	if u.Password != "" {
 		pwd = ":******"
 	}
+	var delim string
+	if pwd != "" || u.User != "" {
+		delim = "@"
+	}
 
-	return fmt.Sprintf("%s://%s%s@%s%s", u.Scheme, u.User, pwd, u.HostPort(), u.Root)
+	return scheme + u.User + pwd + delim + u.HostPort() + u.Root
 }
 
 func (u *Url) HostPort() string {
