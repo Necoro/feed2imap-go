@@ -91,6 +91,14 @@ func (cfg *Config) Validate() error {
 		}
 	}
 
+	if cfg.Target.EmptyRoot() {
+		for _, feed := range cfg.Feeds {
+			if len(feed.Target) == 0 {
+				return fmt.Errorf("Feed %s: No storage location (target) defined.", feed.Name)
+			}
+		}
+	}
+
 	return nil
 }
 

@@ -21,6 +21,10 @@ func (u *Url) Empty() bool {
 	return u.Host == ""
 }
 
+func (u *Url) EmptyRoot() bool {
+	return u.Root == "" || u.Root == "/"
+}
+
 func (u *Url) UnmarshalYAML(value *yaml.Node) (err error) {
 	if value.ShortTag() == strTag {
 		var val string
