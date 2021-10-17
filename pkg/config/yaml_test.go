@@ -148,6 +148,29 @@ func TestBuildFeeds(tst *testing.T) {
 				"bar": &Feed{Name: "bar", Target: t("moep.bar")},
 			},
 		},
+		{name: "URL Target", wantErr: false, target: "",
+			feeds: []configGroupFeed{
+				{Target: n("imap://foo.bar:443/INBOX/Feed"), Feed: feed{Name: "muh"}},
+			},
+			result: Feeds{"muh": &Feed{Name: "muh", Target: t("INBOX.Feed")}},
+		},
+		{name: "Multiple URL Targets", wantErr: false, target: "",
+			feeds: []configGroupFeed{
+				{Target: n("imap://foo.bar:443/INBOX/Feed"), Feed: feed{Name: "muh"}},
+				{Target: n("imap://foo.bar:443/INBOX/Feed2"), Feed: feed{Name: "bar"}},
+			},
+			result: Feeds{
+				"muh": &Feed{Name: "muh", Target: t("INBOX.Feed")},
+				"bar": &Feed{Name: "bar", Target: t("INBOX.Feed2")},
+			},
+		},
+		{name: "Mixed URL Targets", wantErr: true, target: "",
+			feeds: []configGroupFeed{
+				{Target: n("imap://foo.bar:443/INBOX/Feed"), Feed: feed{Name: "muh"}},
+				{Target: n("imap://other.bar:443/INBOX/Feed"), Feed: feed{Name: "bar"}},
+			},
+			result: Feeds{},
+		},
 		{name: "Empty Group", wantErr: false, target: "",
 			feeds: []configGroupFeed{
 				{Group: group{Group: "G1"}},
@@ -206,7 +229,8 @@ func TestBuildFeeds(tst *testing.T) {
 		tst.Run(tt.name, func(tst *testing.T) {
 			var feeds = Feeds{}
 			var opts = Options{}
-			err := buildFeeds(tt.feeds, t(tt.target), feeds, &opts, !tt.noAutoTarget)
+			var globalTarget = Url{}
+			err := buildFeeds(tt.feeds, t(tt.target), feeds, &opts, !tt.noAutoTarget, &globalTarget)
 			if (err != nil) != tt.wantErr {
 				tst.Errorf("buildFeeds() error = %v, wantErr %v", err, tt.wantErr)
 				return
@@ -443,6 +467,78 @@ feeds:
 		tst.Error(err)
 	} else {
 		if diff := cmp.Diff(res, c.Feeds); diff != "" {
+			tst.Error(diff)
+		}
+	}
+}
+
+func TestURLFeedWithoutGlobalTarget(tst *testing.T) {
+	inp := `
+feeds:
+  - name: Foo
+    target: imap://foo.bar:443/INBOX/Feed
+`
+	res := Feeds{
+		"Foo": &Feed{Name: "Foo", Target: t("INBOX.Feed")},
+	}
+
+	c := WithDefault()
+	c.FeedOptions = Options{}
+
+	if err := c.parse(strings.NewReader(inp)); err != nil {
+		tst.Error(err)
+	} else {
+		if diff := cmp.Diff(res, c.Feeds); diff != "" {
+			tst.Error(diff)
+		}
+		if diff := cmp.Diff("imap://foo.bar:443", c.Target.String()); diff != "" {
+			tst.Error(diff)
+		}
+	}
+}
+
+func TestURLFeedWithGlobalTarget(tst *testing.T) {
+	inp := `
+target: imaps://foo.bar/INBOX/Feeds
+feeds:
+  - name: Foo
+    target: imaps://foo.bar:993/Some/Other/Path
+`
+	res := Feeds{
+		"Foo": &Feed{Name: "Foo", Target: t("Some.Other.Path")},
+	}
+
+	c := WithDefault()
+	c.FeedOptions = Options{}
+
+	if err := c.parse(strings.NewReader(inp)); err != nil {
+		tst.Error(err)
+	} else {
+		if diff := cmp.Diff(res, c.Feeds); diff != "" {
+			tst.Error(diff)
+		}
+		if diff := cmp.Diff("imaps://foo.bar:993/INBOX/Feeds", c.Target.String()); diff != "" {
+			tst.Error(diff)
+		}
+	}
+}
+
+func TestURLFeedWithDifferentGlobalTarget(tst *testing.T) {
+	inp := `
+target: imaps://foo.bar/INBOX/Feeds
+feeds:
+  - name: Foo
+    target: imaps://other.bar/INBOX/Feeds
+`
+	errorText := "while parsing: Line 5: Given URL endpoint 'imaps://other.bar:993' does not match previous endpoint 'imaps://foo.bar:993'."
+	c := WithDefault()
+	c.FeedOptions = Options{}
+
+	err := c.parse(strings.NewReader(inp))
+	if err == nil {
+		tst.Error("Expected error.")
+	} else {
+		if diff := cmp.Diff(errorText, err.Error()); diff != "" {
 			tst.Error(diff)
 		}
 	}

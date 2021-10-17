@@ -2,7 +2,6 @@ package imap
 
 import (
 	"fmt"
-	"strings"
 
 	"github.com/Necoro/feed2imap-go/pkg/config"
 	"github.com/Necoro/feed2imap-go/pkg/log"
@@ -31,15 +30,11 @@ func Connect(url config.Url) (*Client, error) {
 	}
 	client.delimiter = delim
 
-	toplevel := url.Root
-	if toplevel[0] == '/' {
-		toplevel = toplevel[1:]
-	}
-	client.toplevel = client.folderName(strings.Split(toplevel, "/"))
+	client.toplevel = client.folderName(url.RootPath())
 
 	log.Printf("Determined '%s' as toplevel, with '%s' as delimiter", client.toplevel, client.delimiter)
 
-	if toplevel != "" {
+	if !client.toplevel.IsBlank() {
 		if err = conn.ensureFolder(client.toplevel); err != nil {
 			return nil, err
 		}
