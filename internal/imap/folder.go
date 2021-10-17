@@ -7,6 +7,10 @@ type Folder struct {
 	delimiter string
 }
 
+func (f Folder) IsBlank() bool {
+	return f.str == ""
+}
+
 func (f Folder) String() string {
 	return f.str
 }

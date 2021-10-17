@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net"
 	"net/url"
+	"strings"
 
 	"gopkg.in/yaml.v3"
 )
@@ -63,7 +64,7 @@ func (u *Url) UnmarshalYAML(value *yaml.Node) (err error) {
 	return nil
 }
 
-func (u *Url) String() string {
+func (u Url) String() string {
 	scheme := u.Scheme + "://"
 
 	var pwd string
@@ -86,11 +87,27 @@ func (u *Url) HostPort() string {
 }
 
 const (
-	imapsPort   = "993"
-	imapPort    = "143"
-	imapsSchema = "imaps"
-	imapSchema  = "imap"
+	imapsPort         = "993"
+	imapPort          = "143"
+	imapsSchema       = "imaps"
+	imapsSchemaFull   = imapsSchema + "://"
+	imapSchema        = "imap"
+	imapSchemaFull    = imapSchema + "://"
+	maildirSchemaFull = "maildir://"
 )
+
+func isRecognizedUrl(s string) bool {
+	return isImapUrl(s) || isMaildirUrl(s)
+
+}
+
+func isImapUrl(s string) bool {
+	return strings.HasPrefix(s, imapsSchemaFull) || strings.HasPrefix(s, imapSchemaFull)
+}
+
+func isMaildirUrl(s string) bool {
+	return strings.HasPrefix(s, maildirSchemaFull)
+}
 
 func (u *Url) ForceTLS() bool {
 	return u.Scheme == imapsSchema || u.Port == imapsPort
@@ -131,4 +148,23 @@ func (u *Url) validate() (errors []string) {
 	}
 
 	return
+}
+
+func (u Url) BaseUrl() Url {
+	// 'u' is not a pointer and thus a copy, modification is fine
+	u.Root = ""
+	return u
+}
+
+func (u *Url) CommonBaseUrl(other Url) bool {
+	other.Root = ""
+	return other == u.BaseUrl()
+}
+
+func (u *Url) RootPath() []string {
+	path := u.Root
+	if path[0] == '/' {
+		path = path[1:]
+	}
+	return strings.Split(path, "/")
 }

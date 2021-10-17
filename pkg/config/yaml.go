@@ -118,7 +118,7 @@ func (cfg *Config) parse(in io.Reader) error {
 
 	cfg.fixGlobalOptions(parsedCfg.GlobalConfig)
 
-	if err := buildFeeds(parsedCfg.Feeds, []string{}, cfg.Feeds, &cfg.FeedOptions, cfg.AutoTarget); err != nil {
+	if err := buildFeeds(parsedCfg.Feeds, []string{}, cfg.Feeds, &cfg.FeedOptions, cfg.AutoTarget, &cfg.Target); err != nil {
 		return fmt.Errorf("while parsing: %w", err)
 	}
 
@@ -182,12 +182,45 @@ func buildOptions(globalFeedOptions *Options, options Map) (feedOptions Options,
 }
 
 // Fetch the group structure and populate the `targetStr` fields in the feeds
-func buildFeeds(cfg []configGroupFeed, target []string, feeds Feeds, globalFeedOptions *Options, autoTarget bool) error {
+func buildFeeds(cfg []configGroupFeed, target []string, feeds Feeds,
+	globalFeedOptions *Options, autoTarget bool, globalTarget *Url) error {
+
 	for _, f := range cfg {
-		target := appTarget(target, f.target(autoTarget))
+		var fTarget []string
+
+		rawTarget := f.target(autoTarget)
+		if isRecognizedUrl(rawTarget) {
+			// this whole block is solely for compatibility with old feed2imap
+			// there it was common to specify the whole URL for each feed
+			if isMaildirUrl(rawTarget) {
+				// old feed2imap supported maildir, we don't
+				return fmt.Errorf("Line %d: Maildir is not supported.", f.Target.Line)
+			}
+
+			url := Url{}
+			if err := url.UnmarshalYAML(&f.Target); err != nil {
+				return err
+			}
+
+			if globalTarget.Empty() {
+				// assign first feed as global url
+				*globalTarget = url.BaseUrl()
+			} else if !globalTarget.CommonBaseUrl(url) {
+				// if we have a url, it must be the same prefix as the global url
+				return fmt.Errorf("Line %d: Given URL endpoint '%s' does not match previous endpoint '%s'.",
+					f.Target.Line,
+					url.BaseUrl(),
+					globalTarget.BaseUrl())
+			}
+
+			fTarget = url.RootPath() // we are given the absolute path, so now appending trickery
+		} else {
+			fTarget = appTarget(target, rawTarget)
+		}
+
 		switch {
 		case f.isFeed() && f.isGroup():
-			return fmt.Errorf("Entry with targetStr %s is both a Feed and a group", target)
+			return fmt.Errorf("Entry with targetStr %s is both a Feed and a group", fTarget)
 
 		case f.isFeed():
 			name := f.Feed.Name
@@ -211,7 +244,7 @@ func buildFeeds(cfg []configGroupFeed, target []string, feeds Feeds, globalFeedO
 				Url:     f.Feed.Url,
 				Exec:    f.Feed.Exec,
 				Options: opt,
-				Target:  target,
+				Target:  fTarget,
 			}
 
 		case f.isGroup():
@@ -221,7 +254,7 @@ func buildFeeds(cfg []configGroupFeed, target []string, feeds Feeds, globalFeedO
 				log.Warnf("Unknown option '%s' for group '%s'. Ignored!", optName, f.Group.Group)
 			}
 
-			if err := buildFeeds(f.Group.Feeds, target, feeds, &opt, autoTarget); err != nil {
+			if err := buildFeeds(f.Group.Feeds, fTarget, feeds, &opt, autoTarget, globalTarget); err != nil {
 				return err
 			}
 		}
