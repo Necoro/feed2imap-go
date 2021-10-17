@@ -52,8 +52,8 @@ warning is issued when an option should now be in another place or is no longer 
 
 ### Unsupported features of feed2imap
 
-* IMAP-Target per Feed ([issue #6][i6]); targets only specify the folder relative to the global target
 * Maildir ([issue #4][i4])
+* Different IMAP servers in the same configuration file. Please use multiple config files, if this is needed (see also [issue #6][i6]).
 
 ## Installation
 

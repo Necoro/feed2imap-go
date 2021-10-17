@@ -20,6 +20,11 @@ target:
 # The example from above would read:
 # target: imap://test%40example.com:passw0rd@mail.example.com:143/INBOX/Feeds
 
+# NB: Instead of specifying the target on the global level, for compatibility with old configurations, it is also allowed
+# to specify the full URL string for each feed.
+# When doing so, _all_ target strings must point to the same server, else an error will be thrown.
+# See https://github.com/Necoro/feed2imap-go/issues/6 for more details.
+
 ## Global Options
 # Location of the cache. Can also be overwritten on the command line.
 cache: "feed.cache"
