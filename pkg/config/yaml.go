@@ -183,38 +183,19 @@ func buildOptions(globalFeedOptions *Options, options Map) (feedOptions Options,
 
 // Fetch the group structure and populate the `targetStr` fields in the feeds
 func buildFeeds(cfg []configGroupFeed, target []string, feeds Feeds,
-	globalFeedOptions *Options, autoTarget bool, globalTarget *Url) error {
+	globalFeedOptions *Options, autoTarget bool, globalTarget *Url) (err error) {
 
 	for _, f := range cfg {
 		var fTarget []string
 
 		rawTarget := f.target(autoTarget)
 		if isRecognizedUrl(rawTarget) {
-			// this whole block is solely for compatibility with old feed2imap
-			// there it was common to specify the whole URL for each feed
-			if isMaildirUrl(rawTarget) {
-				// old feed2imap supported maildir, we don't
-				return fmt.Errorf("Line %d: Maildir is not supported.", f.Target.Line)
-			}
-
-			url := Url{}
-			if err := url.UnmarshalYAML(&f.Target); err != nil {
+			// deprecated old-style URLs as target
+			if fTarget, err = handleUrlTarget(rawTarget, &f.Target, globalTarget); err != nil {
 				return err
 			}
-
-			if globalTarget.Empty() {
-				// assign first feed as global url
-				*globalTarget = url.BaseUrl()
-			} else if !globalTarget.CommonBaseUrl(url) {
-				// if we have a url, it must be the same prefix as the global url
-				return fmt.Errorf("Line %d: Given URL endpoint '%s' does not match previous endpoint '%s'.",
-					f.Target.Line,
-					url.BaseUrl(),
-					globalTarget.BaseUrl())
-			}
-
-			fTarget = url.RootPath() // we are given the absolute path, so now appending trickery
 		} else {
+			// new-style tree-like structure
 			fTarget = appTarget(target, rawTarget)
 		}
 
@@ -254,11 +235,39 @@ func buildFeeds(cfg []configGroupFeed, target []string, feeds Feeds,
 				log.Warnf("Unknown option '%s' for group '%s'. Ignored!", optName, f.Group.Group)
 			}
 
-			if err := buildFeeds(f.Group.Feeds, fTarget, feeds, &opt, autoTarget, globalTarget); err != nil {
+			if err = buildFeeds(f.Group.Feeds, fTarget, feeds, &opt, autoTarget, globalTarget); err != nil {
 				return err
 			}
 		}
 	}
 
 	return nil
+}
+
+func handleUrlTarget(targetStr string, targetNode *yaml.Node, globalTarget *Url) ([]string, error) {
+	// this whole function is solely for compatibility with old feed2imap
+	// there it was common to specify the whole URL for each feed
+	if isMaildirUrl(targetStr) {
+		// old feed2imap supported maildir, we don't
+		return nil, fmt.Errorf("Line %d: Maildir is not supported.", targetNode.Line)
+	}
+
+	url := Url{}
+	if err := url.UnmarshalYAML(targetNode); err != nil {
+		return nil, err
+	}
+
+	if globalTarget.Empty() {
+		// assign first feed as global url
+		*globalTarget = url.BaseUrl()
+	} else if !globalTarget.CommonBaseUrl(url) {
+		// if we have a url, it must be the same prefix as the global url
+		return nil, fmt.Errorf("Line %d: Given URL endpoint '%s' does not match previous endpoint '%s'.",
+			targetNode.Line,
+			url.BaseUrl(),
+			globalTarget.BaseUrl())
+	}
+
+	return url.RootPath(), // we are given the absolute path, so now appending trickery
+		nil
 }
