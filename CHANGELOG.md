@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 ### Added
 - Location of the cache can now be specified in the config.yml. Rationale: Easier way of dealing with multiple configurations, as each also requires a distinct cache.
+### Fixed
+- [Issue #62](https://github.com/Necoro/feed2imap-go/issues/62): Allow empty root folder.
 
 ## [1.1.1] - 2021-07-24
 ### Fixed
