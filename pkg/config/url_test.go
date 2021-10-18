@@ -14,6 +14,7 @@ func TestUrl_Unmarshal(t *testing.T) {
 		inp     string
 		url     Url
 		wantErr bool
+		str     string
 	}{
 		{name: "Empty", inp: `url: ""`, wantErr: true},
 		{name: "Simple String", inp: `url: "imap://user:pass@example.net:143/INBOX"`, url: Url{
@@ -23,7 +24,7 @@ func TestUrl_Unmarshal(t *testing.T) {
 			Host:     "example.net",
 			Port:     "143",
 			Root:     "/INBOX",
-		}},
+		}, str: "imap://user:******@example.net:143/INBOX"},
 		{name: "Simple String with @", inp: `url: "imaps://user@example:pass@example.net:143/INBOX"`, url: Url{
 			Scheme:   "imaps",
 			User:     "user@example",
@@ -31,7 +32,7 @@ func TestUrl_Unmarshal(t *testing.T) {
 			Host:     "example.net",
 			Port:     "143",
 			Root:     "/INBOX",
-		}},
+		}, str: "imaps://user@example:******@example.net:143/INBOX"},
 		{name: "Simple String with %40", inp: `url: "imap://user%40example:pass@example.net:4711/INBOX"`, url: Url{
 			Scheme:   "imap",
 			User:     "user@example",
@@ -39,7 +40,15 @@ func TestUrl_Unmarshal(t *testing.T) {
 			Host:     "example.net",
 			Port:     "4711",
 			Root:     "/INBOX",
-		}},
+		}, str: "imap://user@example:******@example.net:4711/INBOX"},
+		{name: "Simple String without user", inp: `url: "imap://example.net:143/INBOX"`, url: Url{
+			Scheme:   "imap",
+			User:     "",
+			Password: "",
+			Host:     "example.net",
+			Port:     "143",
+			Root:     "/INBOX",
+		}, str: "imap://example.net:143/INBOX"},
 		{name: "Err: Inv scheme", inp: `url: "smtp://user%40example:pass@example.net:4711/INBOX"`, wantErr: true},
 		{name: "Err: No Host", inp: `url: "imap://user%40example:pass/INBOX"`, wantErr: true},
 		{name: "Err: Scheme Only", inp: `url: "imap://"`, wantErr: true},
@@ -50,7 +59,7 @@ func TestUrl_Unmarshal(t *testing.T) {
 			Host:     "example.net",
 			Port:     "143",
 			Root:     "",
-		}},
+		}, str: "imap://user:******@example.net:143"},
 		{name: "No Root: Slash", inp: `url: "imap://user:pass@example.net:143/"`, url: Url{
 			Scheme:   "imap",
 			User:     "user",
@@ -58,7 +67,7 @@ func TestUrl_Unmarshal(t *testing.T) {
 			Host:     "example.net",
 			Port:     "143",
 			Root:     "/",
-		}},
+		}, str: "imap://user:******@example.net:143/"},
 		{name: "Full", inp: `url:
   scheme: imap
   host: example.net
@@ -73,7 +82,7 @@ func TestUrl_Unmarshal(t *testing.T) {
 			Host:     "example.net",
 			Port:     "143",
 			Root:     "INBOX",
-		}},
+		}, str: "imap://user:******@example.net:143/INBOX"},
 		{name: "Default Port", inp: `url:
   scheme: imap
   host: example.net
@@ -87,7 +96,7 @@ func TestUrl_Unmarshal(t *testing.T) {
 			Host:     "example.net",
 			Port:     "143",
 			Root:     "INBOX",
-		}},
+		}, str: "imap://user:******@example.net:143/INBOX"},
 		{name: "Default Scheme", inp: `url:
   host: example.net
   user: user
@@ -101,7 +110,7 @@ func TestUrl_Unmarshal(t *testing.T) {
 			Host:     "example.net",
 			Port:     "993",
 			Root:     "INBOX",
-		}},
+		}, str: "imaps://user:******@example.net:993/INBOX"},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -115,6 +124,10 @@ func TestUrl_Unmarshal(t *testing.T) {
 			}
 
 			if diff := cmp.Diff(u.Url, tt.url); err == nil && diff != "" {
+				t.Error(diff)
+			}
+
+			if diff := cmp.Diff(u.Url.String(), tt.str); err == nil && diff != "" {
 				t.Error(diff)
 			}
 		})
