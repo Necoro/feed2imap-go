@@ -65,18 +65,29 @@ func (u *Url) UnmarshalYAML(value *yaml.Node) (err error) {
 }
 
 func (u Url) String() string {
-	scheme := u.Scheme + "://"
+	var sb strings.Builder
 
-	var pwd string
-	if u.Password != "" {
-		pwd = ":******"
-	}
-	var delim string
-	if pwd != "" || u.User != "" {
-		delim = "@"
+	sb.WriteString(u.Scheme)
+	sb.WriteString("://")
+
+	if u.User != "" {
+		sb.WriteString(u.User)
+		if u.Password != "" {
+			sb.WriteString(":******")
+		}
+		sb.WriteRune('@')
 	}
 
-	return scheme + u.User + pwd + delim + u.HostPort() + u.Root
+	sb.WriteString(u.HostPort())
+
+	if u.Root != "" {
+		if u.Root[0] != '/' {
+			sb.WriteRune('/')
+		}
+		sb.WriteString(u.Root)
+	}
+
+	return sb.String()
 }
 
 func (u *Url) HostPort() string {
