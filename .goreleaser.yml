@@ -60,6 +60,3 @@ archives:
         - README.md
         - CHANGELOG.md
         - config.yml.example
-
-changelog:
-    skip: true
