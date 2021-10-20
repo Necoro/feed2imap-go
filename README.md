@@ -68,7 +68,7 @@ Please open an issue if you are missing your platform.
 Clone the repository and, optionally, switch to the tag you want:
 ````bash
 git clone https://github.com/Necoro/feed2imap-go
-git checkout v1.1.1
+git checkout v1.2.0
 ````
 
 The official way of building feed2imap-go is using [goreleaser](https://github.com/goreleaser/goreleaser):
