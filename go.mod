@@ -33,6 +33,6 @@ require (
 )
 
 replace (
-	github.com/jaytaylor/html2text => github.com/Necoro/html2text v0.0.0-20210724110643-65369e0955db
-	github.com/mmcdole/gofeed => github.com/Necoro/gofeed v1.1.1-0.20210423205404-5a9d204f8125
+	github.com/jaytaylor/html2text => github.com/Necoro/html2text v0.0.0-20211023142101-a2cddff396b8
+	github.com/mmcdole/gofeed => github.com/Necoro/gofeed v1.1.4-0.20211023142840-2a3ded0d3583
 )
