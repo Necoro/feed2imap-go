@@ -123,10 +123,19 @@ func (item *Item) writeHtmlPart(w *message.Writer) error {
 	return item.writeContentPart(w, "html", template.Html)
 }
 
+func (img *feedImage) buildNameMap(key string) map[string]string {
+	if img.name == "" {
+		return nil
+	}
+	return map[string]string{key: img.name}
+}
+
 func (img *feedImage) writeImagePart(w *message.Writer, cid string) error {
 	var ih message.Header
-	ih.SetContentType(img.mime, nil)
-	ih.SetContentDisposition("inline", nil)
+	// set filename for both Type and Disposition
+	// according to standard, it belongs to the latter -- but some clients expect the former
+	ih.SetContentType(img.mime, img.buildNameMap("name"))
+	ih.SetContentDisposition("inline", img.buildNameMap("filename"))
 	ih.Set("Content-Transfer-Encoding", "base64")
 	ih.SetText("Content-ID", fmt.Sprintf("<%s>", cid))
 
@@ -288,7 +297,12 @@ func (item *Item) downloadImage(src string) string {
 	if feed.EmbedImages {
 		return "data:" + mime + ";base64," + base64.StdEncoding.EncodeToString(img)
 	} else {
-		idx := item.addImage(img, mime)
+		name := path.Base(src)
+		if name == "/" || name == "." || name == " " {
+			name = ""
+		}
+
+		idx := item.addImage(img, mime, name)
 		return "cid:" + cidNr(idx)
 	}
 }

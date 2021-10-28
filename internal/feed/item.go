@@ -17,6 +17,7 @@ import (
 type feedImage struct {
 	image []byte
 	mime  string
+	name  string
 }
 
 type Item struct {
@@ -69,8 +70,8 @@ func (item *Item) AddReason(reason string) {
 	}
 }
 
-func (item *Item) addImage(img []byte, mime string) int {
-	i := feedImage{img, mime}
+func (item *Item) addImage(img []byte, mime string, name string) int {
+	i := feedImage{img, mime, name}
 	item.images = append(item.images, i)
 	return len(item.images)
 }
