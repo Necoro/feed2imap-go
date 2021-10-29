@@ -85,11 +85,9 @@ should also suffice, but does not embed version information in the binary (and t
 
 If you are only interested in getting the latest build out of the `master` branch, do
 ````bash
-go get https://github.com/Necoro/feed2imap-go
+go install github.com/Necoro/feed2imap-go@master
 ````
-Note that this is not recommended, because it is a) not obvious which version you are actually building
-and b) the update process is not clear, especially regarding the dependencies.
-
+Using `@latest` instead of `@master` gives you the latest stable version.
 
 ### Run in docker
 
