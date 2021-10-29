@@ -7,8 +7,8 @@ import (
 	"strings"
 	"time"
 
+	"github.com/Necoro/gofeed"
 	"github.com/google/uuid"
-	"github.com/mmcdole/gofeed"
 
 	"github.com/Necoro/feed2imap-go/pkg/config"
 	"github.com/Necoro/feed2imap-go/pkg/util"

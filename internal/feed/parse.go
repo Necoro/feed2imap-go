@@ -5,8 +5,8 @@ import (
 	"io"
 	"os/exec"
 
+	"github.com/Necoro/gofeed"
 	"github.com/google/uuid"
-	"github.com/mmcdole/gofeed"
 
 	"github.com/Necoro/feed2imap-go/internal/http"
 )

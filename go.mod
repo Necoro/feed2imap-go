@@ -3,6 +3,8 @@ module github.com/Necoro/feed2imap-go
 go 1.17
 
 require (
+	github.com/Necoro/gofeed v1.1.4-0.20211029114605-b1a032d3e32f
+	github.com/Necoro/html2text v0.0.0-20211029113451-0e111ca632ef
 	github.com/PuerkitoBio/goquery v1.7.1
 	github.com/antonmedv/expr v1.9.0
 	github.com/emersion/go-imap v1.2.0
@@ -11,8 +13,6 @@ require (
 	github.com/gabriel-vasile/mimetype v1.4.0
 	github.com/google/go-cmp v0.5.6
 	github.com/google/uuid v1.3.0
-	github.com/jaytaylor/html2text v0.0.0-20200412013138-3577fbdbcff7
-	github.com/mmcdole/gofeed v1.1.3
 	github.com/nightlyone/lockfile v1.0.0
 	golang.org/x/net v0.0.0-20210614182718-04defd469f4e
 	gopkg.in/yaml.v3 v3.0.0-20210107192922-496545a6307b
@@ -30,9 +30,4 @@ require (
 	github.com/olekukonko/tablewriter v0.0.5 // indirect
 	github.com/ssor/bom v0.0.0-20170718123548-6386211fdfcf // indirect
 	golang.org/x/text v0.3.7 // indirect
-)
-
-replace (
-	github.com/jaytaylor/html2text => github.com/Necoro/html2text v0.0.0-20211023142101-a2cddff396b8
-	github.com/mmcdole/gofeed => github.com/Necoro/gofeed v1.1.4-0.20211023142840-2a3ded0d3583
 )

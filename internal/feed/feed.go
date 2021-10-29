@@ -6,7 +6,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/mmcdole/gofeed"
+	"github.com/Necoro/gofeed"
 
 	"github.com/Necoro/feed2imap-go/internal/feed/filter"
 	"github.com/Necoro/feed2imap-go/pkg/config"
