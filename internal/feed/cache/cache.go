@@ -24,7 +24,7 @@ const (
 type Impl interface {
 	cachedFeed(*feed.Feed) CachedFeed
 	transformTo(Version) (Impl, error)
-	cleanup(knownDescriptors map[feed.Descriptor]bool)
+	cleanup(knownDescriptors map[feed.Descriptor]struct{})
 	load(io.Reader) error
 	store(io.Writer) error
 	Version() Version

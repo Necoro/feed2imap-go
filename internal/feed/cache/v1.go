@@ -377,9 +377,9 @@ func filterItems(items []cachedItem) []cachedItem {
 	return copiedItems
 }
 
-func (cache *v1Cache) cleanup(knownDescriptors map[feed.Descriptor]bool) {
+func (cache *v1Cache) cleanup(knownDescriptors map[feed.Descriptor]struct{}) {
 	for descr, id := range cache.Ids {
-		if knownDescriptors[descr] {
+		if _, ok := knownDescriptors[descr]; ok {
 			// do not delete stuff still known to us
 			continue
 		}
