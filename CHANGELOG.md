@@ -5,8 +5,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+## [1.4.0] - 2021-12-21
 ### Added
-- Make links absolute: relative links inside a feed cannot be resolved outside a webbrowser
+- Make links absolute: relative links inside a feed cannot be resolved outside a webbrowser (Example/culprit: https://go.dev/blog/go1.18beta1)
 
 ## [1.3.0] - 2021-11-01
 ### Added
@@ -117,7 +118,8 @@ This resulted in duplicate entries as soon as the feed contained (possibly older
 
 Initial release
 
-[Unreleased]: https://github.com/Necoro/feed2imap-go/compare/v1.3.0...HEAD
+[Unreleased]: https://github.com/Necoro/feed2imap-go/compare/v1.4.0...HEAD
+[1.4.0]: https://github.com/Necoro/feed2imap-go/compare/v1.3.0...v1.4.0
 [1.3.0]: https://github.com/Necoro/feed2imap-go/compare/v1.2.0...v1.3.0
 [1.2.0]: https://github.com/Necoro/feed2imap-go/compare/v1.1.1...v1.2.0
 [1.1.1]: https://github.com/Necoro/feed2imap-go/compare/v1.1.0...v1.1.1
