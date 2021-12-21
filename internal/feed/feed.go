@@ -138,18 +138,24 @@ func (feed *Feed) id() string {
 
 func (feed *Feed) url() *url.URL {
 	var feedUrl *url.URL
-	var err error
 
-	if feed.Url != "" {
-		feedUrl, err = url.Parse(feed.Url)
-		if err != nil {
-			panic(fmt.Sprintf("URL '%s' of feed '%s' is not a valid URL. How have we ended up here?", feed.Url, feed.Name))
+	tryUrl := func(content, what string) bool {
+		var err error
+		if content != "" {
+			feedUrl, err = url.Parse(content)
+			if err != nil {
+				log.Errorf("%s '%s' of feed '%s' is not a valid URL.", what, content, feed.Name)
+			} else {
+				return true
+			}
 		}
-	} else if feed.feed.Link != "" {
-		feedUrl, err = url.Parse(feed.feed.Link)
-		if err != nil {
-			panic(fmt.Sprintf("Link '%s' of feed '%s' is not a valid URL.", feed.feed.Link, feed.Name))
-		}
+		return false
+	}
+
+	if !(tryUrl(feed.feed.FeedLink, "Self-Link") ||
+		tryUrl(feed.Url, "URL") ||
+		tryUrl(feed.feed.Link, "Link")) {
+		panic(fmt.Sprintf("Could not find a valid URL for for feed '%s'. How have we ended up here?", feed.Name))
 	}
 
 	return feedUrl
