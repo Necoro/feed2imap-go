@@ -270,21 +270,31 @@ func getBody(content, description string, bodyCfg config.Body) string {
 	}
 }
 
-func (item *Item) downloadImage(src string) string {
+func (item *Item) resolveUrl(otherUrlStr string) string {
 	feed := item.feed
+	feedUrl := feed.url()
 
-	imgUrl, err := url.Parse(src)
+	if feedUrl == nil {
+		// no url, just return the original
+		return otherUrlStr
+	}
+
+	otherUrl, err := url.Parse(otherUrlStr)
 	if err != nil {
 		log.Errorf("Feed %s: Item %s: Error parsing URL '%s' embedded in item: %s",
-			feed.Name, item.Link, src, err)
+			feed.Name, item.Link, otherUrlStr, err)
 		return ""
 	}
 
-	if feedUrl := feed.url(); feedUrl != nil {
-		imgUrl = feedUrl.ResolveReference(imgUrl)
-	}
+	return feedUrl.ResolveReference(otherUrl).String()
+}
 
-	img, mime, err := getImage(imgUrl.String(), feed.Global.Timeout, feed.NoTLS)
+func (item *Item) downloadImage(src string) string {
+	feed := item.feed
+
+	imgUrl := item.resolveUrl(src)
+
+	img, mime, err := getImage(imgUrl, feed.Global.Timeout, feed.NoTLS)
 	if err != nil {
 		log.Errorf("Feed %s: Item %s: Error fetching image: %s",
 			feed.Name, item.Link, err)
@@ -310,14 +320,45 @@ func (item *Item) downloadImage(src string) string {
 func (item *Item) buildBody() {
 	feed := item.feed
 
-	body := getBody(item.Content, item.Description, feed.Body)
-	bodyNode, err := html.Parse(strings.NewReader(body))
+	item.Body = getBody(item.Content, item.Description, feed.Body)
+	bodyNode, err := html.Parse(strings.NewReader(item.Body))
 	if err != nil {
 		log.Errorf("Feed %s: Item %s: Error while parsing html: %s", feed.Name, item.Link, err)
-		item.Body = body
-		item.TextBody = body
+		item.TextBody = item.Body
 		return
 	}
+
+	doc := goquery.NewDocumentFromNode(bodyNode)
+	doneAnything := false
+
+	updateBody := func() {
+		if doneAnything {
+			html, err := goquery.OuterHtml(doc.Selection)
+			if err != nil {
+				item.clearImages()
+				log.Errorf("Feed %s: Item %s: Error during rendering HTML: %s",
+					feed.Name, item.Link, err)
+			} else {
+				item.Body = html
+			}
+		}
+	}
+
+	// make relative links absolute
+	doc.Find("a").Each(func(i int, selection *goquery.Selection) {
+		const attr = "href"
+
+		src, ok := selection.Attr(attr)
+		if !ok {
+			return
+		}
+
+		if src != "" && src[0] == '/' {
+			absUrl := item.resolveUrl(src)
+			selection.SetAttr(attr, absUrl)
+			doneAnything = true
+		}
+	})
 
 	if feed.Global.WithPartText() {
 		if item.TextBody, err = html2text.FromHTMLNode(bodyNode, html2text.Options{CitationStyleLinks: true}); err != nil {
@@ -325,16 +366,17 @@ func (item *Item) buildBody() {
 		}
 	}
 
-	if !feed.InclImages || !feed.Global.WithPartHtml() || err != nil {
-		item.Body = body
+	if !feed.Global.WithPartHtml() || err != nil {
 		return
 	}
 
-	doc := goquery.NewDocumentFromNode(bodyNode)
+	if !feed.InclImages {
+		updateBody()
+		return
+	}
 
-	doneAnything := true
-	nodes := doc.Find("img")
-	nodes.Each(func(i int, selection *goquery.Selection) {
+	// download images
+	doc.Find("img").Each(func(i int, selection *goquery.Selection) {
 		const attr = "src"
 
 		src, ok := selection.Attr(attr)
@@ -355,16 +397,5 @@ func (item *Item) buildBody() {
 		doneAnything = true
 	})
 
-	if doneAnything {
-		html, err := doc.Find("body").Html()
-		if err != nil {
-			item.clearImages()
-			log.Errorf("Feed %s: Item %s: Error during rendering HTML: %s",
-				feed.Name, item.Link, err)
-		} else {
-			body = html
-		}
-	}
-
-	item.Body = body
+	updateBody()
 }
