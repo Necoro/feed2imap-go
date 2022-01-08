@@ -20,6 +20,11 @@ type Error struct {
 	Status     string
 }
 
+type Context struct {
+	Timeout    int
+	DisableTLS bool
+}
+
 func (err Error) Error() string {
 	return fmt.Sprintf("http error: %s", err.Status)
 }
@@ -35,8 +40,8 @@ func init() {
 	unsafeClient = &http.Client{Transport: transport}
 }
 
-func Context(timeout int) (ctxt.Context, ctxt.CancelFunc) {
-	return ctxt.WithTimeout(ctxt.Background(), time.Duration(timeout)*time.Second)
+func (ctx Context) StdContext() (ctxt.Context, ctxt.CancelFunc) {
+	return ctxt.WithTimeout(ctxt.Background(), time.Duration(ctx.Timeout)*time.Second)
 }
 
 func client(disableTLS bool) *http.Client {
@@ -48,9 +53,9 @@ func client(disableTLS bool) *http.Client {
 
 var noop ctxt.CancelFunc = func() {}
 
-func Get(url string, timeout int, disableTLS bool) (resp *http.Response, cancel ctxt.CancelFunc, err error) {
+func Get(url string, ctx Context) (resp *http.Response, cancel ctxt.CancelFunc, err error) {
 	prematureExit := true
-	ctx, ctxCancel := Context(timeout)
+	stdCtx, ctxCancel := ctx.StdContext()
 
 	cancel = func() {
 		if resp != nil {
@@ -65,13 +70,13 @@ func Get(url string, timeout int, disableTLS bool) (resp *http.Response, cancel 
 		}
 	}()
 
-	req, err := http.NewRequestWithContext(ctx, "GET", url, nil)
+	req, err := http.NewRequestWithContext(stdCtx, "GET", url, nil)
 	if err != nil {
 		return nil, noop, err
 	}
 	req.Header.Set("User-Agent", "Feed2Imap-Go/1.0")
 
-	resp, err = client(disableTLS).Do(req)
+	resp, err = client(ctx.DisableTLS).Do(req)
 	if err != nil {
 		return nil, noop, err
 	}

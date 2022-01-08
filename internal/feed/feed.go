@@ -9,6 +9,7 @@ import (
 	"github.com/Necoro/gofeed"
 
 	"github.com/Necoro/feed2imap-go/internal/feed/filter"
+	"github.com/Necoro/feed2imap-go/internal/http"
 	"github.com/Necoro/feed2imap-go/pkg/config"
 	"github.com/Necoro/feed2imap-go/pkg/log"
 )
@@ -31,6 +32,13 @@ type FilterFunc func(items []Item, ignHash, alwaysNew bool) []Item
 type Descriptor struct {
 	Name string
 	Url  string
+}
+
+func (feed *Feed) Context() http.Context {
+	return http.Context{
+		Timeout:    feed.Global.Timeout,
+		DisableTLS: feed.NoTLS,
+	}
 }
 
 func (feed *Feed) Descriptor() Descriptor {

@@ -226,8 +226,8 @@ func (feed *Feed) Messages() (msg.Messages, error) {
 	return mails, nil
 }
 
-func getImage(src string, timeout int, disableTLS bool) ([]byte, string, error) {
-	resp, cancel, err := http.Get(src, timeout, disableTLS)
+func getImage(src string, ctx http.Context) ([]byte, string, error) {
+	resp, cancel, err := http.Get(src, ctx)
 	if err != nil {
 		return nil, "", fmt.Errorf("fetching from '%s': %w", src, err)
 	}
@@ -294,7 +294,7 @@ func (item *Item) downloadImage(src string) string {
 
 	imgUrl := item.resolveUrl(src)
 
-	img, mime, err := getImage(imgUrl, feed.Global.Timeout, feed.NoTLS)
+	img, mime, err := getImage(imgUrl, feed.Context())
 	if err != nil {
 		log.Errorf("Feed %s: Item %s: Error fetching image: %s",
 			feed.Name, item.Link, err)

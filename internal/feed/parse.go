@@ -20,7 +20,7 @@ func (feed *Feed) Parse() error {
 	if feed.Url != "" {
 		// we do not use the http support in gofeed, so that we can control the behavior of http requests
 		// and ensure it to be the same in all places
-		resp, cancel, err := http.Get(feed.Url, feed.Global.Timeout, feed.NoTLS)
+		resp, cancel, err := http.Get(feed.Url, feed.Context())
 		if err != nil {
 			return fmt.Errorf("while fetching %s from %s: %w", feed.Name, feed.Url, err)
 		}
@@ -30,7 +30,7 @@ func (feed *Feed) Parse() error {
 		cleanup = func() error { return nil }
 	} else { // exec
 		// we use the same context as for HTTP
-		ctx, cancel := http.Context(feed.Global.Timeout)
+		ctx, cancel := feed.Context().StdContext()
 		cmd := exec.CommandContext(ctx, feed.Exec[0], feed.Exec[1:]...)
 		defer func() {
 			cancel()
