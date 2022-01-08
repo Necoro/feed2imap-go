@@ -34,6 +34,7 @@ func TestBuildOptions(tst *testing.T) {
 		{"Simple copy", nil, Options{MinFreq: 75}, Options{MinFreq: 75}, nil},
 		{"Unknowns", Map{"foo": 1}, Options{}, Options{}, []string{"foo"}},
 		{"Override", Map{"include-images": true}, Options{InclImages: false}, Options{InclImages: true}, nil},
+		{"Non-Standard Type", Map{"body": "both"}, Options{}, Options{Body: "both"}, nil},
 		{"Mixed", Map{"min-frequency": 24}, Options{MinFreq: 6, InclImages: true}, Options{MinFreq: 24, InclImages: true}, nil},
 		{"All",
 			Map{"max-frequency": 12, "include-images": true, "ignore-hash": true, "obsolete": 54},
