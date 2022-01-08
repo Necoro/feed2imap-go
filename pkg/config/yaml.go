@@ -150,7 +150,7 @@ func buildOptions(globalFeedOptions *Options, options Map) (feedOptions Options,
 
 	n := gv.NumField()
 	for i := 0; i < n; i++ {
-		val := fv.Field(i)
+		field := fv.Field(i)
 		f := fv.Type().Field(i)
 
 		if f.PkgPath != "" && !f.Anonymous {
@@ -166,10 +166,14 @@ func buildOptions(globalFeedOptions *Options, options Map) (feedOptions Options,
 
 		set, ok := options[name]
 		if ok { // in the map -> copy and delete
-			val.Set(reflect.ValueOf(set))
+			value := reflect.ValueOf(set)
+			if !value.Type().AssignableTo(field.Type()) {
+				value = value.Convert(field.Type())
+			}
+			field.Set(value)
 			delete(options, name)
 		} else { // not in the map -> copy from global
-			val.Set(gv.Field(i))
+			field.Set(gv.Field(i))
 		}
 	}
 
