@@ -37,7 +37,7 @@ func lastUrlPart(url string) string {
 
 // byteCount receives an integer as a string, that is interpreted as a size in bytes.
 // This size is then equipped with the corresponding unit:
-//
+// 1023 --> 1023 B; 1024 --> 1.0 KB; ...
 func byteCount(str string) string {
 	var b uint64
 	if str != "" {
