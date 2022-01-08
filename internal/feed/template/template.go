@@ -2,96 +2,46 @@ package template
 
 import (
 	_ "embed"
-	"fmt"
 	html "html/template"
 	"io"
-	"strconv"
-	"strings"
 	text "text/template"
-
-	"github.com/Necoro/feed2imap-go/pkg/log"
 )
 
-type Template interface {
+type template interface {
 	Execute(wr io.Writer, data interface{}) error
 }
 
+type Template struct {
+	template
+	useHtml bool
+	dflt    string
+}
+
 //go:embed html.tpl
-var htmlTpl string
+var defaultHtmlTpl string
 
 //go:embed text.tpl
-var textTpl string
+var defaultTextTpl string
 
-var Html = fromString("Feed", htmlTpl, true)
-var Text = fromString("Feed", textTpl, false)
-
-func must(t Template, err error) Template {
-	if err != nil {
-		panic(err)
-	}
-	return t
+var Html = Template{
+	useHtml: true,
+	dflt:    defaultHtmlTpl,
 }
 
-func dict(v ...interface{}) map[string]interface{} {
-	dict := make(map[string]interface{})
-	lenv := len(v)
-	for i := 0; i < lenv; i += 2 {
-		key := v[i].(string)
-		if i+1 >= lenv {
-			dict[key] = ""
-			continue
-		}
-		dict[key] = v[i+1]
-	}
-	return dict
+var Text = Template{
+	useHtml: false,
+	dflt:    defaultTextTpl,
 }
 
-func join(sep string, parts []string) string {
-	return strings.Join(parts, sep)
-}
-
-func lastUrlPart(url string) string {
-	split := strings.Split(url, "/")
-	return split[len(split)-1]
-}
-
-func byteCount(str string) string {
-	var b uint64
-	if str != "" {
-		var err error
-		if b, err = strconv.ParseUint(str, 10, 64); err != nil {
-			log.Printf("Cannot convert '%s' to byte count: %s", str, err)
-		}
-	}
-
-	const unit = 1024
-	if b < unit {
-		return fmt.Sprintf("%d B", b)
-	}
-	div, exp := uint64(unit), 0
-	for n := b / unit; n >= unit; n /= unit {
-		div *= unit
-		exp++
-	}
-	return fmt.Sprintf("%.1f %cB", float64(b)/float64(div), "KMGTPE"[exp])
-}
-
-func _html(s string) html.HTML {
-	return html.HTML(s)
-}
-
-var funcMap = html.FuncMap{
-	"dict":        dict,
-	"join":        join,
-	"lastUrlPart": lastUrlPart,
-	"byteCount":   byteCount,
-	"html":        _html,
-}
-
-func fromString(name, templateStr string, useHtml bool) Template {
-	if useHtml {
-		return must(html.New(name).Funcs(funcMap).Parse(templateStr))
+func (tpl *Template) loadDefault() {
+	if tpl.useHtml {
+		tpl.template = html.Must(html.New("Html").Funcs(funcMap).Parse(tpl.dflt))
 	} else {
-		return must(text.New(name).Funcs(text.FuncMap(funcMap)).Parse(templateStr))
+		tpl.template = text.Must(text.New("Text").Funcs(funcMap).Parse(tpl.dflt))
 	}
+}
+
+func init() {
+	Html.loadDefault()
+	Text.loadDefault()
 }
