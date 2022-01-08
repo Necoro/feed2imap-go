@@ -65,6 +65,8 @@ options:
   #  - content: Use the 'content' tag
   #  - description: Use the 'description' tag
   #  - both: Use both
+  #  - fetch: Ignore the body delivered by the feed and instead fetch the linked website.
+  #           It may be advisable to set `include-images` to false in that mode to avoid unexpected large mails.
   body: default
   # Disable a feed. Beats commenting ;)
   disable: false

@@ -5,6 +5,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+### Added
+- [Issue #67](https://github.com/Necoro/feed2imap-go/issues/67): Support for fetching the linked article/website instead of using the body in the feed (configuration: `body: fetch`). This is especially useful when the feed only supplies links/teaser and not the full content.
+
 ## [1.4.0] - 2021-12-21
 ### Added
 - Make links absolute: relative links inside a feed cannot be resolved outside a webbrowser (Example/culprit: https://go.dev/blog/go1.18beta1)
