@@ -11,6 +11,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/Necoro/go-readability"
 	"github.com/Necoro/gofeed"
 	"github.com/Necoro/html2text"
 	"github.com/PuerkitoBio/goquery"
@@ -18,6 +19,7 @@ import (
 	"github.com/emersion/go-message/mail"
 	"github.com/gabriel-vasile/mimetype"
 	"golang.org/x/net/html"
+	"golang.org/x/net/html/charset"
 
 	"github.com/Necoro/feed2imap-go/internal/feed/template"
 	"github.com/Necoro/feed2imap-go/internal/http"
@@ -248,25 +250,53 @@ func getImage(src string, ctx http.Context) ([]byte, string, error) {
 	return img, mimeStr, nil
 }
 
+func getFullArticle(src string, ctx http.Context) (string, error) {
+	log.Debugf("Fetching article from '%s'", src)
+	resp, cancel, err := http.Get(src, ctx)
+	if err != nil {
+		return "", fmt.Errorf("fetching from '%s': %w", src, err)
+	}
+	defer cancel()
+
+	reader, err := charset.NewReader(resp.Body, resp.Header.Get("Content-Type"))
+	if err != nil {
+		return "", fmt.Errorf("detecting charset from '%s': %w", src, err)
+	}
+
+	doc, err := html.Parse(reader)
+	if err != nil {
+		return "", fmt.Errorf("parsing body from '%s': %w", src, err)
+	}
+
+	article, err := readability.FromDocument(doc, resp.Request.URL)
+	if err != nil {
+		return "", fmt.Errorf("parsing body from '%s': %w", src, err)
+	}
+
+	return article.Content, nil
+}
+
 func cidNr(idx int) string {
 	return fmt.Sprintf("cid_%d", idx)
 }
 
-func getBody(content, description string, bodyCfg config.Body) string {
+func (item *Item) getBody(bodyCfg config.Body) (string, error) {
 	switch bodyCfg {
 	case "default":
-		if content != "" {
-			return content
+		if item.Content != "" {
+			return item.Content, nil
 		}
-		return description
+		return item.Description, nil
 	case "description":
-		return description
+		return item.Description, nil
 	case "content":
-		return content
+		return item.Content, nil
 	case "both":
-		return description + content
+		return item.Description + item.Content, nil
+	case "fetch":
+		return getFullArticle(item.Link, item.feed.Context())
 	default:
-		panic(fmt.Sprintf("Unknown value for Body: %v", bodyCfg))
+		return "", fmt.Errorf("Unknown value for Body: %v", bodyCfg)
 	}
 }
 
@@ -318,9 +348,14 @@ func (item *Item) downloadImage(src string) string {
 }
 
 func (item *Item) buildBody() {
+	var err error
 	feed := item.feed
 
-	item.Body = getBody(item.Content, item.Description, feed.Body)
+	if item.Body, err = item.getBody(feed.Body); err != nil {
+		log.Errorf("Feed %s: Item %s: Error while fetching body: %s", feed.Name, item.Link, err)
+		return
+	}
+
 	bodyNode, err := html.Parse(strings.NewReader(item.Body))
 	if err != nil {
 		log.Errorf("Feed %s: Item %s: Error while parsing html: %s", feed.Name, item.Link, err)

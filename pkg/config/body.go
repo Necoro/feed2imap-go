@@ -10,7 +10,7 @@ import (
 
 type Body string
 
-var validBody = []string{"default", "both", "content", "description"}
+var validBody = []string{"default", "both", "content", "description", "fetch"}
 
 func (b *Body) UnmarshalYAML(node *yaml.Node) error {
 	var val string
