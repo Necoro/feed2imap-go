@@ -19,11 +19,13 @@ See [the Installation section](#installation) on how to install feed2imap-go. (S
 ## Features
 
 * Support for most feed formats. See [gofeed documentation](https://github.com/mmcdole/gofeed/blob/master/README.md#features) 
-for details.
+for details. Feeds need not be supplied via URL but can also be yielded by an executable.
 * Connection to any IMAP server, using IMAP, IMAP+STARTTLS, or IMAPS.
 * Detection of duplicates: Heuristics what feed items have already been uploaded.
 * Update mechanism: When a feed item is updated, so is the mail.
 * Detailed configuration options per feed (fetch frequency, should images be included, tune change heuristics, ...)
+* Support for custom filters on feeds
+* [Readability support][i67], i.e. fetching and presenting the linked content instead of the teaser/link included in the feed itself.
 
 ## Changes
 
@@ -37,8 +39,8 @@ for details.
 * Fix `include-images` option: It now includes images as mime-parts. An additional `embed-images` option serves the images 
 as inline base64-encoded data (the old default behavior of feed2imap).
 * Improved image inclusion: Support any relative URLs, including `//example.com/foo.png`
-* Use HTML-Parser instead of regular expressions for modifying the HTML content.
-* STARTTLS-Support. As it turned out only in testing, the old feed2imap never supported it...
+* Use an HTML parser instead of regular expressions for modifying the HTML content.
+* STARTTLS support. As it turned out only in testing, the old feed2imap never supported it...
 * `item-filter` option that allows to specify an inline filter expression on the items of a feed.
 * Readability support: Fetch and present the linked article.
 
@@ -119,5 +121,6 @@ Thanks to [JetBrains][jb] for supporting this project.
 [i6]: https://github.com/Necoro/feed2imap-go/issues/6
 [i4]: https://github.com/Necoro/feed2imap-go/issues/4
 [i9]: https://github.com/Necoro/feed2imap-go/issues/9
+[i67]: https://github.com/Necoro/feed2imap-go/issues/67
 [nec]: https://github.com/Necoro/feed2imap
 [jb]: https://www.jetbrains.com/?from=feed2imap-go
