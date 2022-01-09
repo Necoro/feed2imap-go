@@ -71,6 +71,7 @@ options:
   #  - both: Use both
   #  - fetch: Ignore the body delivered by the feed and instead fetch the linked website.
   #           It may be advisable to set `include-images` to false in that mode to avoid unexpected large mails.
+  #           To fetch something behind a paywall, you can specify authentication cookies with the `cookies` option.
   body: default
   # Disable a feed. Beats commenting ;)
   disable: false
@@ -90,6 +91,11 @@ options:
   # Items of a feed may be filtered. In general there is no real use in specifying this globally.
   # For full information about this feature, visit https://github.com/Necoro/feed2imap-go/wiki/Detailed-Options.
   item-filter: 'Author.Name != "Weirdo"'
+  # Specify cookies that are to be sent with every HTTP request to the configured targets.
+  # Mostly useful to fetch stuff behind a paywall by sending authentication cookie.
+  cookies:
+    - name: authentication
+      value: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhY2N...
 
 ## Feeds
 # Each feed must have a name, and a URL or Exec argument. The name must be unique.

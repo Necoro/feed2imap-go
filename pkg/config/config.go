@@ -7,6 +7,7 @@ import (
 	"runtime"
 	"strings"
 
+	"github.com/Necoro/feed2imap-go/internal/http"
 	"github.com/Necoro/feed2imap-go/pkg/log"
 	"github.com/Necoro/feed2imap-go/pkg/util"
 )
@@ -43,16 +44,17 @@ var DefaultGlobalOptions = GlobalOptions{
 // Options are feed specific
 // NB: Always specify a yaml name, as it is later used in processing
 type Options struct {
-	MinFreq     int    `yaml:"min-frequency"`
-	InclImages  bool   `yaml:"include-images"`
-	EmbedImages bool   `yaml:"embed-images"`
-	Disable     bool   `yaml:"disable"`
-	IgnHash     bool   `yaml:"ignore-hash"`
-	AlwaysNew   bool   `yaml:"always-new"`
-	Reupload    bool   `yaml:"reupload-if-updated"`
-	NoTLS       bool   `yaml:"tls-no-verify"`
-	ItemFilter  string `yaml:"item-filter"`
-	Body        Body   `yaml:"body"`
+	MinFreq     int           `yaml:"min-frequency"`
+	InclImages  bool          `yaml:"include-images"`
+	EmbedImages bool          `yaml:"embed-images"`
+	Disable     bool          `yaml:"disable"`
+	IgnHash     bool          `yaml:"ignore-hash"`
+	AlwaysNew   bool          `yaml:"always-new"`
+	Reupload    bool          `yaml:"reupload-if-updated"`
+	NoTLS       bool          `yaml:"tls-no-verify"`
+	ItemFilter  string        `yaml:"item-filter"`
+	Body        Body          `yaml:"body"`
+	Cookies     []http.Cookie `yaml:"cookies"`
 }
 
 var DefaultFeedOptions = Options{

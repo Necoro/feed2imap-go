@@ -7,6 +7,8 @@ import (
 
 	"github.com/google/go-cmp/cmp"
 	"gopkg.in/yaml.v3"
+
+	"github.com/Necoro/feed2imap-go/internal/http"
 )
 
 func t(s string) []string {
@@ -286,6 +288,30 @@ func TestUnmarshal(tst *testing.T) {
 			}()},
 		{name: "Known config with invalid feed-options",
 			inp: "options:\n  max-frequency: 6", wantErr: true, config: config{}},
+		{name: "Nested config",
+			inp: `
+options:
+  cookies:
+    - name: foo
+      value: bar
+`, wantErr: false, config: func() config {
+				c := defaultConfig(nil, nil)
+				c.FeedOptions.Cookies = []http.Cookie{{Name: "foo", Value: "bar"}}
+				return c
+			}()},
+		{name: "Nested config; multiple",
+			inp: `
+options:
+  cookies:
+    - name: foo
+      value: bar
+    - name: baz
+      value: uff
+`, wantErr: false, config: func() config {
+				c := defaultConfig(nil, nil)
+				c.FeedOptions.Cookies = []http.Cookie{{"foo", "bar"}, {"baz", "uff"}}
+				return c
+			}()},
 		{name: "Config with feed",
 			inp: `
 something: 1
