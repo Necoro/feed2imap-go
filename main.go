@@ -6,6 +6,7 @@ import (
 	"os"
 
 	"github.com/Necoro/feed2imap-go/internal/feed/cache"
+	"github.com/Necoro/feed2imap-go/internal/feed/template"
 	"github.com/Necoro/feed2imap-go/internal/imap"
 	"github.com/Necoro/feed2imap-go/pkg/config"
 	"github.com/Necoro/feed2imap-go/pkg/log"
@@ -62,6 +63,18 @@ func processFeed(cf cache.CachedFeed, client *imap.Client, dryRun bool) {
 	cf.Commit()
 }
 
+func loadTemplate(path string, tpl template.Template) error {
+	if path == "" {
+		return nil
+	}
+
+	log.Printf("Loading custom %s template from %s", tpl.Name(), path)
+	if err := tpl.LoadFile(path); err != nil {
+		return fmt.Errorf("loading %s template from %s: %w", tpl.Name(), path, err)
+	}
+	return nil
+}
+
 func run() error {
 	flag.Parse()
 	if printVersion {
@@ -105,6 +118,15 @@ func run() error {
 		log.Print("Nothing to do, exiting.")
 		// nothing to do
 		return nil
+	}
+
+	if !buildCache {
+		if err = loadTemplate(cfg.HtmlTemplate, template.Html); err != nil {
+			return err
+		}
+		if err = loadTemplate(cfg.TextTemplate, template.Text); err != nil {
+			return err
+		}
 	}
 
 	imapErr := make(chan error, 1)

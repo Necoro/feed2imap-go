@@ -24,6 +24,8 @@ type GlobalOptions struct {
 	Parts        []string `yaml:"parts"`
 	MaxFailures  int      `yaml:"max-failures"`
 	AutoTarget   bool     `yaml:"auto-target"`
+	HtmlTemplate string   `yaml:"html-template"`
+	TextTemplate string   `yaml:"text-template"`
 }
 
 var DefaultGlobalOptions = GlobalOptions{
@@ -34,6 +36,8 @@ var DefaultGlobalOptions = GlobalOptions{
 	Target:       Url{},
 	Parts:        []string{"text", "html"},
 	AutoTarget:   true,
+	HtmlTemplate: "",
+	TextTemplate: "",
 }
 
 // Options are feed specific

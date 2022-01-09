@@ -2,13 +2,20 @@ package template
 
 import (
 	_ "embed"
+	"errors"
+	"fmt"
 	html "html/template"
 	"io"
+	"io/fs"
+	"os"
 	text "text/template"
+
+	"github.com/Necoro/feed2imap-go/pkg/log"
 )
 
 type template interface {
 	Execute(wr io.Writer, data interface{}) error
+	Name() string
 }
 
 type Template struct {
@@ -24,21 +31,44 @@ var defaultHtmlTpl string
 var defaultTextTpl string
 
 var Html = Template{
-	useHtml: true,
-	dflt:    defaultHtmlTpl,
+	useHtml:  true,
+	dflt:     defaultHtmlTpl,
+	template: html.New("Html").Funcs(funcMap),
 }
 
 var Text = Template{
-	useHtml: false,
-	dflt:    defaultTextTpl,
+	useHtml:  false,
+	dflt:     defaultTextTpl,
+	template: text.New("Text").Funcs(funcMap),
 }
 
 func (tpl *Template) loadDefault() {
-	if tpl.useHtml {
-		tpl.template = html.Must(html.New("Html").Funcs(funcMap).Parse(tpl.dflt))
-	} else {
-		tpl.template = text.Must(text.New("Text").Funcs(funcMap).Parse(tpl.dflt))
+	if err := tpl.load(tpl.dflt); err != nil {
+		panic(err)
 	}
+}
+
+func (tpl *Template) load(content string) (err error) {
+	if tpl.useHtml {
+		_, err = tpl.template.(*html.Template).Parse(content)
+	} else {
+		_, err = tpl.template.(*text.Template).Parse(content)
+	}
+	return
+}
+
+func (tpl *Template) LoadFile(file string) error {
+	content, err := os.ReadFile(file)
+	if err != nil {
+		if errors.Is(err, fs.ErrNotExist) {
+			log.Errorf("Template file '%s' does not exist, keeping default.", file)
+			return nil
+		} else {
+			return fmt.Errorf("reading template file '%s': %w", file, err)
+		}
+	}
+
+	return tpl.load(string(content))
 }
 
 func init() {
