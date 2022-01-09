@@ -38,6 +38,7 @@ func (feed *Feed) Context() http.Context {
 	return http.Context{
 		Timeout:    feed.Global.Timeout,
 		DisableTLS: feed.NoTLS,
+		Cookies:    feed.Cookies,
 	}
 }
 

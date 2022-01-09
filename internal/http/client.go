@@ -23,6 +23,7 @@ type Error struct {
 type Context struct {
 	Timeout    int
 	DisableTLS bool
+	Cookies    []Cookie
 }
 
 func (err Error) Error() string {
@@ -53,6 +54,11 @@ func client(disableTLS bool) *http.Client {
 
 var noop ctxt.CancelFunc = func() {}
 
+type Cookie struct {
+	Name  string
+	Value string
+}
+
 func Get(url string, ctx Context) (resp *http.Response, cancel ctxt.CancelFunc, err error) {
 	prematureExit := true
 	stdCtx, ctxCancel := ctx.StdContext()
@@ -75,6 +81,11 @@ func Get(url string, ctx Context) (resp *http.Response, cancel ctxt.CancelFunc, 
 		return nil, noop, err
 	}
 	req.Header.Set("User-Agent", "Feed2Imap-Go/1.0")
+
+	for _, c := range ctx.Cookies {
+		cookie := http.Cookie{Name: c.Name, Value: c.Value}
+		req.AddCookie(&cookie)
+	}
 
 	resp, err = client(ctx.DisableTLS).Do(req)
 	if err != nil {
