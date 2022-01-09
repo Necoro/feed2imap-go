@@ -30,12 +30,12 @@ func TestBuildOptions(tst *testing.T) {
 		out      Options
 		unknowns []string
 	}{
-		{"Empty", nil, Options{}, Options{}, nil},
-		{"Simple copy", nil, Options{MinFreq: 75}, Options{MinFreq: 75}, nil},
+		{"Empty", nil, Options{}, Options{}, []string{}},
+		{"Simple copy", nil, Options{MinFreq: 75}, Options{MinFreq: 75}, []string{}},
 		{"Unknowns", Map{"foo": 1}, Options{}, Options{}, []string{"foo"}},
-		{"Override", Map{"include-images": true}, Options{InclImages: false}, Options{InclImages: true}, nil},
-		{"Non-Standard Type", Map{"body": "both"}, Options{}, Options{Body: "both"}, nil},
-		{"Mixed", Map{"min-frequency": 24}, Options{MinFreq: 6, InclImages: true}, Options{MinFreq: 24, InclImages: true}, nil},
+		{"Override", Map{"include-images": true}, Options{InclImages: false}, Options{InclImages: true}, []string{}},
+		{"Non-Standard Type", Map{"body": "both"}, Options{}, Options{Body: "both"}, []string{}},
+		{"Mixed", Map{"min-frequency": 24}, Options{MinFreq: 6, InclImages: true}, Options{MinFreq: 24, InclImages: true}, []string{}},
 		{"All",
 			Map{"max-frequency": 12, "include-images": true, "ignore-hash": true, "obsolete": 54},
 			Options{MinFreq: 6, InclImages: true, IgnHash: false},

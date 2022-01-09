@@ -4,9 +4,9 @@ import (
 	"errors"
 	"fmt"
 	"io"
-	"reflect"
 	"strings"
 
+	"github.com/mitchellh/mapstructure"
 	"gopkg.in/yaml.v3"
 
 	"github.com/Necoro/feed2imap-go/pkg/log"
@@ -139,50 +139,34 @@ func appTarget(target []string, app string) []string {
 	}
 }
 
-func buildOptions(globalFeedOptions *Options, options Map) (feedOptions Options, unknownFields []string) {
+func buildOptions(globalFeedOptions *Options, options Map) (Options, []string) {
+	// copy global as default
+	feedOptions := *globalFeedOptions
+
 	if options == nil {
 		// no options set for the feed: copy global options and be done
-		return *globalFeedOptions, unknownFields
+		return feedOptions, []string{}
 	}
 
-	fv := reflect.ValueOf(&feedOptions).Elem()
-	gv := reflect.ValueOf(globalFeedOptions).Elem()
-
-	n := gv.NumField()
-	for i := 0; i < n; i++ {
-		field := fv.Field(i)
-		f := fv.Type().Field(i)
-
-		if f.PkgPath != "" && !f.Anonymous {
-			continue
-		}
-
-		tag := f.Tag.Get("yaml")
-		if tag == "" {
-			continue
-		}
-
-		name := strings.Split(tag, ",")[0]
-
-		set, ok := options[name]
-		if ok { // in the map -> copy and delete
-			value := reflect.ValueOf(set)
-			if !value.Type().AssignableTo(field.Type()) {
-				value = value.Convert(field.Type())
-			}
-			field.Set(value)
-			delete(options, name)
-		} else { // not in the map -> copy from global
-			field.Set(gv.Field(i))
-		}
+	var md mapstructure.Metadata
+	mapstructureConfig := mapstructure.DecoderConfig{
+		TagName:  "yaml",
+		Metadata: &md,
+		Result:   &feedOptions,
 	}
 
-	// remaining fields are unknown
-	for k := range options {
-		unknownFields = append(unknownFields, k)
+	var err error
+	dec, err := mapstructure.NewDecoder(&mapstructureConfig)
+	if err != nil {
+		panic(err)
 	}
 
-	return feedOptions, unknownFields
+	err = dec.Decode(options)
+	if err != nil {
+		panic(err)
+	}
+
+	return feedOptions, md.Unused
 }
 
 // Fetch the group structure and populate the `targetStr` fields in the feeds
