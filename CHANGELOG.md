@@ -6,6 +6,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 ### Added
+- [Issue #66](https://github.com/Necoro/feed2imap-go/issues/66): Allow specifying custom template files for HTML/Text output (configuration: `html-template`/`text-template`).
 - [Issue #67](https://github.com/Necoro/feed2imap-go/issues/67): Support for fetching the linked article/website instead of using the body in the feed (configuration: `body: fetch`). This is especially useful when the feed only supplies links/teaser and not the full content.
 ### Fixed
 - Panic on setting `body` on feed-level.

@@ -36,6 +36,10 @@ max-failures:  10
 # Parts to generate in the resulting emails.
 # Valid parts are "text" and "html"
 parts: ["text", "html"]
+# Overwrite the default template for text/html.
+# See https://github.com/Necoro/feed2imap-go/wiki/Detailed-Options for more information.
+html-template: html.tpl
+text-template: text.tpl
 # Email-Address to use in 'From' and 'To' when not specified in feed.
 # Default uses 'current user'@hostname
 default-email: username@hostname

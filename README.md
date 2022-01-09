@@ -43,6 +43,7 @@ as inline base64-encoded data (the old default behavior of feed2imap).
 * STARTTLS support. As it turned out only in testing, the old feed2imap never supported it...
 * `item-filter` option that allows to specify an inline filter expression on the items of a feed.
 * Readability support: Fetch and present the linked article.
+* Mail templates can be customized.
 
 ### Subtle differences
 
