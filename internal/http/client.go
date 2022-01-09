@@ -5,6 +5,8 @@ import (
 	"crypto/tls"
 	"fmt"
 	"net/http"
+	"net/http/cookiejar"
+	urlpkg "net/url"
 	"time"
 )
 
@@ -23,7 +25,7 @@ type Error struct {
 type Context struct {
 	Timeout    int
 	DisableTLS bool
-	Cookies    []Cookie
+	Jar        CookieJar
 }
 
 func (err Error) Error() string {
@@ -55,8 +57,35 @@ func client(disableTLS bool) *http.Client {
 var noop ctxt.CancelFunc = func() {}
 
 type Cookie struct {
-	Name  string
-	Value string
+	Name   string
+	Value  string
+	Domain string
+}
+
+type CookieJar http.CookieJar
+
+func JarOfCookies(cookies []Cookie, url string) (CookieJar, error) {
+	jar, err := cookiejar.New(nil)
+	if err != nil {
+		return nil, err
+	}
+
+	cs := make([]*http.Cookie, len(cookies))
+	for i, c := range cookies {
+		cs[i] = &http.Cookie{Name: c.Name, Value: c.Value, Domain: c.Domain}
+	}
+
+	u, err := urlpkg.Parse(url)
+	if err != nil {
+		return nil, err
+	}
+
+	// ignore the path of the URL
+	u.Path = ""
+
+	jar.SetCookies(u, cs)
+
+	return jar, nil
 }
 
 func Get(url string, ctx Context) (resp *http.Response, cancel ctxt.CancelFunc, err error) {
@@ -82,9 +111,10 @@ func Get(url string, ctx Context) (resp *http.Response, cancel ctxt.CancelFunc, 
 	}
 	req.Header.Set("User-Agent", "Feed2Imap-Go/1.0")
 
-	for _, c := range ctx.Cookies {
-		cookie := http.Cookie{Name: c.Name, Value: c.Value}
-		req.AddCookie(&cookie)
+	if ctx.Jar != nil {
+		for _, c := range ctx.Jar.Cookies(req.URL) {
+			req.AddCookie(c)
+		}
 	}
 
 	resp, err = client(ctx.DisableTLS).Do(req)

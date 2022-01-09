@@ -21,6 +21,7 @@ type Feed struct {
 	items  []Item
 	Global config.GlobalOptions
 	extID  FeedID
+	jar    http.CookieJar
 }
 
 type FeedID interface {
@@ -35,10 +36,18 @@ type Descriptor struct {
 }
 
 func (feed *Feed) Context() http.Context {
+	if feed.Url != "" && len(feed.Cookies) > 0 && feed.jar == nil {
+		var err error
+		feed.jar, err = http.JarOfCookies(feed.Cookies, feed.Url)
+		if err != nil {
+			log.Errorf("Error while initialising cookies for feed '%s': %w", feed.Name, err)
+		}
+	}
+
 	return http.Context{
 		Timeout:    feed.Global.Timeout,
 		DisableTLS: feed.NoTLS,
-		Cookies:    feed.Cookies,
+		Jar:        feed.jar,
 	}
 }
 

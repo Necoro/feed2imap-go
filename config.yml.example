@@ -96,6 +96,8 @@ options:
   cookies:
     - name: authentication
       value: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhY2N...
+      # if the domain value is different from the domain of the RSS feed
+      domain: foo.bar.ex
 
 ## Feeds
 # Each feed must have a name, and a URL or Exec argument. The name must be unique.
