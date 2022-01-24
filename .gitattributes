@@ -2,4 +2,4 @@
 * text=auto
 
 # Templates should have CRLF
-*.tpl text eol=crlf
+*.tpl text eol=crlf -linguist-detectable
