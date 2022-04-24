@@ -14,7 +14,7 @@ import (
 )
 
 type template interface {
-	Execute(wr io.Writer, data interface{}) error
+	Execute(wr io.Writer, data any) error
 	Name() string
 }
 

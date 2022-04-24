@@ -125,7 +125,7 @@ func (conn *connection) ensureFolder(folder Folder) error {
 	}
 
 	switch {
-	case found == 0 || (found == 1 && util.StrContains(mbox.Attributes, imap.NoSelectAttr)):
+	case found == 0 || (found == 1 && util.Contains(mbox.Attributes, imap.NoSelectAttr)):
 		return conn.createFolder(folder.str)
 	case found == 1:
 		conn.mailboxes.add(mbox)
@@ -137,7 +137,7 @@ func (conn *connection) ensureFolder(folder Folder) error {
 
 func (conn *connection) delete(uids []uint32) error {
 	storeItem := imap.FormatFlagsOp(imap.AddFlags, true)
-	deleteFlag := []interface{}{imap.DeletedFlag}
+	deleteFlag := []any{imap.DeletedFlag}
 
 	seqSet := new(imap.SeqSet)
 	seqSet.AddNum(uids...)

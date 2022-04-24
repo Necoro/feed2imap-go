@@ -65,7 +65,7 @@ func (item *Item) FeedLink() string {
 }
 
 func (item *Item) AddReason(reason string) {
-	if !util.StrContains(item.reasons, reason) {
+	if !util.Contains(item.reasons, reason) {
 		item.reasons = append(item.reasons, reason)
 	}
 }

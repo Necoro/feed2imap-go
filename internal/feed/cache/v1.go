@@ -137,7 +137,7 @@ func (cache *v1Cache) Info() string {
 	return b.String()
 }
 
-func (cache *v1Cache) SpecificInfo(i interface{}) string {
+func (cache *v1Cache) SpecificInfo(i any) string {
 	id := idFromString(i.(string))
 
 	b := strings.Builder{}

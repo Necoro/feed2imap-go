@@ -2,8 +2,8 @@ package util
 
 import "time"
 
-// StrContains searches for `needle` in `haystack` and returns `true` if found.
-func StrContains(haystack []string, needle string) bool {
+// Contains searches for `needle` in `haystack` and returns `true` if found.
+func Contains[T comparable](haystack []T, needle T) bool {
 	for _, s := range haystack {
 		if s == needle {
 			return true

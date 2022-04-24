@@ -31,8 +31,8 @@ func TestByteCount(t *testing.T) {
 }
 
 func TestDict(t *testing.T) {
-	type i []interface{}
-	type o map[string]interface{}
+	type i []any
+	type o map[string]any
 
 	tests := map[string]struct {
 		inp i

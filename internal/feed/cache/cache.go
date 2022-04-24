@@ -29,7 +29,7 @@ type Impl interface {
 	store(io.Writer) error
 	Version() Version
 	Info() string
-	SpecificInfo(interface{}) string
+	SpecificInfo(any) string
 }
 
 type Cache struct {

@@ -33,45 +33,45 @@ func IsDebug() bool {
 	return level == debug
 }
 
-func Debug(v ...interface{}) {
+func Debug(v ...any) {
 	if level <= debug {
 		_ = debugLogger.Output(2, fmt.Sprint(v...))
 	}
 }
 
-func Debugf(format string, v ...interface{}) {
+func Debugf(format string, v ...any) {
 	if level <= debug {
 		_ = debugLogger.Output(2, fmt.Sprintf(format, v...))
 	}
 }
 
-func Print(v ...interface{}) {
+func Print(v ...any) {
 	if level <= info {
 		_ = verboseLogger.Output(2, fmt.Sprint(v...))
 	}
 }
 
-func Printf(format string, v ...interface{}) {
+func Printf(format string, v ...any) {
 	if level <= info {
 		_ = verboseLogger.Output(2, fmt.Sprintf(format, v...))
 	}
 }
 
-func Error(v ...interface{}) {
+func Error(v ...any) {
 	_ = errorLogger.Output(2, fmt.Sprint(v...))
 }
 
 //noinspection GoUnusedExportedFunction
-func Errorf(format string, a ...interface{}) {
+func Errorf(format string, a ...any) {
 	_ = errorLogger.Output(2, fmt.Sprintf(format, a...))
 }
 
 //noinspection GoUnusedExportedFunction
-func Warn(v ...interface{}) {
+func Warn(v ...any) {
 	_ = warnLogger.Output(2, fmt.Sprint(v...))
 }
 
 //noinspection GoUnusedExportedFunction
-func Warnf(format string, a ...interface{}) {
+func Warnf(format string, a ...any) {
 	_ = warnLogger.Output(2, fmt.Sprintf(format, a...))
 }

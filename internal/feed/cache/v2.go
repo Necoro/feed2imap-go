@@ -41,7 +41,7 @@ func (cache *v2Cache) Info() string {
 	return cache.asV1().Info()
 }
 
-func (cache *v2Cache) SpecificInfo(i interface{}) string {
+func (cache *v2Cache) SpecificInfo(i any) string {
 	return cache.asV1().SpecificInfo(i)
 }
 

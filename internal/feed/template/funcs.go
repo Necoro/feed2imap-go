@@ -10,8 +10,8 @@ import (
 )
 
 // dict creates a map out of the passed in key/value pairs.
-func dict(v ...interface{}) map[string]interface{} {
-	dict := make(map[string]interface{})
+func dict(v ...any) map[string]any {
+	dict := make(map[string]any)
 	lenv := len(v)
 	for i := 0; i < lenv; i += 2 {
 		key := v[i].(string)
@@ -63,7 +63,7 @@ func _html(s string) html.HTML {
 	return html.HTML(s)
 }
 
-var funcMap = map[string]interface{}{
+var funcMap = map[string]any{
 	"dict":        dict,
 	"join":        join,
 	"lastUrlPart": lastUrlPart,

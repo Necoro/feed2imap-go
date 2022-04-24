@@ -13,7 +13,7 @@ import (
 
 // Map is a convenience type for the non-mapped configuration options
 // Mostly used for legacy options
-type Map map[string]interface{}
+type Map map[string]any
 
 // GlobalOptions are not feed specific
 type GlobalOptions struct {
@@ -108,12 +108,12 @@ func (cfg *Config) Validate() error {
 
 // WithPartText marks whether 'text' part should be included in mails
 func (opt GlobalOptions) WithPartText() bool {
-	return util.StrContains(opt.Parts, "text")
+	return util.Contains(opt.Parts, "text")
 }
 
 // WithPartHtml marks whether 'html' part should be included in mails
 func (opt GlobalOptions) WithPartHtml() bool {
-	return util.StrContains(opt.Parts, "html")
+	return util.Contains(opt.Parts, "html")
 }
 
 // Load configuration from file and validate it
