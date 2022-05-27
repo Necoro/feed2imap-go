@@ -10,7 +10,7 @@ require (
 	github.com/antonmedv/expr v1.9.0
 	github.com/emersion/go-imap v1.2.0
 	github.com/emersion/go-imap-uidplus v0.0.0-20200503180755-e75854c361e9
-	github.com/emersion/go-message v0.15.0
+	github.com/emersion/go-message v0.16.0
 	github.com/gabriel-vasile/mimetype v1.4.0
 	github.com/google/go-cmp v0.5.7
 	github.com/google/uuid v1.3.0
