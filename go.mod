@@ -16,8 +16,8 @@ require (
 	github.com/google/uuid v1.3.0
 	github.com/mitchellh/mapstructure v1.5.0
 	github.com/nightlyone/lockfile v1.0.0
-	golang.org/x/net v0.0.0-20210916014120-12bc252f5db8
-	gopkg.in/yaml.v3 v3.0.0-20210107192922-496545a6307b
+	golang.org/x/net v0.0.0-20220607020251-c690dde0001d
+	gopkg.in/yaml.v3 v3.0.1
 )
 
 require (
