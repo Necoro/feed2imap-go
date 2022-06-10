@@ -1,8 +1,8 @@
 github.com/DATA-DOG/go-sqlmock v1.3.3/go.mod h1:f/Ixk793poVmq4qj/V1dPUg2JEAKC73Q5eFN3EC/SaM=
-github.com/Necoro/go-readability v0.0.0-20220107222023-364d914a66d0 h1:4tPedWfYpstnlPsXmuMeOJq11a+Ws2tuD+l2RyrSrqA=
-github.com/Necoro/go-readability v0.0.0-20220107222023-364d914a66d0/go.mod h1:nk2AaJ7eR19njLHFOnOdTEyrRQJrQLpMjOzcO8LY+bc=
-github.com/Necoro/gofeed v1.1.4-0.20211029114605-b1a032d3e32f h1:4U61yP/+eEhN03KS4vs9nZb1BIof32BTexlDhumniF8=
-github.com/Necoro/gofeed v1.1.4-0.20211029114605-b1a032d3e32f/go.mod h1:O4tTFVp3PQj8ZXBtP8BEdN3+FAi0OTFBkNhJ01jHxVU=
+github.com/Necoro/go-readability v0.0.0-20220610220921-ea81c68a0622 h1:SEL6zsom6PRkCae/fnSmWuTzhD+mXBawxkRLj0qFArU=
+github.com/Necoro/go-readability v0.0.0-20220610220921-ea81c68a0622/go.mod h1:nk2AaJ7eR19njLHFOnOdTEyrRQJrQLpMjOzcO8LY+bc=
+github.com/Necoro/gofeed v1.1.4-0.20220610221635-927ee67be36d h1:BvDzaNR47D2cvKmZFLZHTY2FiSyVDN3VGt+FVxzcYAg=
+github.com/Necoro/gofeed v1.1.4-0.20220610221635-927ee67be36d/go.mod h1:O4tTFVp3PQj8ZXBtP8BEdN3+FAi0OTFBkNhJ01jHxVU=
 github.com/Necoro/html2text v0.0.0-20211029113451-0e111ca632ef h1:ug4tZhYWJ2kio0apzEUzuCdFGJw2eIjNm/+Je2DvlE4=
 github.com/Necoro/html2text v0.0.0-20211029113451-0e111ca632ef/go.mod h1:ZuQPJl0H5qfZKIQp5L5Kun61DZa/XwJR0WQnsaaR1NQ=
 github.com/PuerkitoBio/goquery v1.8.0 h1:PJTF7AmFCFKk1N6V6jmKfrNH9tV5pNE6lZMkG0gta/U=

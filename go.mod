@@ -3,8 +3,8 @@ module github.com/Necoro/feed2imap-go
 go 1.18
 
 require (
-	github.com/Necoro/go-readability v0.0.0-20220107222023-364d914a66d0
-	github.com/Necoro/gofeed v1.1.4-0.20211029114605-b1a032d3e32f
+	github.com/Necoro/go-readability v0.0.0-20220610220921-ea81c68a0622
+	github.com/Necoro/gofeed v1.1.4-0.20220610221635-927ee67be36d
 	github.com/Necoro/html2text v0.0.0-20211029113451-0e111ca632ef
 	github.com/PuerkitoBio/goquery v1.8.0
 	github.com/antonmedv/expr v1.9.0
