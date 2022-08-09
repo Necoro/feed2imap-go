@@ -5,6 +5,7 @@ import (
 	html "html/template"
 	"strconv"
 	"strings"
+	text "text/template"
 
 	"github.com/Necoro/feed2imap-go/pkg/log"
 )
@@ -63,7 +64,7 @@ func _html(s string) html.HTML {
 	return html.HTML(s)
 }
 
-var funcMap = map[string]any{
+var funcMap = text.FuncMap{
 	"dict":        dict,
 	"join":        join,
 	"lastUrlPart": lastUrlPart,

@@ -1,6 +1,6 @@
 module github.com/Necoro/feed2imap-go
 
-go 1.18
+go 1.19
 
 require (
 	github.com/Necoro/go-readability v0.0.0-20220610220921-ea81c68a0622
