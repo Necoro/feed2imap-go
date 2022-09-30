@@ -67,6 +67,12 @@ binary which can be placed whereever you need.
 
 Please open an issue if you are missing your platform.
 
+### Use your package manager
+
+#### Arch Linux
+
+feed2imap-go is present in the [AUR](https://aur.archlinux.org/packages/feed2imap-go).
+
 ### Install from source
 
 Clone the repository and, optionally, switch to the tag you want:
