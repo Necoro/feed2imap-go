@@ -7,7 +7,7 @@ require (
 	github.com/Necoro/gofeed v1.1.4-0.20230131202059-1fd7d2ee98c3
 	github.com/Necoro/html2text v0.0.0-20211029113451-0e111ca632ef
 	github.com/PuerkitoBio/goquery v1.8.0
-	github.com/antonmedv/expr v1.10.5
+	github.com/antonmedv/expr v1.12.0
 	github.com/emersion/go-imap v1.2.1
 	github.com/emersion/go-imap-uidplus v0.0.0-20200503180755-e75854c361e9
 	github.com/emersion/go-message v0.16.0
