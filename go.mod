@@ -4,9 +4,9 @@ go 1.19
 
 require (
 	github.com/Necoro/go-readability v0.0.0-20220610220921-ea81c68a0622
-	github.com/Necoro/gofeed v1.1.4-0.20230131202059-1fd7d2ee98c3
+	github.com/Necoro/gofeed v1.2.2-0.20230305145438-f7a233d95a2f
 	github.com/Necoro/html2text v0.0.0-20211029113451-0e111ca632ef
-	github.com/PuerkitoBio/goquery v1.8.0
+	github.com/PuerkitoBio/goquery v1.8.1
 	github.com/antonmedv/expr v1.12.0
 	github.com/emersion/go-imap v1.2.1
 	github.com/emersion/go-imap-uidplus v0.0.0-20200503180755-e75854c361e9
@@ -16,7 +16,7 @@ require (
 	github.com/google/uuid v1.3.0
 	github.com/mitchellh/mapstructure v1.5.0
 	github.com/nightlyone/lockfile v1.0.0
-	golang.org/x/net v0.7.0
+	golang.org/x/net v0.8.0
 	gopkg.in/yaml.v3 v3.0.1
 )
 
@@ -28,10 +28,10 @@ require (
 	github.com/gogs/chardet v0.0.0-20191104214054-4b6791f73a28 // indirect
 	github.com/json-iterator/go v1.1.12 // indirect
 	github.com/mattn/go-runewidth v0.0.9 // indirect
-	github.com/mmcdole/goxpp v1.0.0 // indirect
+	github.com/mmcdole/goxpp v1.1.0 // indirect
 	github.com/modern-go/concurrent v0.0.0-20180306012644-bacd9c7ef1dd // indirect
 	github.com/modern-go/reflect2 v1.0.2 // indirect
 	github.com/olekukonko/tablewriter v0.0.5 // indirect
 	github.com/ssor/bom v0.0.0-20170718123548-6386211fdfcf // indirect
-	golang.org/x/text v0.7.0 // indirect
+	golang.org/x/text v0.8.0 // indirect
 )
