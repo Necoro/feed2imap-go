@@ -174,7 +174,7 @@ func (u *Url) CommonBaseUrl(other Url) bool {
 
 func (u *Url) RootPath() []string {
 	path := u.Root
-	if path[0] == '/' {
+	if path != "" && path[0] == '/' {
 		path = path[1:]
 	}
 	return strings.Split(path, "/")
