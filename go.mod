@@ -5,7 +5,7 @@ go 1.19
 require (
 	github.com/Necoro/go-readability v0.0.0-20220610220921-ea81c68a0622
 	github.com/Necoro/gofeed v1.2.2-0.20230305145438-f7a233d95a2f
-	github.com/Necoro/html2text v0.0.0-20211029113451-0e111ca632ef
+	github.com/Necoro/html2text v0.0.0-20230328182301-cda867cd9dbf
 	github.com/PuerkitoBio/goquery v1.8.1
 	github.com/antonmedv/expr v1.12.5
 	github.com/emersion/go-imap v1.2.1
@@ -22,16 +22,17 @@ require (
 
 require (
 	github.com/andybalholm/cascadia v1.3.1 // indirect
-	github.com/emersion/go-sasl v0.0.0-20200509203442-7bfe0ed36a21 // indirect
+	github.com/emersion/go-sasl v0.0.0-20220912192320-0145f2c60ead // indirect
 	github.com/emersion/go-textwrapper v0.0.0-20200911093747-65d896831594 // indirect
 	github.com/go-shiori/dom v0.0.0-20210627111528-4e4722cd0d65 // indirect
-	github.com/gogs/chardet v0.0.0-20191104214054-4b6791f73a28 // indirect
+	github.com/gogs/chardet v0.0.0-20211120154057-b7413eaefb8f // indirect
 	github.com/json-iterator/go v1.1.12 // indirect
-	github.com/mattn/go-runewidth v0.0.9 // indirect
+	github.com/mattn/go-runewidth v0.0.14 // indirect
 	github.com/mmcdole/goxpp v1.1.0 // indirect
 	github.com/modern-go/concurrent v0.0.0-20180306012644-bacd9c7ef1dd // indirect
 	github.com/modern-go/reflect2 v1.0.2 // indirect
 	github.com/olekukonko/tablewriter v0.0.5 // indirect
+	github.com/rivo/uniseg v0.4.4 // indirect
 	github.com/ssor/bom v0.0.0-20170718123548-6386211fdfcf // indirect
 	golang.org/x/text v0.8.0 // indirect
 )
