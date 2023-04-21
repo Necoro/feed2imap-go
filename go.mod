@@ -3,7 +3,6 @@ module github.com/Necoro/feed2imap-go
 go 1.19
 
 require (
-	github.com/Necoro/go-readability v0.0.0-20220610220921-ea81c68a0622
 	github.com/Necoro/gofeed v1.2.2-0.20230305145438-f7a233d95a2f
 	github.com/Necoro/html2text v0.0.0-20230328182301-cda867cd9dbf
 	github.com/PuerkitoBio/goquery v1.8.1
@@ -12,6 +11,7 @@ require (
 	github.com/emersion/go-imap-uidplus v0.0.0-20200503180755-e75854c361e9
 	github.com/emersion/go-message v0.16.0
 	github.com/gabriel-vasile/mimetype v1.4.2
+	github.com/go-shiori/go-readability v0.0.0-20230421032831-c66949dfc0ad
 	github.com/google/go-cmp v0.5.9
 	github.com/google/uuid v1.3.0
 	github.com/mitchellh/mapstructure v1.5.0
@@ -21,7 +21,7 @@ require (
 )
 
 require (
-	github.com/andybalholm/cascadia v1.3.1 // indirect
+	github.com/andybalholm/cascadia v1.3.2 // indirect
 	github.com/emersion/go-sasl v0.0.0-20220912192320-0145f2c60ead // indirect
 	github.com/emersion/go-textwrapper v0.0.0-20200911093747-65d896831594 // indirect
 	github.com/go-shiori/dom v0.0.0-20210627111528-4e4722cd0d65 // indirect

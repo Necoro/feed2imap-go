@@ -11,13 +11,13 @@ import (
 	"strings"
 	"time"
 
-	"github.com/Necoro/go-readability"
 	"github.com/Necoro/gofeed"
 	"github.com/Necoro/html2text"
 	"github.com/PuerkitoBio/goquery"
 	"github.com/emersion/go-message"
 	"github.com/emersion/go-message/mail"
 	"github.com/gabriel-vasile/mimetype"
+	"github.com/go-shiori/go-readability"
 	"golang.org/x/net/html"
 	"golang.org/x/net/html/charset"
 
