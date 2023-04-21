@@ -73,6 +73,10 @@ Please open an issue if you are missing your platform.
 
 feed2imap-go is present in the [AUR](https://aur.archlinux.org/packages/feed2imap-go).
 
+#### Nix
+
+feed2imap-go is present in [nixpkgs](https://github.com/NixOS/nixpkgs/tree/master/pkgs/applications/networking/feedreaders/feed2imap-go).
+
 ### Install from source
 
 Clone the repository and, optionally, switch to the tag you want:
