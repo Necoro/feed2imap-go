@@ -1,0 +1,7 @@
+Tools for feed2imap-go
+----------------------
+
+Currently included:
+* `print-cache`: Print details about feeds part of the cache and the cached contents.
+
+Note to packagers: `print-cache` is mostly a debugging tool, inclusion in packages is optional.
