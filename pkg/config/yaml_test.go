@@ -85,90 +85,96 @@ func TestBuildFeeds(tst *testing.T) {
 				{Feed: feed{Name: "Dup"}},
 				{Feed: feed{Name: "Dup"}},
 			}, result: Feeds{}},
-		{name: "Simple", wantErr: false, target: "",
+		{name: "No URL", wantErr: true, target: "",
 			feeds: []configGroupFeed{
 				{Target: n("foo"), Feed: feed{Name: "muh"}},
 			},
-			result: Feeds{"muh": &Feed{Name: "muh", Target: t("foo")}},
+			result: Feeds{},
+		},
+		{name: "Simple", wantErr: false, target: "",
+			feeds: []configGroupFeed{
+				{Target: n("foo"), Feed: feed{Name: "muh", Url: "google.de"}},
+			},
+			result: Feeds{"muh": &Feed{Name: "muh", Target: t("foo"), Url: "google.de"}},
 		},
 		{name: "Simple With Target", wantErr: false, target: "moep",
 			feeds: []configGroupFeed{
-				{Target: n("foo"), Feed: feed{Name: "muh"}},
+				{Target: n("foo"), Feed: feed{Name: "muh", Url: "google.de"}},
 			},
-			result: Feeds{"muh": &Feed{Name: "muh", Target: t("moep.foo")}},
+			result: Feeds{"muh": &Feed{Name: "muh", Url: "google.de", Target: t("moep.foo")}},
 		},
 		{name: "Simple With Target and Whitespace", wantErr: false, target: "moep",
 			feeds: []configGroupFeed{
-				{Target: n("\r\nfoo "), Feed: feed{Name: "muh"}},
+				{Target: n("\r\nfoo "), Feed: feed{Name: "muh", Url: "google.de"}},
 			},
-			result: Feeds{"muh": &Feed{Name: "muh", Target: t("moep.foo")}},
+			result: Feeds{"muh": &Feed{Name: "muh", Url: "google.de", Target: t("moep.foo")}},
 		},
 		{name: "Simple With Target and NoAutoTarget", wantErr: false, target: "moep", noAutoTarget: true,
 			feeds: []configGroupFeed{
-				{Target: n("foo"), Feed: feed{Name: "muh"}},
+				{Target: n("foo"), Feed: feed{Name: "muh", Url: "google.de"}},
 			},
-			result: Feeds{"muh": &Feed{Name: "muh", Target: t("moep.foo")}},
+			result: Feeds{"muh": &Feed{Name: "muh", Url: "google.de", Target: t("moep.foo")}},
 		},
 		{name: "Simple Without Target", wantErr: false, target: "moep",
 			feeds: []configGroupFeed{
-				{Feed: feed{Name: "muh"}},
+				{Feed: feed{Name: "muh", Url: "google.de"}},
 			},
-			result: Feeds{"muh": &Feed{Name: "muh", Target: t("moep.muh")}},
+			result: Feeds{"muh": &Feed{Name: "muh", Url: "google.de", Target: t("moep.muh")}},
 		},
 		{name: "Simple Without Target and NoAutoTarget", wantErr: false, target: "moep", noAutoTarget: true,
 			feeds: []configGroupFeed{
-				{Feed: feed{Name: "muh"}},
+				{Feed: feed{Name: "muh", Url: "google.de"}},
 			},
-			result: Feeds{"muh": &Feed{Name: "muh", Target: t("moep")}},
+			result: Feeds{"muh": &Feed{Name: "muh", Url: "google.de", Target: t("moep")}},
 		},
 		{name: "Simple With Nil Target", wantErr: false, target: "moep",
 			feeds: []configGroupFeed{
-				{Target: null, Feed: feed{Name: "muh"}},
+				{Target: null, Feed: feed{Name: "muh", Url: "google.de"}},
 			},
-			result: Feeds{"muh": &Feed{Name: "muh", Target: t("moep")}},
+			result: Feeds{"muh": &Feed{Name: "muh", Url: "google.de", Target: t("moep")}},
 		},
 		{name: "Simple With Empty Target", wantErr: false, target: "moep",
 			feeds: []configGroupFeed{
-				{Target: n(""), Feed: feed{Name: "muh"}},
+				{Target: n(""), Feed: feed{Name: "muh", Url: "google.de"}},
 			},
-			result: Feeds{"muh": &Feed{Name: "muh", Target: t("moep")}},
+			result: Feeds{"muh": &Feed{Name: "muh", Url: "google.de", Target: t("moep")}},
 		},
 		{name: "Simple With Blank Target", wantErr: false, target: "moep",
 			feeds: []configGroupFeed{
-				{Target: n(" "), Feed: feed{Name: "muh"}},
+				{Target: n(" "), Feed: feed{Name: "muh", Url: "google.de"}},
 			},
-			result: Feeds{"muh": &Feed{Name: "muh", Target: t("moep")}},
+			result: Feeds{"muh": &Feed{Name: "muh", Url: "google.de", Target: t("moep")}},
 		},
 		{name: "Multiple Feeds", wantErr: false, target: "moep",
 			feeds: []configGroupFeed{
-				{Target: n("foo"), Feed: feed{Name: "muh"}},
-				{Feed: feed{Name: "bar"}},
+				{Target: n("foo"), Feed: feed{Name: "muh", Url: "google.de"}},
+				{Feed: feed{Name: "bar", Url: "bing.de"}},
 			},
 			result: Feeds{
-				"muh": &Feed{Name: "muh", Target: t("moep.foo")},
-				"bar": &Feed{Name: "bar", Target: t("moep.bar")},
+				"muh": &Feed{Name: "muh", Url: "google.de", Target: t("moep.foo")},
+				"bar": &Feed{Name: "bar", Url: "bing.de", Target: t("moep.bar")},
 			},
 		},
 		{name: "URL Target", wantErr: false, target: "",
 			feeds: []configGroupFeed{
-				{Target: n("imap://foo.bar:443/INBOX/Feed"), Feed: feed{Name: "muh"}},
+				{Target: n("imap://foo.bar:443/INBOX/Feed"), Feed: feed{Name: "muh", Url: "google.de"}},
 			},
-			result: Feeds{"muh": &Feed{Name: "muh", Target: t("INBOX.Feed")}},
+			result: Feeds{"muh": &Feed{Name: "muh", Url: "google.de", Target: t("INBOX.Feed")}},
 		},
 		{name: "Multiple URL Targets", wantErr: false, target: "",
 			feeds: []configGroupFeed{
-				{Target: n("imap://foo.bar:443/INBOX/Feed"), Feed: feed{Name: "muh"}},
-				{Target: n("imap://foo.bar:443/INBOX/Feed2"), Feed: feed{Name: "bar"}},
+				{Target: n("imap://foo.bar:443/INBOX/Feed"), Feed: feed{Name: "muh", Url: "google.de"}},
+				{Target: n("imap://foo.bar:443/INBOX/Feed2"), Feed: feed{Name: "bar", Url: "bing.de"}},
 			},
 			result: Feeds{
-				"muh": &Feed{Name: "muh", Target: t("INBOX.Feed")},
-				"bar": &Feed{Name: "bar", Target: t("INBOX.Feed2")},
+				"muh": &Feed{Name: "muh", Url: "google.de", Target: t("INBOX.Feed")},
+				"bar": &Feed{Name: "bar", Url: "bing.de", Target: t("INBOX.Feed2")},
 			},
 		},
 		{name: "Mixed URL Targets", wantErr: true, target: "",
 			feeds: []configGroupFeed{
-				{Target: n("imap://foo.bar:443/INBOX/Feed"), Feed: feed{Name: "muh"}},
-				{Target: n("imap://other.bar:443/INBOX/Feed"), Feed: feed{Name: "bar"}},
+				{Target: n("imap://foo.bar:443/INBOX/Feed"), Feed: feed{Name: "muh", Url: "google.de"}},
+				{Target: n("imap://other.bar:443/INBOX/Feed"), Feed: feed{Name: "bar", Url: "bing.de"}},
 			},
 			result: Feeds{},
 		},
@@ -184,51 +190,62 @@ func TestBuildFeeds(tst *testing.T) {
 			},
 			result: Feeds{},
 		},
+		{name: "Group by accident", wantErr: true, target: "",
+			feeds: []configGroupFeed{
+				{
+					Feed: feed{Name: "muh"},
+					Group: group{Feeds: []configGroupFeed{
+						{Feed: feed{Name: "F1", Url: "F1"}},
+					}},
+				},
+			},
+			result: Feeds{},
+		},
 		{name: "Simple Group", wantErr: false, target: "",
 			feeds: []configGroupFeed{
 				{Group: group{Group: "G1", Feeds: []configGroupFeed{
-					{Target: n("bar"), Feed: feed{Name: "F1"}},
-					{Target: n(""), Feed: feed{Name: "F2"}},
-					{Feed: feed{Name: "F3"}},
+					{Target: n("bar"), Feed: feed{Name: "F1", Url: "F1"}},
+					{Target: n(""), Feed: feed{Name: "F2", Url: "F2"}},
+					{Feed: feed{Name: "F3", Url: "F3"}},
 				}}},
 			},
 			result: Feeds{
-				"F1": &Feed{Name: "F1", Target: t("G1.bar")},
-				"F2": &Feed{Name: "F2", Target: t("G1")},
-				"F3": &Feed{Name: "F3", Target: t("G1.F3")},
+				"F1": &Feed{Name: "F1", Url: "F1", Target: t("G1.bar")},
+				"F2": &Feed{Name: "F2", Url: "F2", Target: t("G1")},
+				"F3": &Feed{Name: "F3", Url: "F3", Target: t("G1.F3")},
 			},
 		},
 		{name: "Simple Group, NoAutoTarget", wantErr: false, target: "IN", noAutoTarget: true,
 			feeds: []configGroupFeed{
 				{Group: group{Group: "G1", Feeds: []configGroupFeed{
-					{Target: n("bar"), Feed: feed{Name: "F1"}},
-					{Target: n(""), Feed: feed{Name: "F2"}},
-					{Feed: feed{Name: "F3"}},
+					{Target: n("bar"), Feed: feed{Name: "F1", Url: "F1"}},
+					{Target: n(""), Feed: feed{Name: "F2", Url: "F2"}},
+					{Feed: feed{Name: "F3", Url: "F3"}},
 				}}},
 			},
 			result: Feeds{
-				"F1": &Feed{Name: "F1", Target: t("IN.bar")},
-				"F2": &Feed{Name: "F2", Target: t("IN")},
-				"F3": &Feed{Name: "F3", Target: t("IN")},
+				"F1": &Feed{Name: "F1", Url: "F1", Target: t("IN.bar")},
+				"F2": &Feed{Name: "F2", Url: "F2", Target: t("IN")},
+				"F3": &Feed{Name: "F3", Url: "F3", Target: t("IN")},
 			},
 		},
 		{name: "Nested Groups", wantErr: false, target: "",
 			feeds: []configGroupFeed{
 				{Group: group{Group: "G1", Feeds: []configGroupFeed{
-					{Feed: feed{Name: "F0"}},
+					{Feed: feed{Name: "F0", Url: "F0"}},
 					{Target: n("bar"), Group: group{Group: "G2",
-						Feeds: []configGroupFeed{{Feed: feed{Name: "F1"}}}}},
+						Feeds: []configGroupFeed{{Feed: feed{Name: "F1", Url: "F1"}}}}},
 					{Target: n(""), Group: group{Group: "G3",
-						Feeds: []configGroupFeed{{Target: n("baz"), Feed: feed{Name: "F2"}}}}},
+						Feeds: []configGroupFeed{{Target: n("baz"), Feed: feed{Name: "F2", Url: "F2"}}}}},
 					{Group: group{Group: "G4",
-						Feeds: []configGroupFeed{{Feed: feed{Name: "F3"}}}}},
+						Feeds: []configGroupFeed{{Feed: feed{Name: "F3", Url: "F3"}}}}},
 				}}},
 			},
 			result: Feeds{
-				"F0": &Feed{Name: "F0", Target: t("G1.F0")},
-				"F1": &Feed{Name: "F1", Target: t("G1.bar.F1")},
-				"F2": &Feed{Name: "F2", Target: t("G1.baz")},
-				"F3": &Feed{Name: "F3", Target: t("G1.G4.F3")},
+				"F0": &Feed{Name: "F0", Url: "F0", Target: t("G1.F0")},
+				"F1": &Feed{Name: "F1", Url: "F1", Target: t("G1.bar.F1")},
+				"F2": &Feed{Name: "F2", Url: "F2", Target: t("G1.baz")},
+				"F3": &Feed{Name: "F3", Url: "F3", Target: t("G1.G4.F3")},
 			},
 		},
 	}
@@ -325,6 +342,15 @@ feeds:
 				Options: Map{"include-images": true, "unknown-option": "foo"},
 			}}, nil)},
 
+		{name: "Feed w/o Url or Exec",
+			inp: `
+feeds:
+  - name: foo
+    target: bar
+	include-images: true
+`,
+			wantErr: true},
+
 		{name: "Feeds",
 			inp: `
 feeds:
@@ -404,6 +430,16 @@ feeds:
 				},
 			}, nil),
 		},
+		{name: "Group by accident",
+			inp: `
+feeds:
+  - feed: Foo
+    target: bla
+	feeds:
+	  - feed: Bar
+	  - Url: google.de
+`,
+			wantErr: true},
 	}
 
 	eqNode := cmp.Comparer(func(l, r yaml.Node) bool {
@@ -443,28 +479,34 @@ feeds:
         - name: F1
           url: google.de
      - name: F2
+       url: F2
      - name: F3
+       url: F3
        target:
      - name: F4
+       exec: ['/bin/foo']
        target: "G4"
      - name: F5
+       url: F5
        target: ~
      - name: F6
+       url: F6
        target: ""
      - group: G3
      - group: G4
        feeds:
         - name: F7
+          url: F7
 `
 	res := Feeds{
 		"Foo": &Feed{Name: "Foo", Target: t("Foo"), Url: "whatever"},
 		"F1":  &Feed{Name: "F1", Target: t("target.F1"), Url: "google.de"},
-		"F2":  &Feed{Name: "F2", Target: t("target.F2")},
-		"F3":  &Feed{Name: "F3", Target: t("target")},
-		"F4":  &Feed{Name: "F4", Target: t("target.G4")},
-		"F5":  &Feed{Name: "F5", Target: t("target")},
-		"F6":  &Feed{Name: "F6", Target: t("target")},
-		"F7":  &Feed{Name: "F7", Target: t("target.G4.F7")},
+		"F2":  &Feed{Name: "F2", Target: t("target.F2"), Url: "F2"},
+		"F3":  &Feed{Name: "F3", Target: t("target"), Url: "F3"},
+		"F4":  &Feed{Name: "F4", Target: t("target.G4"), Exec: []string{"/bin/foo"}},
+		"F5":  &Feed{Name: "F5", Target: t("target"), Url: "F5"},
+		"F6":  &Feed{Name: "F6", Target: t("target"), Url: "F6"},
+		"F7":  &Feed{Name: "F7", Target: t("target.G4.F7"), Url: "F7"},
 	}
 
 	c := WithDefault()
@@ -483,10 +525,11 @@ func TestURLFeedWithoutGlobalTarget(tst *testing.T) {
 	inp := `
 feeds:
   - name: Foo
+    url: Foo
     target: imap://foo.bar:443/INBOX/Feed
 `
 	res := Feeds{
-		"Foo": &Feed{Name: "Foo", Target: t("INBOX.Feed")},
+		"Foo": &Feed{Name: "Foo", Url: "Foo", Target: t("INBOX.Feed")},
 	}
 
 	c := WithDefault()
@@ -509,10 +552,11 @@ func TestURLFeedWithGlobalTarget(tst *testing.T) {
 target: imaps://foo.bar/INBOX/Feeds
 feeds:
   - name: Foo
+    url: Foo
     target: imaps://foo.bar:993/Some/Other/Path
 `
 	res := Feeds{
-		"Foo": &Feed{Name: "Foo", Target: t("Some.Other.Path")},
+		"Foo": &Feed{Name: "Foo", Url: "Foo", Target: t("Some.Other.Path")},
 	}
 
 	c := WithDefault()
@@ -535,9 +579,10 @@ func TestURLFeedWithDifferentGlobalTarget(tst *testing.T) {
 target: imaps://foo.bar/INBOX/Feeds
 feeds:
   - name: Foo
+    url: Foo
     target: imaps://other.bar/INBOX/Feeds
 `
-	errorText := "while parsing: Line 5: Given URL endpoint 'imaps://other.bar:993' does not match previous endpoint 'imaps://foo.bar:993'."
+	errorText := "Line 6: Given URL endpoint 'imaps://other.bar:993' does not match previous endpoint 'imaps://foo.bar:993'."
 	c := WithDefault()
 	c.FeedOptions = Options{}
 
