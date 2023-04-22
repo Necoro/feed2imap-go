@@ -119,7 +119,7 @@ func (cfg *Config) parse(in io.Reader) error {
 	cfg.fixGlobalOptions(parsedCfg.GlobalConfig)
 
 	if err := buildFeeds(parsedCfg.Feeds, []string{}, cfg.Feeds, &cfg.FeedOptions, cfg.AutoTarget, &cfg.Target); err != nil {
-		return fmt.Errorf("while parsing: %w", err)
+		return err
 	}
 
 	return nil
@@ -200,6 +200,12 @@ func buildFeeds(cfg []configGroupFeed, target []string, feeds Feeds,
 			if _, ok := feeds[name]; ok {
 				return fmt.Errorf("Duplicate Feed Name '%s'", name)
 			}
+			if len(f.Group.Feeds) > 0 {
+				return fmt.Errorf("Feed '%s' tries to also be a group.", name)
+			}
+			if f.Feed.Url == "" && len(f.Feed.Exec) == 0 {
+				return fmt.Errorf("Feed '%s' has not specified a URL or an Exec clause.", name)
+			}
 
 			opt, unknown := buildOptions(globalFeedOptions, f.Options)
 
@@ -218,6 +224,10 @@ func buildFeeds(cfg []configGroupFeed, target []string, feeds Feeds,
 			}
 
 		case f.isGroup():
+			if len(f.Group.Feeds) == 0 {
+				log.Warnf("Group '%s' does not contain any feeds.", f.Group.Group)
+			}
+
 			opt, unknown := buildOptions(globalFeedOptions, f.Options)
 
 			for _, optName := range unknown {
