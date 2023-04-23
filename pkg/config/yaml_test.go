@@ -66,26 +66,29 @@ func TestBuildFeeds(tst *testing.T) {
 	tests := []struct {
 		name         string
 		wantErr      bool
+		errMsg       string
 		target       string
 		feeds        []configGroupFeed
 		result       Feeds
 		noAutoTarget bool
 	}{
 		{name: "Empty input", wantErr: false, target: "", feeds: nil, result: Feeds{}},
-		{name: "Empty Feed", wantErr: true, target: "",
+		{name: "Empty Feed", wantErr: true, errMsg: "Unnamed feed",
+			target: "",
 			feeds: []configGroupFeed{
 				{Target: n("foo"), Feed: feed{Url: "google.de"}},
 			}, result: Feeds{}},
-		{name: "Empty Feed", wantErr: true, target: "",
+		{name: "Empty Feed", wantErr: true, errMsg: "Unnamed feed",
+			target: "",
 			feeds: []configGroupFeed{
 				{Feed: feed{Url: "google.de"}},
 			}, result: Feeds{}},
-		{name: "Duplicate Feed Name", wantErr: true, target: "",
+		{name: "Duplicate Feed Name", wantErr: true, errMsg: "Duplicate Feed Name 'Dup'", target: "",
 			feeds: []configGroupFeed{
-				{Feed: feed{Name: "Dup"}},
-				{Feed: feed{Name: "Dup"}},
+				{Feed: feed{Name: "Dup", Url: "google.de"}},
+				{Feed: feed{Name: "Dup", Url: "bing.de"}},
 			}, result: Feeds{}},
-		{name: "No URL", wantErr: true, target: "",
+		{name: "No URL", wantErr: true, errMsg: "Feed 'muh' has not specified a URL or an Exec clause.", target: "",
 			feeds: []configGroupFeed{
 				{Target: n("foo"), Feed: feed{Name: "muh"}},
 			},
@@ -171,14 +174,14 @@ func TestBuildFeeds(tst *testing.T) {
 				"bar": &Feed{Name: "bar", Url: "bing.de", Target: t("INBOX.Feed2")},
 			},
 		},
-		{name: "Mixed URL Targets", wantErr: true, target: "",
+		{name: "Mixed URL Targets", wantErr: true, errMsg: "Line 0: Given URL endpoint 'imap://other.bar:443' does not match previous endpoint 'imap://foo.bar:443'.", target: "",
 			feeds: []configGroupFeed{
 				{Target: n("imap://foo.bar:443/INBOX/Feed"), Feed: feed{Name: "muh", Url: "google.de"}},
 				{Target: n("imap://other.bar:443/INBOX/Feed"), Feed: feed{Name: "bar", Url: "bing.de"}},
 			},
 			result: Feeds{},
 		},
-		{name: "Maildir URL Target", wantErr: true, target: "",
+		{name: "Maildir URL Target", wantErr: true, errMsg: "Line 0: Maildir is not supported.", target: "",
 			feeds: []configGroupFeed{
 				{Target: n("maildir:///home/foo/INBOX/Feed"), Feed: feed{Name: "muh"}},
 			},
@@ -190,7 +193,7 @@ func TestBuildFeeds(tst *testing.T) {
 			},
 			result: Feeds{},
 		},
-		{name: "Group by accident", wantErr: true, target: "",
+		{name: "Group by accident", wantErr: true, errMsg: "Feed 'muh' tries to also be a group.", target: "",
 			feeds: []configGroupFeed{
 				{
 					Feed: feed{Name: "muh"},
@@ -255,12 +258,18 @@ func TestBuildFeeds(tst *testing.T) {
 			var opts = Options{}
 			var globalTarget = Url{}
 			err := buildFeeds(tt.feeds, t(tt.target), feeds, &opts, !tt.noAutoTarget, &globalTarget)
-			if (err != nil) != tt.wantErr {
-				tst.Errorf("buildFeeds() error = %v, wantErr %v", err, tt.wantErr)
-				return
-			}
-			if diff := cmp.Diff(tt.result, feeds); !tt.wantErr && diff != "" {
-				tst.Error(diff)
+			if tt.wantErr {
+				if err == nil {
+					tst.Error("Excepted error, but was successfull.")
+				} else if diff := cmp.Diff(tt.errMsg, err.Error()); diff != "" {
+					tst.Error(diff)
+				}
+			} else {
+				if err != nil {
+					tst.Errorf("Unexpected error %v", err)
+				} else if diff := cmp.Diff(tt.result, feeds); diff != "" {
+					tst.Error(diff)
+				}
 			}
 		})
 	}
@@ -280,11 +289,12 @@ func TestUnmarshal(tst *testing.T) {
 		name    string
 		inp     string
 		wantErr bool
+		errMsg  string
 		config  config
 	}{
 		{name: "Empty",
 			inp: "", wantErr: false, config: defaultConfig(nil, nil)},
-		{name: "Trash", inp: "Something", wantErr: true},
+		{name: "Trash", inp: "Something", wantErr: true, errMsg: "yaml: unmarshal errors:\n  line 1: cannot unmarshal !!str `Something` into config.config"},
 		{name: "Simple config",
 			inp: "something: 1\nsomething_else: 2", wantErr: false, config: defaultConfig(nil, Map{"something": 1, "something_else": 2})},
 		{name: "Known config",
@@ -302,7 +312,9 @@ func TestUnmarshal(tst *testing.T) {
 				return c
 			}()},
 		{name: "Known config with invalid feed-options",
-			inp: "options:\n  max-frequency: 6", wantErr: true, config: config{}},
+			inp:     "options:\n  max-frequency: 6",
+			wantErr: true, errMsg: "yaml: unmarshal errors:\n  line 2: field max-frequency not found in type config.Options",
+			config: config{}},
 		{name: "Config with feed",
 			inp: `
 something: 1
@@ -341,15 +353,6 @@ feeds:
 				},
 				Options: Map{"include-images": true, "unknown-option": "foo"},
 			}}, nil)},
-
-		{name: "Feed w/o Url or Exec",
-			inp: `
-feeds:
-  - name: foo
-    target: bar
-	include-images: true
-`,
-			wantErr: true},
 
 		{name: "Feeds",
 			inp: `
@@ -430,16 +433,6 @@ feeds:
 				},
 			}, nil),
 		},
-		{name: "Group by accident",
-			inp: `
-feeds:
-  - feed: Foo
-    target: bla
-	feeds:
-	  - feed: Bar
-	  - Url: google.de
-`,
-			wantErr: true},
 	}
 
 	eqNode := cmp.Comparer(func(l, r yaml.Node) bool {
@@ -451,13 +444,17 @@ feeds:
 			in := strings.NewReader(tt.inp)
 
 			got, err := unmarshal(in, WithDefault())
-			if (err != nil) != tt.wantErr {
-				tst.Errorf("parse() error = %v, wantErr %v", err, tt.wantErr)
-				return
-			}
 
-			if err == nil {
-				if diff := cmp.Diff(tt.config, got, eqNode); diff != "" {
+			if tt.wantErr {
+				if err == nil {
+					tst.Error("Excepted error, but was successfull.")
+				} else if diff := cmp.Diff(tt.errMsg, err.Error()); diff != "" {
+					tst.Error(diff)
+				}
+			} else {
+				if err != nil {
+					tst.Errorf("Unexpected error %v", err)
+				} else if diff := cmp.Diff(tt.config, got, eqNode); diff != "" {
 					tst.Error(diff)
 				}
 			}
