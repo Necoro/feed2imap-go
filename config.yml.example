@@ -1,4 +1,5 @@
 # Example configuration. Each configuration option presented shows its default, so sensible.
+# NB: THIS FILE *WILL* INCLUDE IMAP CREDENTIALS. ENSURE SENSIBLE ACCESS RIGHTS!
 
 ## Target
 target:
