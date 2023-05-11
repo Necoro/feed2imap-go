@@ -103,6 +103,10 @@ func (cache *Cache) store(fileName string) error {
 	}
 	defer f.Close()
 
+	if err = os.Chmod(fileName, 0600); err != nil {
+		return fmt.Errorf("changing access rights of '%s': %w", fileName, err)
+	}
+
 	writer := bufio.NewWriter(f)
 	if err = writer.WriteByte(byte(currentVersion)); err != nil {
 		return fmt.Errorf("writing to '%s': %w", fileName, err)
