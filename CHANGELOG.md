@@ -6,6 +6,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 - Change go-readability back to track upstream. This now incorporates an overhaul of the readability engine, so changes are to be expected when using `body: fetch`.
+- [Issue #95](https://github.com/Necoro/feed2imap-go/issues/95): Ensure cache is not world-readable. Add a warning when the config is world-readable.
 
 ## [1.6.0] - 2023-03-28
 - Upgrade dependencies
