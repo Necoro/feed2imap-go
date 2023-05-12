@@ -125,6 +125,17 @@ func Load(path string) (*Config, error) {
 		return nil, fmt.Errorf("while opening '%s': %w", path, err)
 	}
 
+	defer f.Close()
+
+	stat, err := f.Stat()
+	if err != nil {
+		return nil, fmt.Errorf("while getting stats of '%s': %w", path, err)
+	}
+
+	if stat.Mode().Perm()&0004 != 0 {
+		log.Warnf("Config file '%s' can be read by anyone. As this contains your IMAP credentials, you are advised to remove global read access.", path)
+	}
+
 	cfg := WithDefault()
 	if err = cfg.parse(f); err != nil {
 		return nil, fmt.Errorf("while parsing: %w", err)
