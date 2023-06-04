@@ -134,7 +134,7 @@ func run() error {
 	if !dryRun && !buildCache {
 		go func() {
 			var err error
-			c, err = imap.Connect(cfg.Target)
+			c, err = imap.Connect(cfg.Target, cfg.MaxConns)
 			imapErr <- err
 		}()
 

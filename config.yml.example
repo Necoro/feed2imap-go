@@ -34,6 +34,8 @@ timeout: 30
 # Maximum number of failures allowed before they are reported in normal mode.
 # By default, failures are only visible in verbose mode. Most feeds tend to suffer from temporary failures.
 max-failures:  10
+# Maximum number of concurrent IMAP connections opened.
+max-imap-connections: 5
 # Parts to generate in the resulting emails.
 # Valid parts are "text" and "html"
 parts: ["text", "html"]

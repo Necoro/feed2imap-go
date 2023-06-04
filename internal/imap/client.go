@@ -13,8 +13,6 @@ import (
 	"github.com/Necoro/feed2imap-go/pkg/log"
 )
 
-const numberConns = 5
-
 type connConf struct {
 	host      string
 	delimiter string
@@ -23,13 +21,13 @@ type connConf struct {
 
 type Client struct {
 	connConf
-	mailboxes    *mailboxes
-	commander    *commander
-	connections  [numberConns]*connection
-	idxCounter   int
-	connChannel  chan *connection
-	connLock     sync.Mutex
-	disconnected bool
+	mailboxes      *mailboxes
+	commander      *commander
+	connections    []*connection
+	maxConnections int
+	connChannel    chan *connection
+	connLock       sync.Mutex
+	disconnected   bool
 }
 
 var dialer imapClient.Dialer
@@ -107,9 +105,7 @@ func (cl *Client) Disconnect() {
 
 func (cl *Client) createConnection(c *imapClient.Client) *connection {
 
-	cl.idxCounter++
-
-	if cl.idxCounter >= len(cl.connections) {
+	if len(cl.connections) == cl.maxConnections {
 		panic("Too many connections")
 	}
 
@@ -121,13 +117,15 @@ func (cl *Client) createConnection(c *imapClient.Client) *connection {
 		c:         client,
 	}
 
-	cl.connections[cl.idxCounter] = conn
+	cl.connections = append(cl.connections, conn)
 	return conn
 }
 
-func newClient() *Client {
+func newClient(maxConnections int) *Client {
 	return &Client{
-		mailboxes:   NewMailboxes(),
-		connChannel: make(chan *connection, 0),
+		mailboxes:      NewMailboxes(),
+		connChannel:    make(chan *connection, 0),
+		connections:    make([]*connection, 0, maxConnections),
+		maxConnections: maxConnections,
 	}
 }

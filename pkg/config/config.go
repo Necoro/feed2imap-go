@@ -23,6 +23,7 @@ type GlobalOptions struct {
 	Target       Url      `yaml:"target"`
 	Parts        []string `yaml:"parts"`
 	MaxFailures  int      `yaml:"max-failures"`
+	MaxConns     int      `yaml:"max-imap-connections"`
 	AutoTarget   bool     `yaml:"auto-target"`
 	HtmlTemplate string   `yaml:"html-template"`
 	TextTemplate string   `yaml:"text-template"`
@@ -32,6 +33,7 @@ var DefaultGlobalOptions = GlobalOptions{
 	Cache:        "feed.cache",
 	Timeout:      30,
 	MaxFailures:  10,
+	MaxConns:     5,
 	DefaultEmail: username() + "@" + Hostname(),
 	Target:       Url{},
 	Parts:        []string{"text", "html"},
@@ -101,6 +103,10 @@ func (cfg *Config) Validate() error {
 				return fmt.Errorf("Feed %s: No storage location (target) defined.", feed.Name)
 			}
 		}
+	}
+
+	if cfg.MaxConns < 1 {
+		return fmt.Errorf("max-imap-connections is '%d', but must be at least 1.", cfg.MaxConns)
 	}
 
 	return nil
