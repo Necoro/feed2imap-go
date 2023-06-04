@@ -3,7 +3,7 @@ package imap
 import (
 	"fmt"
 	"net"
-	"sync/atomic"
+	"sync"
 	"time"
 
 	uidplus "github.com/emersion/go-imap-uidplus"
@@ -23,11 +23,13 @@ type connConf struct {
 
 type Client struct {
 	connConf
-	mailboxes   *mailboxes
-	commander   *commander
-	connections [numberConns]*connection
-	idxCounter  int32
-	connChannel chan *connection
+	mailboxes    *mailboxes
+	commander    *commander
+	connections  [numberConns]*connection
+	idxCounter   int
+	connChannel  chan *connection
+	connLock     sync.Mutex
+	disconnected bool
 }
 
 var dialer imapClient.Dialer
@@ -57,6 +59,13 @@ func (cl *Client) connect(url config.Url) (*connection, error) {
 		return nil, err
 	}
 
+	cl.connLock.Lock()
+	defer cl.connLock.Unlock()
+
+	if cl.disconnected {
+		return nil, nil
+	}
+
 	conn := cl.createConnection(c)
 
 	if !url.ForceTLS() {
@@ -70,11 +79,14 @@ func (cl *Client) connect(url config.Url) (*connection, error) {
 	}
 
 	cl.connChannel <- conn
+
 	return conn, nil
 }
 
 func (cl *Client) Disconnect() {
 	if cl != nil {
+		cl.connLock.Lock()
+
 		cl.stopCommander()
 		close(cl.connChannel)
 
@@ -86,13 +98,18 @@ func (cl *Client) Disconnect() {
 		if connected {
 			log.Print("Disconnected from ", cl.host)
 		}
+
+		cl.disconnected = true
+
+		cl.connLock.Unlock()
 	}
 }
 
 func (cl *Client) createConnection(c *imapClient.Client) *connection {
-	nextIndex := int(atomic.AddInt32(&cl.idxCounter, 1)) - 1
 
-	if nextIndex >= len(cl.connections) {
+	cl.idxCounter++
+
+	if cl.idxCounter >= len(cl.connections) {
 		panic("Too many connections")
 	}
 
@@ -104,8 +121,7 @@ func (cl *Client) createConnection(c *imapClient.Client) *connection {
 		c:         client,
 	}
 
-	cl.connections[nextIndex] = conn
-
+	cl.connections[cl.idxCounter] = conn
 	return conn
 }
 
