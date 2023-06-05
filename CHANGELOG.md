@@ -5,12 +5,14 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
-- Change go-readability back to track upstream. This now incorporates an overhaul of the readability engine, so changes are to be expected when using `body: fetch`.
-- [Issue #95](https://github.com/Necoro/feed2imap-go/issues/95): Ensure cache is not world-readable. Add a warning when the config is world-readable.
 ### Fixed
 - [Issue #97](https://github.com/Necoro/feed2imap-go/issues/97): Fix panic when an IMAP connection is tried to established when the program has already entered the `Disconnect` state.
 ### Added
 - New global config variable `max-imap-connections`, with a default of `5`.
+### Changed
+- Change go-readability back to track upstream. This now incorporates an overhaul of the readability engine, so changes are to be expected when using `body: fetch`.
+- Improve strictness regarding config parsing, especially in the differentiation between feeds and groups of feeds.
+- [Issue #95](https://github.com/Necoro/feed2imap-go/issues/95): Ensure cache is not world-readable. Add a warning when the config is world-readable.
 
 ## [1.6.0] - 2023-03-28
 - Upgrade dependencies
