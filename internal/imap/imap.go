@@ -7,10 +7,10 @@ import (
 	"github.com/Necoro/feed2imap-go/pkg/log"
 )
 
-func Connect(url config.Url, maxConnections int) (*Client, error) {
+func Connect(url config.Url, numConnections int) (*Client, error) {
 	var err error
 
-	client := newClient(maxConnections)
+	client := newClient()
 	client.host = url.Host
 	defer func() {
 		if err != nil {
@@ -41,7 +41,7 @@ func Connect(url config.Url, maxConnections int) (*Client, error) {
 	}
 
 	// the other connections
-	for i := 1; i < client.maxConnections; i++ {
+	for i := 1; i < numConnections; i++ {
 		go func(id int) {
 			if _, err := client.connect(url); err != nil { // explicitly new var 'err', b/c these are now harmless
 				log.Warnf("connecting #%d: %s", id, err)

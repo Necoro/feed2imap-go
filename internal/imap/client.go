@@ -21,13 +21,12 @@ type connConf struct {
 
 type Client struct {
 	connConf
-	mailboxes      *mailboxes
-	commander      *commander
-	connections    []*connection
-	maxConnections int
-	connChannel    chan *connection
-	connLock       sync.Mutex
-	disconnected   bool
+	mailboxes    *mailboxes
+	commander    *commander
+	connections  []*connection
+	connChannel  chan *connection
+	connLock     sync.Mutex
+	disconnected bool
 }
 
 var dialer imapClient.Dialer
@@ -105,10 +104,6 @@ func (cl *Client) Disconnect() {
 
 func (cl *Client) createConnection(c *imapClient.Client) *connection {
 
-	if len(cl.connections) == cl.maxConnections {
-		panic("Too many connections")
-	}
-
 	client := &client{c, uidplus.NewClient(c)}
 
 	conn := &connection{
@@ -121,11 +116,9 @@ func (cl *Client) createConnection(c *imapClient.Client) *connection {
 	return conn
 }
 
-func newClient(maxConnections int) *Client {
+func newClient() *Client {
 	return &Client{
-		mailboxes:      NewMailboxes(),
-		connChannel:    make(chan *connection, 0),
-		connections:    make([]*connection, 0, maxConnections),
-		maxConnections: maxConnections,
+		mailboxes:   NewMailboxes(),
+		connChannel: make(chan *connection, 0),
 	}
 }
