@@ -6,7 +6,7 @@ require (
 	github.com/Necoro/gofeed v1.2.2-0.20230305145438-f7a233d95a2f
 	github.com/Necoro/html2text v0.0.0-20230328182301-cda867cd9dbf
 	github.com/PuerkitoBio/goquery v1.8.1
-	github.com/antonmedv/expr v1.12.5
+	github.com/antonmedv/expr v1.12.6
 	github.com/emersion/go-imap v1.2.1
 	github.com/emersion/go-imap-uidplus v0.0.0-20200503180755-e75854c361e9
 	github.com/emersion/go-message v0.16.0
@@ -16,7 +16,7 @@ require (
 	github.com/google/uuid v1.3.0
 	github.com/mitchellh/mapstructure v1.5.0
 	github.com/nightlyone/lockfile v1.0.0
-	golang.org/x/net v0.10.0
+	golang.org/x/net v0.12.0
 	gopkg.in/yaml.v3 v3.0.1
 )
 
@@ -24,7 +24,7 @@ require (
 	github.com/andybalholm/cascadia v1.3.2 // indirect
 	github.com/emersion/go-sasl v0.0.0-20220912192320-0145f2c60ead // indirect
 	github.com/emersion/go-textwrapper v0.0.0-20200911093747-65d896831594 // indirect
-	github.com/go-shiori/dom v0.0.0-20210627111528-4e4722cd0d65 // indirect
+	github.com/go-shiori/dom v0.0.0-20230515143342-73569d674e1c // indirect
 	github.com/gogs/chardet v0.0.0-20211120154057-b7413eaefb8f // indirect
 	github.com/json-iterator/go v1.1.12 // indirect
 	github.com/mattn/go-runewidth v0.0.14 // indirect
@@ -34,5 +34,5 @@ require (
 	github.com/olekukonko/tablewriter v0.0.5 // indirect
 	github.com/rivo/uniseg v0.4.4 // indirect
 	github.com/ssor/bom v0.0.0-20170718123548-6386211fdfcf // indirect
-	golang.org/x/text v0.9.0 // indirect
+	golang.org/x/text v0.11.0 // indirect
 )
