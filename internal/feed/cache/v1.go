@@ -356,13 +356,7 @@ CACHE_ITEMS:
 }
 
 func filterItems(items []cachedItem) []cachedItem {
-	var n int
-
-	if len(items) < maxCacheSize {
-		n = len(items)
-	} else {
-		n = maxCacheSize
-	}
+	n := min(len(items), maxCacheSize)
 
 	copiedItems := make([]cachedItem, 0, n)
 	for _, item := range items {

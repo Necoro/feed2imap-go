@@ -1,6 +1,6 @@
 module github.com/Necoro/feed2imap-go
 
-go 1.20
+go 1.21
 
 require (
 	github.com/Necoro/gofeed v1.2.2-0.20230305145438-f7a233d95a2f
