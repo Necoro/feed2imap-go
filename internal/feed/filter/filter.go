@@ -2,8 +2,8 @@ package filter
 
 import (
 	"github.com/Necoro/gofeed"
-	"github.com/antonmedv/expr"
-	"github.com/antonmedv/expr/vm"
+	"github.com/expr-lang/expr"
+	"github.com/expr-lang/expr/vm"
 )
 
 type Filter struct {
