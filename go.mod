@@ -13,7 +13,7 @@ require (
 	github.com/gabriel-vasile/mimetype v1.4.3
 	github.com/go-shiori/go-readability v0.0.0-20231029095239-6b97d5aba789
 	github.com/google/go-cmp v0.5.9
-	github.com/google/uuid v1.5.0
+	github.com/google/uuid v1.6.0
 	github.com/mitchellh/mapstructure v1.5.0
 	github.com/nightlyone/lockfile v1.0.0
 	golang.org/x/net v0.19.0
