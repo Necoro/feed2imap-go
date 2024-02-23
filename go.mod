@@ -5,7 +5,7 @@ go 1.21
 require (
 	github.com/Necoro/gofeed v1.2.2-0.20240103171247-2bf4de9da5f3
 	github.com/Necoro/html2text v0.0.0-20230328182301-cda867cd9dbf
-	github.com/PuerkitoBio/goquery v1.8.1
+	github.com/PuerkitoBio/goquery v1.9.0
 	github.com/emersion/go-imap v1.2.1
 	github.com/emersion/go-imap-uidplus v0.0.0-20200503180755-e75854c361e9
 	github.com/emersion/go-message v0.18.0
@@ -16,7 +16,7 @@ require (
 	github.com/google/uuid v1.5.0
 	github.com/mitchellh/mapstructure v1.5.0
 	github.com/nightlyone/lockfile v1.0.0
-	golang.org/x/net v0.19.0
+	golang.org/x/net v0.21.0
 	gopkg.in/yaml.v3 v3.0.1
 )
 
