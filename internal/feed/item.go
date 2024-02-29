@@ -20,6 +20,12 @@ type feedImage struct {
 	name  string
 }
 
+type ItemID uuid.UUID
+
+func newItemID() ItemID {
+	return ItemID(uuid.New())
+}
+
 type Item struct {
 	*gofeed.Item              // access fields implicitly
 	Feed         *gofeed.Feed // named explicitly to not shadow common fields with Item
@@ -27,9 +33,9 @@ type Item struct {
 	Body         string
 	TextBody     string
 	UpdateOnly   bool
+	ID           ItemID
 	reasons      []string
 	images       []feedImage
-	ID           uuid.UUID
 }
 
 func (item *Item) DateParsed() *time.Time {
@@ -77,6 +83,7 @@ func (item *Item) addImage(img []byte, mime string, name string) int {
 }
 
 func (item *Item) clearImages() {
+	clear(item.images)
 	item.images = []feedImage{}
 }
 

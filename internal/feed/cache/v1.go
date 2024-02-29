@@ -7,12 +7,11 @@ import (
 	"encoding/hex"
 	"fmt"
 	"io"
+	"slices"
 	"sort"
 	"strconv"
 	"strings"
 	"time"
-
-	"github.com/google/uuid"
 
 	"github.com/Necoro/feed2imap-go/internal/feed"
 	"github.com/Necoro/feed2imap-go/pkg/log"
@@ -66,7 +65,7 @@ type cachedItem struct {
 	Date         time.Time
 	UpdatedCache time.Time
 	Hash         itemHash
-	ID           uuid.UUID
+	ID           feed.ItemID
 	deleted      bool
 }
 
@@ -187,7 +186,7 @@ func (cache *v1Cache) transformTo(v Version) (Impl, error) {
 	}
 }
 
-func (cache *v1Cache) getItem(id feedId) *cachedFeed {
+func (cache *v1Cache) getFeed(id feedId) *cachedFeed {
 	feed, ok := cache.Feeds[id]
 	if !ok {
 		feed = &cachedFeed{}
@@ -226,13 +225,13 @@ func (cache *v1Cache) cachedFeed(f *feed.Feed) CachedFeed {
 		cache.Ids[fDescr] = id
 	}
 
-	cf := cache.getItem(id)
+	cf := cache.getFeed(id)
 	cf.feed = f
 	f.SetExtID(id)
 	return cf
 }
 
-func (cf *cachedFeed) cachedItem(item *feed.Item) cachedItem {
+func (cf *cachedFeed) buildCachedItem(item *feed.Item) cachedItem {
 	var ci cachedItem
 
 	ci.ID = item.ID
@@ -268,7 +267,7 @@ func (cf *cachedFeed) Filter(items []feed.Item, ignoreHash, alwaysNew bool) []fe
 	cacheItems := make(map[cachedItem]*feed.Item, len(items))
 	for idx := range items {
 		i := &items[idx]
-		ci := cf.cachedItem(i)
+		ci := cf.buildCachedItem(i)
 
 		// remove complete duplicates on the go
 		cacheItems[ci] = i
@@ -350,7 +349,9 @@ CACHE_ITEMS:
 
 	log.Debugf("%d items after filtering", len(filtered))
 
-	cf.newItems = append(cacheadd, filterItems(cf.Items)...)
+	// only the old items (cf.Items) is filtered and trimmed
+	// this is to ensure that really all new additions are part of the cache
+	cf.newItems = slices.Concat(cacheadd, filterItems(cf.Items))
 
 	return filtered
 }

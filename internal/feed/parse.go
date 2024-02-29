@@ -6,7 +6,6 @@ import (
 	"os/exec"
 
 	"github.com/Necoro/gofeed"
-	"github.com/google/uuid"
 
 	"github.com/Necoro/feed2imap-go/internal/http"
 )
@@ -59,7 +58,7 @@ func (feed *Feed) Parse() error {
 	feed.feed = parsedFeed
 	feed.items = make([]Item, len(parsedFeed.Items))
 	for idx, feedItem := range parsedFeed.Items {
-		feed.items[idx] = Item{Feed: parsedFeed, feed: feed, Item: feedItem, ID: uuid.New()}
+		feed.items[idx] = Item{Feed: parsedFeed, feed: feed, Item: feedItem, ID: newItemID()}
 	}
 	return cleanup()
 }
