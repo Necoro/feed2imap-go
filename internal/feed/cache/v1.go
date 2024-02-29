@@ -277,14 +277,14 @@ func (cf *cachedFeed) Filter(items []feed.Item, ignoreHash, alwaysNew bool) []fe
 
 	filtered := make([]feed.Item, 0, len(items))
 	cacheadd := make([]cachedItem, 0, len(items))
-	app := func(item *feed.Item, ci cachedItem, oldIdx *int) {
-		if oldIdx != nil {
+	app := func(item *feed.Item, ci cachedItem, oldIdx int) {
+		if oldIdx > -1 {
 			item.UpdateOnly = true
-			prevId := cf.Items[*oldIdx].ID
+			prevId := cf.Items[oldIdx].ID
 			ci.ID = prevId
 			item.ID = prevId
-			log.Debugf("oldIdx: %d, prevId: %s, item.id: %s", *oldIdx, prevId, item.Id())
-			cf.markItemDeleted(*oldIdx)
+			log.Debugf("oldIdx: %d, prevId: %s, item.id: %s", oldIdx, prevId, item.Id())
+			cf.markItemDeleted(oldIdx)
 		}
 		filtered = append(filtered, *item)
 		cacheadd = append(cacheadd, ci)
@@ -306,7 +306,7 @@ CACHE_ITEMS:
 					log.Debugf("Guid matches with: %s", oldItem)
 					if !oldItem.similarTo(&ci, ignoreHash) {
 						item.AddReason("guid (upd)")
-						app(item, ci, &idx)
+						app(item, ci, idx)
 					} else {
 						log.Debugf("Similar, ignoring item %s", base64.RawURLEncoding.EncodeToString(oldItem.ID[:]))
 						seen(idx)
@@ -318,7 +318,7 @@ CACHE_ITEMS:
 
 			log.Debug("Found no matching GUID, including.")
 			item.AddReason("guid")
-			app(item, ci, nil)
+			app(item, ci, -1)
 			continue
 		}
 
@@ -337,7 +337,7 @@ CACHE_ITEMS:
 				}
 				log.Debugf("Link matches, updating: %s", oldItem)
 				item.AddReason("link (upd)")
-				app(item, ci, &idx)
+				app(item, ci, idx)
 
 				continue CACHE_ITEMS
 			}
@@ -345,7 +345,7 @@ CACHE_ITEMS:
 
 		log.Debugf("No match found, inserting.")
 		item.AddReason("new")
-		app(item, ci, nil)
+		app(item, ci, -1)
 	}
 
 	log.Debugf("%d items after filtering", len(filtered))
