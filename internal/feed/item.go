@@ -4,6 +4,7 @@ import (
 	"encoding/base64"
 	"encoding/json"
 	"fmt"
+	"slices"
 	"strings"
 	"time"
 
@@ -11,7 +12,6 @@ import (
 	"github.com/google/uuid"
 
 	"github.com/Necoro/feed2imap-go/pkg/config"
-	"github.com/Necoro/feed2imap-go/pkg/util"
 )
 
 type feedImage struct {
@@ -65,7 +65,7 @@ func (item *Item) FeedLink() string {
 }
 
 func (item *Item) AddReason(reason string) {
-	if !util.Contains(item.reasons, reason) {
+	if !slices.Contains(item.reasons, reason) {
 		item.reasons = append(item.reasons, reason)
 	}
 }

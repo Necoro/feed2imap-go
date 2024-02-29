@@ -5,10 +5,10 @@ import (
 	"os"
 	"os/user"
 	"runtime"
+	"slices"
 	"strings"
 
 	"github.com/Necoro/feed2imap-go/pkg/log"
-	"github.com/Necoro/feed2imap-go/pkg/util"
 )
 
 // Map is a convenience type for the non-mapped configuration options
@@ -114,12 +114,12 @@ func (cfg *Config) Validate() error {
 
 // WithPartText marks whether 'text' part should be included in mails
 func (opt GlobalOptions) WithPartText() bool {
-	return util.Contains(opt.Parts, "text")
+	return slices.Contains(opt.Parts, "text")
 }
 
 // WithPartHtml marks whether 'html' part should be included in mails
 func (opt GlobalOptions) WithPartHtml() bool {
-	return util.Contains(opt.Parts, "html")
+	return slices.Contains(opt.Parts, "html")
 }
 
 // Load configuration from file and validate it

@@ -3,6 +3,7 @@ package imap
 import (
 	"errors"
 	"fmt"
+	"slices"
 	"strings"
 	"time"
 
@@ -11,7 +12,6 @@ import (
 	imapClient "github.com/emersion/go-imap/client"
 
 	"github.com/Necoro/feed2imap-go/pkg/log"
-	"github.com/Necoro/feed2imap-go/pkg/util"
 )
 
 type client struct {
@@ -125,7 +125,7 @@ func (conn *connection) ensureFolder(folder Folder) error {
 	}
 
 	switch {
-	case found == 0 || (found == 1 && util.Contains(mbox.Attributes, imap.NoSelectAttr)):
+	case found == 0 || (found == 1 && slices.Contains(mbox.Attributes, imap.NoSelectAttr)):
 		return conn.createFolder(folder.str)
 	case found == 1:
 		conn.mailboxes.add(mbox)
