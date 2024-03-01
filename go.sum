@@ -2,8 +2,8 @@ github.com/Necoro/gofeed v1.2.2-0.20240103171247-2bf4de9da5f3 h1:q1NZ8NsAPa7MCDf
 github.com/Necoro/gofeed v1.2.2-0.20240103171247-2bf4de9da5f3/go.mod h1:/WdcmNAPDMaqymjj61Ygs7sK4BB24Swe37gy3YEa/PM=
 github.com/Necoro/html2text v0.0.0-20230328182301-cda867cd9dbf h1:NKLdWyvwqioWZ6ul5vMtUGcPTmXmctgoi96MpW95XQk=
 github.com/Necoro/html2text v0.0.0-20230328182301-cda867cd9dbf/go.mod h1:a5OVzJaqrqMjUPsOrfmStFuPsdoLDCZUh2AFB9Uq0+8=
-github.com/PuerkitoBio/goquery v1.9.0 h1:zgjKkdpRY9T97Q5DCtcXwfqkcylSFIVCocZmn2huTp8=
-github.com/PuerkitoBio/goquery v1.9.0/go.mod h1:cW1n6TmIMDoORQU5IU/P1T3tGFunOeXEpGP2WHRwkbY=
+github.com/PuerkitoBio/goquery v1.9.1 h1:mTL6XjbJTZdpfL+Gwl5U2h1l9yEkJjhmlTeV9VPW7UI=
+github.com/PuerkitoBio/goquery v1.9.1/go.mod h1:cW1n6TmIMDoORQU5IU/P1T3tGFunOeXEpGP2WHRwkbY=
 github.com/andybalholm/cascadia v1.3.2 h1:3Xi6Dw5lHF15JtdcmAHD3i1+T8plmv7BQ/nsViSLyss=
 github.com/andybalholm/cascadia v1.3.2/go.mod h1:7gtRlve5FxPPgIgX36uWBX58OdBsSS6lUvCFb+h7KvU=
 github.com/davecgh/go-spew v1.1.0/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
