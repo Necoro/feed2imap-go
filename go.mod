@@ -10,7 +10,7 @@ require (
 	github.com/PuerkitoBio/goquery v1.9.0
 	github.com/emersion/go-imap v1.2.1
 	github.com/emersion/go-imap-uidplus v0.0.0-20200503180755-e75854c361e9
-	github.com/emersion/go-message v0.18.0
+	github.com/emersion/go-message v0.18.1
 	github.com/expr-lang/expr v1.16.1
 	github.com/gabriel-vasile/mimetype v1.4.3
 	github.com/go-shiori/go-readability v0.0.0-20240204090920-819593fddc6b
@@ -25,7 +25,6 @@ require (
 require (
 	github.com/andybalholm/cascadia v1.3.2 // indirect
 	github.com/emersion/go-sasl v0.0.0-20231106173351-e73c9f7bad43 // indirect
-	github.com/emersion/go-textwrapper v0.0.0-20200911093747-65d896831594 // indirect
 	github.com/go-shiori/dom v0.0.0-20230515143342-73569d674e1c // indirect
 	github.com/gogs/chardet v0.0.0-20211120154057-b7413eaefb8f // indirect
 	github.com/json-iterator/go v1.1.12 // indirect
