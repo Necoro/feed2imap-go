@@ -55,7 +55,7 @@ jobs:
          password: ${{ secrets.DOCKER_TOKEN }}
 
     - name: Run GoReleaser
-      uses: goreleaser/goreleaser-action@v5
+      uses: goreleaser/goreleaser-action@v6
       with:
           version: latest
           args: --release-notes ${{ steps.changelog_text.outputs.clfile }}
