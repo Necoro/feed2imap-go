@@ -5,7 +5,7 @@ go 1.22
 toolchain go1.22.0
 
 require (
-	github.com/Necoro/gofeed v1.2.2-0.20240103171247-2bf4de9da5f3
+	github.com/Necoro/gofeed v1.2.2-0.20240710191639-dd0fdcc70756
 	github.com/Necoro/html2text v0.0.0-20230328182301-cda867cd9dbf
 	github.com/PuerkitoBio/goquery v1.9.2
 	github.com/emersion/go-imap v1.2.1

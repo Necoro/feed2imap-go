@@ -1,5 +1,5 @@
-github.com/Necoro/gofeed v1.2.2-0.20240103171247-2bf4de9da5f3 h1:q1NZ8NsAPa7MCDf+pmO1Bjo68J/pnSsD8fSWUHU81ZM=
-github.com/Necoro/gofeed v1.2.2-0.20240103171247-2bf4de9da5f3/go.mod h1:/WdcmNAPDMaqymjj61Ygs7sK4BB24Swe37gy3YEa/PM=
+github.com/Necoro/gofeed v1.2.2-0.20240710191639-dd0fdcc70756 h1:urWpnwBPDmeXQNqi2L/qQq+sTCvQKN3dlCkj3eh8ebE=
+github.com/Necoro/gofeed v1.2.2-0.20240710191639-dd0fdcc70756/go.mod h1:CNNjbGuYoEU5UWnzd8+59gWF1lsL/sZpLId0/xDVwCY=
 github.com/Necoro/html2text v0.0.0-20230328182301-cda867cd9dbf h1:NKLdWyvwqioWZ6ul5vMtUGcPTmXmctgoi96MpW95XQk=
 github.com/Necoro/html2text v0.0.0-20230328182301-cda867cd9dbf/go.mod h1:a5OVzJaqrqMjUPsOrfmStFuPsdoLDCZUh2AFB9Uq0+8=
 github.com/PuerkitoBio/goquery v1.9.2 h1:4/wZksC3KgkQw7SQgkKotmKljk0M6V8TUvA8Wb4yPeE=
