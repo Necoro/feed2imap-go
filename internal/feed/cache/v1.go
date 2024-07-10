@@ -13,6 +13,8 @@ import (
 	"strings"
 	"time"
 
+	"github.com/google/uuid"
+
 	"github.com/Necoro/feed2imap-go/internal/feed"
 	"github.com/Necoro/feed2imap-go/pkg/log"
 	"github.com/Necoro/feed2imap-go/pkg/util"
@@ -65,7 +67,7 @@ type cachedItem struct {
 	Date         time.Time
 	UpdatedCache time.Time
 	Hash         itemHash
-	ID           feed.ItemID
+	ID           uuid.UUID
 	deleted      bool
 }
 
@@ -234,7 +236,7 @@ func (cache *v1Cache) cachedFeed(f *feed.Feed) CachedFeed {
 func (cf *cachedFeed) buildCachedItem(item *feed.Item) cachedItem {
 	var ci cachedItem
 
-	ci.ID = item.ID
+	ci.ID = uuid.UUID(item.ID)
 	ci.Title = item.Item.Title
 	ci.Link = item.Item.Link
 	if item.DateParsed() != nil {
@@ -281,7 +283,7 @@ func (cf *cachedFeed) Filter(items []feed.Item, ignoreHash, alwaysNew bool) []fe
 			item.UpdateOnly = true
 			prevId := cf.Items[oldIdx].ID
 			ci.ID = prevId
-			item.ID = prevId
+			item.ID = feed.ItemID(prevId)
 			log.Debugf("oldIdx: %d, prevId: %s, item.id: %s", oldIdx, prevId, item.Id())
 			cf.markItemDeleted(oldIdx)
 		}
