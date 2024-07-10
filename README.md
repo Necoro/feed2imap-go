@@ -87,7 +87,7 @@ git checkout v1.7.0
 
 The official way of building feed2imap-go is using [goreleaser](https://github.com/goreleaser/goreleaser):
 ````bash
-goreleaser --snapshot --rm-dist
+goreleaser build --single-target --snapshot --clean
 ````
 The built binary is then inside the corresponding arch folder in `dist`.
 

@@ -1,3 +1,4 @@
+version: 2
 project_name: feed2imap-go
 
 before:
@@ -47,9 +48,6 @@ archives:
   -
     builds:
         - standalone
-    replacements:
-        amd64: x86_64
-        386: x86_32
 
     format: tar.gz
     format_overrides:
