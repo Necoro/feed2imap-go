@@ -6,6 +6,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.7.1] - 2024-07-10
+- Upgraded dependencies
+
 ## [1.7.0] - 2023-06-13
 ### Fixed
 - [Issue #97](https://github.com/Necoro/feed2imap-go/issues/97): Fix panic when an IMAP connection is tried to established when the program has already entered the `Disconnect` state.
@@ -148,7 +151,8 @@ This resulted in duplicate entries as soon as the feed contained (possibly older
 
 Initial release
 
-[Unreleased]: https://github.com/Necoro/feed2imap-go/compare/v1.7.0...HEAD
+[Unreleased]: https://github.com/Necoro/feed2imap-go/compare/v1.7.1...HEAD
+[1.7.1]: https://github.com/Necoro/feed2imap-go/compare/v1.7.0...v1.7.1
 [1.7.0]: https://github.com/Necoro/feed2imap-go/compare/v1.6.0...v1.7.0
 [1.6.0]: https://github.com/Necoro/feed2imap-go/compare/v1.5.2...v1.6.0
 [1.5.2]: https://github.com/Necoro/feed2imap-go/compare/v1.5.1...v1.5.2
