@@ -123,12 +123,6 @@ Or you can roll your own Dockerfile, supplying a glibc...
 
 **NB**: feed2imap-go employs no server-mode. Thus, each run terminates directly after a couple seconds. Therefore, the docker container in itself is not that useful, and you have to have a mechanism in place to spin up the container regularly.
 
-## Support
-
-Thanks to [JetBrains][jb] for supporting this project.
-
-[![JetBrains](https://necoro.dev/data/jetbrains_small2.png)][jb]
-
 [i6]: https://github.com/Necoro/feed2imap-go/issues/6
 [i4]: https://github.com/Necoro/feed2imap-go/issues/4
 [i9]: https://github.com/Necoro/feed2imap-go/issues/9
