@@ -1,5 +1,13 @@
+# editor stuff
 .idea
+
+# binaries
+/feed2imap-go
+/print-cache
+
+# local setup
 config*.yml
 *.cache
 /dist/
-/feed2imap-go
+*.old
+/*.tpl
