@@ -18,7 +18,7 @@ require (
 	github.com/google/uuid v1.6.0
 	github.com/mitchellh/mapstructure v1.5.0
 	github.com/nightlyone/lockfile v1.0.0
-	golang.org/x/net v0.27.0
+	golang.org/x/net v0.30.0
 	gopkg.in/yaml.v3 v3.0.1
 )
 
@@ -36,5 +36,5 @@ require (
 	github.com/olekukonko/tablewriter v0.0.5 // indirect
 	github.com/rivo/uniseg v0.4.7 // indirect
 	github.com/ssor/bom v0.0.0-20170718123548-6386211fdfcf // indirect
-	golang.org/x/text v0.16.0 // indirect
+	golang.org/x/text v0.19.0 // indirect
 )
