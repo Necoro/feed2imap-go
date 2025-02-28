@@ -14,7 +14,7 @@ require (
 	github.com/expr-lang/expr v1.16.9
 	github.com/gabriel-vasile/mimetype v1.4.8
 	github.com/go-shiori/go-readability v0.0.0-20241012063810-92284fa8a71f
-	github.com/google/go-cmp v0.6.0
+	github.com/google/go-cmp v0.7.0
 	github.com/google/uuid v1.6.0
 	github.com/mitchellh/mapstructure v1.5.0
 	github.com/nightlyone/lockfile v1.0.0
