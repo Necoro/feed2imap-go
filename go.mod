@@ -11,7 +11,7 @@ require (
 	github.com/emersion/go-imap v1.2.1
 	github.com/emersion/go-imap-uidplus v0.0.0-20200503180755-e75854c361e9
 	github.com/emersion/go-message v0.18.2
-	github.com/expr-lang/expr v1.16.9
+	github.com/expr-lang/expr v1.17.1
 	github.com/gabriel-vasile/mimetype v1.4.8
 	github.com/go-shiori/go-readability v0.0.0-20241012063810-92284fa8a71f
 	github.com/google/go-cmp v0.6.0
