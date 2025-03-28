@@ -2,8 +2,6 @@ module github.com/Necoro/feed2imap-go
 
 go 1.23
 
-toolchain go1.23.4
-
 require (
 	github.com/Necoro/gofeed v1.2.2-0.20240710191639-dd0fdcc70756
 	github.com/Necoro/html2text v0.0.0-20250130175213-09177e7b4534
@@ -11,7 +9,7 @@ require (
 	github.com/emersion/go-imap v1.2.1
 	github.com/emersion/go-imap-uidplus v0.0.0-20200503180755-e75854c361e9
 	github.com/emersion/go-message v0.18.2
-	github.com/expr-lang/expr v1.16.9
+	github.com/expr-lang/expr v1.17.2
 	github.com/gabriel-vasile/mimetype v1.4.8
 	github.com/go-shiori/go-readability v0.0.0-20241012063810-92284fa8a71f
 	github.com/google/go-cmp v0.6.0
