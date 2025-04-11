@@ -1,8 +1,7 @@
 module github.com/Necoro/feed2imap-go
 
 go 1.23
-
-toolchain go1.23.4
+toolchain go1.24.1
 
 require (
 	github.com/Necoro/gofeed v1.2.2-0.20240710191639-dd0fdcc70756
@@ -18,7 +17,7 @@ require (
 	github.com/google/uuid v1.6.0
 	github.com/mitchellh/mapstructure v1.5.0
 	github.com/nightlyone/lockfile v1.0.0
-	golang.org/x/net v0.34.0
+	golang.org/x/net v0.39.0
 	gopkg.in/yaml.v3 v3.0.1
 )
 
@@ -36,5 +35,5 @@ require (
 	github.com/olekukonko/tablewriter v0.0.5 // indirect
 	github.com/rivo/uniseg v0.4.7 // indirect
 	github.com/ssor/bom v0.0.0-20170718123548-6386211fdfcf // indirect
-	golang.org/x/text v0.21.0 // indirect
+	golang.org/x/text v0.24.0 // indirect
 )
