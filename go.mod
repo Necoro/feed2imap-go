@@ -1,24 +1,24 @@
 module github.com/Necoro/feed2imap-go
 
-go 1.23
+go 1.24
 
-toolchain go1.23.4
+toolchain go1.24.3
 
 require (
 	github.com/Necoro/gofeed v1.2.2-0.20240710191639-dd0fdcc70756
 	github.com/Necoro/html2text v0.0.0-20250130175213-09177e7b4534
-	github.com/PuerkitoBio/goquery v1.10.1
+	github.com/PuerkitoBio/goquery v1.10.3
 	github.com/emersion/go-imap v1.2.1
 	github.com/emersion/go-imap-uidplus v0.0.0-20200503180755-e75854c361e9
 	github.com/emersion/go-message v0.18.2
-	github.com/expr-lang/expr v1.16.9
-	github.com/gabriel-vasile/mimetype v1.4.8
-	github.com/go-shiori/go-readability v0.0.0-20241012063810-92284fa8a71f
+	github.com/expr-lang/expr v1.17.4
+	github.com/gabriel-vasile/mimetype v1.4.9
+	github.com/go-shiori/go-readability v0.0.0-20250217085726-9f5bf5ca7612
 	github.com/google/go-cmp v0.6.0
 	github.com/google/uuid v1.6.0
 	github.com/mitchellh/mapstructure v1.5.0
 	github.com/nightlyone/lockfile v1.0.0
-	golang.org/x/net v0.34.0
+	golang.org/x/net v0.40.0
 	gopkg.in/yaml.v3 v3.0.1
 )
 
@@ -36,5 +36,5 @@ require (
 	github.com/olekukonko/tablewriter v0.0.5 // indirect
 	github.com/rivo/uniseg v0.4.7 // indirect
 	github.com/ssor/bom v0.0.0-20170718123548-6386211fdfcf // indirect
-	golang.org/x/text v0.21.0 // indirect
+	golang.org/x/text v0.25.0 // indirect
 )
