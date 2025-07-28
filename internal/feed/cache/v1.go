@@ -7,6 +7,8 @@ import (
 	"encoding/hex"
 	"fmt"
 	"io"
+	"iter"
+	"maps"
 	"slices"
 	"sort"
 	"strconv"
@@ -261,20 +263,37 @@ func (cf *cachedFeed) markItemDeleted(index int) {
 	cf.Items[index].deleted = true
 }
 
+func containsItem(ci cachedItem, seq iter.Seq[cachedItem], ignoreHash bool) bool {
+	for other := range seq {
+		if ci.Guid != "" && ci.Guid == other.Guid {
+			log.Debugf("Found duplicate GUID for: %s", ci)
+			return true
+		}
+		if ci.similarTo(&other, ignoreHash) {
+			log.Debugf("Found duplicate for: %s", ci)
+			return true
+		}
+	}
+	return false
+}
+
 func (cf *cachedFeed) Filter(items []feed.Item, ignoreHash, alwaysNew bool) []feed.Item {
 	if len(items) == 0 {
 		return items
 	}
 
-	cacheItems := make(map[cachedItem]*feed.Item, len(items))
+	cachedItems := make(map[*feed.Item]cachedItem, len(items))
 	for idx := range items {
 		i := &items[idx]
 		ci := cf.buildCachedItem(i)
 
-		// remove complete duplicates on the go
-		cacheItems[ci] = i
+		// explicitly check for duplicates
+		if !containsItem(ci, maps.Values(cachedItems), ignoreHash) {
+			cachedItems[i] = ci
+		}
 	}
-	log.Debugf("%d items after deduplication", len(cacheItems))
+
+	log.Debugf("%d items after deduplication", len(cachedItems))
 
 	filtered := make([]feed.Item, 0, len(items))
 	cacheadd := make([]cachedItem, 0, len(items))
@@ -298,7 +317,7 @@ func (cf *cachedFeed) Filter(items []feed.Item, ignoreHash, alwaysNew bool) []fe
 	}
 
 CACHE_ITEMS:
-	for ci, item := range cacheItems {
+	for item, ci := range cachedItems {
 		log.Debugf("Now checking %s", ci)
 
 		if ci.Guid != "" {
