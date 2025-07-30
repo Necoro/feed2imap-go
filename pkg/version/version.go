@@ -2,7 +2,7 @@ package version
 
 // this is set by the linker during build
 var (
-	version = "1.7.2-post"
+	version = "1.8.0-post"
 	commit  = ""
 )
 
