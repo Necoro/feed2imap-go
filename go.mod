@@ -5,7 +5,7 @@ go 1.24
 toolchain go1.24.3
 
 require (
-	github.com/Necoro/gofeed v1.2.2-0.20240710191639-dd0fdcc70756
+	github.com/Necoro/gofeed v1.2.2-0.20250730075239-57e62b97afdd
 	github.com/Necoro/html2text v0.0.0-20250606224708-e894509f9c93
 	github.com/PuerkitoBio/goquery v1.10.3
 	github.com/emersion/go-imap v1.2.1
@@ -29,13 +29,10 @@ require (
 	github.com/fatih/color v1.18.0 // indirect
 	github.com/go-shiori/dom v0.0.0-20230515143342-73569d674e1c // indirect
 	github.com/gogs/chardet v0.0.0-20211120154057-b7413eaefb8f // indirect
-	github.com/json-iterator/go v1.1.12 // indirect
 	github.com/mattn/go-colorable v0.1.14 // indirect
 	github.com/mattn/go-isatty v0.0.20 // indirect
 	github.com/mattn/go-runewidth v0.0.16 // indirect
 	github.com/mmcdole/goxpp v1.1.1 // indirect
-	github.com/modern-go/concurrent v0.0.0-20180306012644-bacd9c7ef1dd // indirect
-	github.com/modern-go/reflect2 v1.0.2 // indirect
 	github.com/olekukonko/errors v1.1.0 // indirect
 	github.com/olekukonko/ll v0.0.9 // indirect
 	github.com/olekukonko/tablewriter v1.0.9 // indirect
