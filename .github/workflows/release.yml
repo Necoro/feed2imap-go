@@ -22,7 +22,7 @@ jobs:
         go-version-file: 'go.mod'
 
     - name: Get version from tag
-      uses: little-core-labs/get-git-tag@v3.0.2
+      uses: bcomnes/get-git-tag@3.0.8
       id: tag_name
       with:
           tagRegex: "v(.*)"
@@ -38,7 +38,7 @@ jobs:
       id: changelog_text
       run: |
           echo '${{ steps.changelog_reader.outputs.changes }}' >> $HOME/changelog_entry
-          echo ::set-output name=clfile::$HOME/changelog_entry
+          echo "clfile=$HOME/changelog_entry" >> $GITHUB_OUTPUT
 
     - name: Docker Login
       uses: azure/docker-login@v2
@@ -57,7 +57,7 @@ jobs:
     - name: Run GoReleaser
       uses: goreleaser/goreleaser-action@v6
       with:
-          version: latest
+          version: '~> v2'
           args: --release-notes ${{ steps.changelog_text.outputs.clfile }}
       env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
