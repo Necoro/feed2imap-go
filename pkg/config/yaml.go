@@ -1,20 +1,15 @@
 package config
 
 import (
-	"errors"
 	"fmt"
 	"io"
 	"strings"
 
+	"github.com/goccy/go-yaml"
+	"github.com/goccy/go-yaml/ast"
 	"github.com/mitchellh/mapstructure"
-	"gopkg.in/yaml.v3"
 
 	"github.com/Necoro/feed2imap-go/pkg/log"
-)
-
-const (
-	strTag  = "!!str"
-	nullTag = "!!null"
 )
 
 type config struct {
@@ -35,10 +30,58 @@ type feed struct {
 }
 
 type configGroupFeed struct {
-	Target  yaml.Node
+	Target  targetString
 	Feed    feed  `yaml:",inline"`
 	Group   group `yaml:",inline"`
 	Options Map   `yaml:",inline"`
+}
+
+// targetString is a custom type for the `target` field in the config.
+// It is a complicated type, as its absence is different from an empty or explicitly null value.
+// Also: It may be a url, for historical reasons.
+type targetString struct {
+	Present bool
+	Value   string
+	node    ast.Node
+}
+
+func (o *targetString) UnmarshalYAML(node ast.Node) error {
+	o.Present = true
+	o.node = node
+
+	switch node.Type() {
+	case ast.NullType:
+		o.Value = ""
+		return nil
+	case ast.StringType:
+		return yaml.NodeToValue(node, &o.Value)
+	default:
+		return &yaml.UnexpectedNodeTypeError{
+			Actual:   node.Type(),
+			Expected: ast.StringType,
+			Token:    node.GetToken(),
+		}
+	}
+}
+
+func (o *targetString) AsUrl() (Url, error) {
+	if !o.Present {
+		return Url{}, nil
+	}
+
+	url := Url{}
+	if err := yaml.NodeToValue(o.node, &url); err != nil {
+		return Url{}, err
+	}
+
+	return url, nil
+}
+
+func (o *targetString) Line() int {
+	if !o.Present {
+		return -1
+	}
+	return o.node.GetToken().Position.Line
 }
 
 func (grpFeed *configGroupFeed) isGroup() bool {
@@ -50,12 +93,7 @@ func (grpFeed *configGroupFeed) isFeed() bool {
 }
 
 func (grpFeed *configGroupFeed) target(autoTarget bool) string {
-	if !autoTarget || !grpFeed.Target.IsZero() {
-		if grpFeed.Target.ShortTag() == nullTag {
-			// null may be represented by ~ or NULL or ...
-			// Value would hold this representation, which we do not want
-			return ""
-		}
+	if !autoTarget || grpFeed.Target.Present {
 		return grpFeed.Target.Value
 	}
 
@@ -69,8 +107,7 @@ func (grpFeed *configGroupFeed) target(autoTarget bool) string {
 func unmarshal(in io.Reader, cfg *Config) (config, error) {
 	parsedCfg := config{Config: cfg}
 
-	d := yaml.NewDecoder(in)
-	d.KnownFields(true)
+	d := yaml.NewDecoder(in) //, yaml.DisallowUnknownField())
 	if err := d.Decode(&parsedCfg); err != nil && err != io.EOF {
 		return config{}, err
 	}
@@ -106,14 +143,8 @@ func (cfg *Config) parse(in io.Reader) error {
 	)
 
 	if parsedCfg, err = unmarshal(in, cfg); err != nil {
-		var typeError *yaml.TypeError
-		if errors.As(err, &typeError) {
-			const sep = "\n\t"
-			errMsgs := strings.Join(typeError.Errors, sep)
-			return fmt.Errorf("config is invalid: %s%s", sep, errMsgs)
-		}
-
-		return fmt.Errorf("while unmarshalling: %w", err)
+		errorMsg := yaml.FormatError(err, false, true)
+		return fmt.Errorf("config is invalid: \n%s", errorMsg)
 	}
 
 	cfg.fixGlobalOptions(parsedCfg.GlobalConfig)
@@ -180,7 +211,7 @@ func buildFeeds(cfg []configGroupFeed, target []string, feeds Feeds,
 		if isRecognizedUrl(rawTarget) {
 			// deprecated old-style URLs as target
 			// as the full path is specified, `target` is ignored
-			if fTarget, err = handleUrlTarget(rawTarget, &f.Target, globalTarget); err != nil {
+			if fTarget, err = handleUrlTarget(rawTarget, f.Target, globalTarget); err != nil {
 				return err
 			}
 		} else {
@@ -243,16 +274,16 @@ func buildFeeds(cfg []configGroupFeed, target []string, feeds Feeds,
 	return nil
 }
 
-func handleUrlTarget(targetStr string, targetNode *yaml.Node, globalTarget *Url) ([]string, error) {
+func handleUrlTarget(targetStr string, target targetString, globalTarget *Url) ([]string, error) {
 	// this whole function is solely for compatibility with old feed2imap
 	// there it was common to specify the whole URL for each feed
 	if isMaildirUrl(targetStr) {
 		// old feed2imap supported maildir, we don't
-		return nil, fmt.Errorf("Line %d: Maildir is not supported.", targetNode.Line)
+		return nil, fmt.Errorf("Line %d: Maildir is not supported.", target.Line())
 	}
 
-	url := Url{}
-	if err := url.UnmarshalYAML(targetNode); err != nil {
+	url, err := target.AsUrl()
+	if err != nil {
 		return nil, err
 	}
 
@@ -262,7 +293,7 @@ func handleUrlTarget(targetStr string, targetNode *yaml.Node, globalTarget *Url)
 	} else if !globalTarget.CommonBaseUrl(url) {
 		// if we have a url, it must be the same prefix as the global url
 		return nil, fmt.Errorf("Line %d: Given URL endpoint '%s' does not match previous endpoint '%s'.",
-			targetNode.Line,
+			target.Line(),
 			url.BaseUrl(),
 			globalTarget.BaseUrl())
 	}

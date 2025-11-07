@@ -5,8 +5,9 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/goccy/go-yaml/ast"
+	"github.com/goccy/go-yaml/token"
 	"github.com/google/go-cmp/cmp"
-	"gopkg.in/yaml.v3"
 )
 
 func t(s string) []string {
@@ -15,12 +16,13 @@ func t(s string) []string {
 	}
 	return strings.Split(s, ".")
 }
-func n(s string) (n yaml.Node) {
-	n.SetString(s)
-	return
+func n(s string) targetString {
+	tk := token.String(s, s, &token.Position{})
+	node := ast.String(tk)
+	return targetString{Present: true, Value: s, node: node}
 }
 
-var null = yaml.Node{Tag: nullTag}
+var null = targetString{Present: true}
 
 func TestBuildOptions(tst *testing.T) {
 	tests := []struct {
@@ -294,12 +296,15 @@ func TestUnmarshal(tst *testing.T) {
 	}{
 		{name: "Empty",
 			inp: "", wantErr: false, config: defaultConfig(nil, nil)},
-		{name: "Trash", inp: "Something", wantErr: true, errMsg: "yaml: unmarshal errors:\n  line 1: cannot unmarshal !!str `Something` into config.config"},
+		{name: "Trash", inp: "Something", wantErr: true, errMsg: `[1:1] string was used where mapping is expected
+>  1 | Something
+       ^
+`},
 		{name: "Simple config",
-			inp: "something: 1\nsomething_else: 2", wantErr: false, config: defaultConfig(nil, Map{"something": 1, "something_else": 2})},
+			inp: "something: 1\nsomething_else: 2", wantErr: false, config: defaultConfig(nil, Map{"something": uint64(1), "something_else": uint64(2)})},
 		{name: "Known config",
 			inp: "whatever: 2\ndefault-email: foo@foobar.de\ntimeout: 60\nsomething: 1", wantErr: false, config: func() config {
-				c := defaultConfig(nil, Map{"something": 1, "whatever": 2})
+				c := defaultConfig(nil, Map{"something": uint64(1), "whatever": uint64(2)})
 				c.Timeout = 60
 				c.DefaultEmail = "foo@foobar.de"
 				return c
@@ -435,8 +440,8 @@ feeds:
 		},
 	}
 
-	eqNode := cmp.Comparer(func(l, r yaml.Node) bool {
-		return l.Tag == r.Tag && l.Value == r.Value
+	eqNode := cmp.Comparer(func(l, r ast.Node) bool {
+		return l.Type() == r.Type() && l.String() == r.String()
 	})
 
 	for _, tt := range tests {

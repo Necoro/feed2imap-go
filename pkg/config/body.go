@@ -4,16 +4,17 @@ import (
 	"fmt"
 	"slices"
 
-	"gopkg.in/yaml.v3"
+	"github.com/goccy/go-yaml"
+	"github.com/goccy/go-yaml/ast"
 )
 
 type Body string
 
 var validBody = []string{"default", "both", "content", "description", "fetch"}
 
-func (b *Body) UnmarshalYAML(node *yaml.Node) error {
+func (b *Body) UnmarshalYAML(node ast.Node) error {
 	var val string
-	if err := node.Decode(&val); err != nil {
+	if err := yaml.NodeToValue(node, &val); err != nil {
 		return err
 	}
 
@@ -22,13 +23,10 @@ func (b *Body) UnmarshalYAML(node *yaml.Node) error {
 	}
 
 	if !slices.Contains(validBody, val) {
-		return TypeError("line %d: Invalid value for 'body': %q", node.Line, val)
+		// TODO: change to new validation
+		return fmt.Errorf("Invalid value for 'body': %q", val)
 	}
 
 	*b = Body(val)
 	return nil
-}
-
-func TypeError(format string, v ...any) *yaml.TypeError {
-	return &yaml.TypeError{Errors: []string{fmt.Sprintf(format, v...)}}
 }

@@ -3,8 +3,8 @@ package config
 import (
 	"testing"
 
+	"github.com/goccy/go-yaml"
 	"github.com/google/go-cmp/cmp"
-	"gopkg.in/yaml.v3"
 )
 
 func TestUrl_Unmarshal(t *testing.T) {
@@ -52,6 +52,7 @@ func TestUrl_Unmarshal(t *testing.T) {
 		{name: "Err: Inv scheme", inp: `url: "smtp://user%40example:pass@example.net:4711/INBOX"`, wantErr: true},
 		{name: "Err: No Host", inp: `url: "imap://user%40example:pass/INBOX"`, wantErr: true},
 		{name: "Err: Scheme Only", inp: `url: "imap://"`, wantErr: true},
+		{name: "Err: Invalid Type", inp: `url: 123`, wantErr: true},
 		{name: "No Root", inp: `url: "imap://user:pass@example.net:143"`, url: Url{
 			Scheme:   "imap",
 			User:     "user",

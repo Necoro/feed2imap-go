@@ -6,7 +6,8 @@ import (
 	"net/url"
 	"strings"
 
-	"gopkg.in/yaml.v3"
+	"github.com/goccy/go-yaml"
+	"github.com/goccy/go-yaml/ast"
 )
 
 type Url struct {
@@ -26,12 +27,15 @@ func (u *Url) EmptyRoot() bool {
 	return u.Root == "" || u.Root == "/"
 }
 
-func (u *Url) UnmarshalYAML(value *yaml.Node) (err error) {
-	if value.ShortTag() == strTag {
+func (u *Url) UnmarshalYAML(node ast.Node) (err error) {
+	switch node.Type() {
+	case ast.NullType:
+		break
+	case ast.StringType:
 		var val string
 		var rawUrl *url.URL
 
-		if err = value.Decode(&val); err != nil {
+		if err = yaml.NodeToValue(node, &val); err != nil {
 			return err
 		}
 		if rawUrl, err = url.Parse(val); err != nil {
@@ -44,21 +48,24 @@ func (u *Url) UnmarshalYAML(value *yaml.Node) (err error) {
 		u.Host = rawUrl.Hostname()
 		u.Port = rawUrl.Port()
 		u.Root = rawUrl.Path
-	} else {
+	case ast.MappingType:
 		type _url Url // avoid recursion
 		wrapped := (*_url)(u)
-		if err = value.Decode(wrapped); err != nil {
+		if err = yaml.NodeToValue(node, wrapped); err != nil {
 			return err
 		}
+	default:
+		return fmt.Errorf("unexpected type %s", node.Type())
 	}
 
 	u.sanitize()
 
-	if errors := u.validate(); len(errors) > 0 {
-		errs := make([]string, len(errors)+1)
-		copy(errs[1:], errors)
-		errs[0] = fmt.Sprintf("line %d: Invalid target:", value.Line)
-		return &yaml.TypeError{Errors: errs}
+	// TODO: Replace by new validation mechanism
+	if errs := u.validate(); len(errs) > 0 {
+		return &yaml.UnknownFieldError{
+			Message: "Invalid target: " + strings.Join(errs, ", "),
+			Token:   node.GetToken(),
+		}
 	}
 
 	return nil
