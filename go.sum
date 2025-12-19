@@ -30,8 +30,8 @@ github.com/expr-lang/expr v1.17.6 h1:1h6i8ONk9cexhDmowO/A64VPxHScu7qfSl2k8OlINec
 github.com/expr-lang/expr v1.17.6/go.mod h1:8/vRC7+7HBzESEqt5kKpYXxrxkr31SaO8r40VO/1IT4=
 github.com/fatih/color v1.18.0 h1:S8gINlzdQ840/4pfAwic/ZE0djQEH3wM94VfqLTZcOM=
 github.com/fatih/color v1.18.0/go.mod h1:4FelSpRwEGDpQ12mAdzqdOukCy4u8WUtOY6lkT/6HfU=
-github.com/gabriel-vasile/mimetype v1.4.11 h1:AQvxbp830wPhHTqc1u7nzoLT+ZFxGY7emj5DR5DYFik=
-github.com/gabriel-vasile/mimetype v1.4.11/go.mod h1:d+9Oxyo1wTzWdyVUPMmXFvp4F9tea18J8ufA774AB3s=
+github.com/gabriel-vasile/mimetype v1.4.12 h1:e9hWvmLYvtp846tLHam2o++qitpguFiYCKbn0w9jyqw=
+github.com/gabriel-vasile/mimetype v1.4.12/go.mod h1:d+9Oxyo1wTzWdyVUPMmXFvp4F9tea18J8ufA774AB3s=
 github.com/go-shiori/dom v0.0.0-20230515143342-73569d674e1c h1:wpkoddUomPfHiOziHZixGO5ZBS73cKqVzZipfrLmO1w=
 github.com/go-shiori/dom v0.0.0-20230515143342-73569d674e1c/go.mod h1:oVDCh3qjJMLVUSILBRwrm+Bc6RNXGZYtoh9xdvf1ffM=
 github.com/go-shiori/go-readability v0.0.0-20250217085726-9f5bf5ca7612 h1:BYLNYdZaepitbZreRIa9xeCQZocWmy/wj4cGIH0qyw0=
