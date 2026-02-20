@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"maps"
 	"strings"
 
 	"github.com/mitchellh/mapstructure"
@@ -79,12 +80,7 @@ func unmarshal(in io.Reader, cfg *Config) (config, error) {
 }
 
 func (cfg *Config) fixGlobalOptions(unparsed Map) {
-	origMap := Map{}
-
-	// copy map
-	for k, v := range unparsed {
-		origMap[k] = v
-	}
+	origMap := maps.Clone(unparsed)
 
 	newOpts, _ := buildOptions(&cfg.FeedOptions, unparsed)
 
