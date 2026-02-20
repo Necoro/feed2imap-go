@@ -11,13 +11,14 @@ import (
 	"strings"
 	"time"
 
+	readability "codeberg.org/readeck/go-readability/v2"
+
 	"github.com/Necoro/gofeed"
 	"github.com/Necoro/html2text"
 	"github.com/PuerkitoBio/goquery"
 	"github.com/emersion/go-message"
 	"github.com/emersion/go-message/mail"
 	"github.com/gabriel-vasile/mimetype"
-	"github.com/go-shiori/go-readability"
 	"golang.org/x/net/html"
 	"golang.org/x/net/html/charset"
 
@@ -273,7 +274,11 @@ func getFullArticle(src string, ctx http.Context) (string, error) {
 		return "", fmt.Errorf("parsing body from '%s': %w", src, err)
 	}
 
-	return article.Content, nil
+	content := new(strings.Builder)
+	if err = article.RenderHTML(content); err != nil {
+		return "", fmt.Errorf("rendering body from '%s': %w", src, err)
+	}
+	return content.String(), nil
 }
 
 func cidNr(idx int) string {

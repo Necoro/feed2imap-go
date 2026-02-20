@@ -3,6 +3,7 @@ module github.com/Necoro/feed2imap-go
 go 1.26
 
 require (
+	codeberg.org/readeck/go-readability/v2 v2.1.1
 	github.com/Necoro/gofeed v1.2.2-0.20250730075239-57e62b97afdd
 	github.com/Necoro/html2text v0.0.0-20250804200300-7bf1ce1c7347
 	github.com/PuerkitoBio/goquery v1.10.3
@@ -11,7 +12,6 @@ require (
 	github.com/emersion/go-message v0.18.2
 	github.com/expr-lang/expr v1.17.6
 	github.com/gabriel-vasile/mimetype v1.4.11
-	github.com/go-shiori/go-readability v0.0.0-20250217085726-9f5bf5ca7612
 	github.com/google/go-cmp v0.7.0
 	github.com/google/uuid v1.6.0
 	github.com/mitchellh/mapstructure v1.5.0
