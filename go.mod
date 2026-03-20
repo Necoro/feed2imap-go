@@ -6,7 +6,7 @@ require (
 	codeberg.org/readeck/go-readability/v2 v2.1.1
 	github.com/Necoro/gofeed v1.2.2-0.20250730075239-57e62b97afdd
 	github.com/Necoro/html2text v0.0.0-20250804200300-7bf1ce1c7347
-	github.com/PuerkitoBio/goquery v1.11.0
+	github.com/PuerkitoBio/goquery v1.12.0
 	github.com/emersion/go-imap v1.2.1
 	github.com/emersion/go-imap-uidplus v0.0.0-20200503180755-e75854c361e9
 	github.com/emersion/go-message v0.18.2
@@ -16,7 +16,7 @@ require (
 	github.com/google/uuid v1.6.0
 	github.com/mitchellh/mapstructure v1.5.0
 	github.com/nightlyone/lockfile v1.0.0
-	golang.org/x/net v0.50.0
+	golang.org/x/net v0.52.0
 	gopkg.in/yaml.v3 v3.0.1
 )
 
@@ -39,6 +39,6 @@ require (
 	github.com/olekukonko/ll v0.1.6 // indirect
 	github.com/olekukonko/tablewriter v1.1.3 // indirect
 	github.com/ssor/bom v0.0.0-20170718123548-6386211fdfcf // indirect
-	golang.org/x/sys v0.41.0 // indirect
-	golang.org/x/text v0.34.0 // indirect
+	golang.org/x/sys v0.42.0 // indirect
+	golang.org/x/text v0.35.0 // indirect
 )
