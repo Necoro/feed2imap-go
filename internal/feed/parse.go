@@ -5,7 +5,7 @@ import (
 	"io"
 	"os/exec"
 
-	"github.com/Necoro/gofeed"
+	"github.com/mmcdole/gofeed"
 
 	"github.com/Necoro/feed2imap-go/internal/http"
 )
@@ -43,7 +43,7 @@ func (feed *Feed) Parse() error {
 		}
 
 		if err = cmd.Start(); err != nil {
-			return fmt.Errorf("starting exec for feed '%s: %w", feed.Name, err)
+			return fmt.Errorf("starting exec for feed '%s': %w", feed.Name, err)
 		}
 
 		reader = stdout

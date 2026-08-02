@@ -5,6 +5,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+- Switched back to upstream [`gofeed`](https://github.com/mmcdole/gofeed/). Upstream's v1.4.0 release is a larger change, there might be different results in parsing feeds.
 - Upgrade dependencies
 ### Fixed
 - Fix HTTP request cleanup on errors ([PR #200](https://github.com/Necoro/feed2imap-go/pull/200); @bensynapse)
