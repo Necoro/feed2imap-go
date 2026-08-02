@@ -5,6 +5,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+- Upgrade dependencies
+- Switched back to upstream [`gofeed`](https://github.com/mmcdole/gofeed/). Upstream's v1.4.0 release is a larger change, there might be different results in parsing feeds.
+
 ## [1.8.0] - 2025-07-30
 - Upgrade dependencies
 ### Fixed
