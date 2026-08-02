@@ -10,8 +10,19 @@ import (
 	"github.com/Necoro/feed2imap-go/internal/http"
 )
 
-func (feed *Feed) Parse() error {
+func createParser() *gofeed.Parser {
 	fp := gofeed.NewParser()
+
+	// disable content image scan
+	// it sets feed.Image, which we do not use
+	fp.RSSTranslator = &gofeed.DefaultRSSTranslator{
+		DisableContentImageScan: true,
+	}
+	return fp
+}
+
+func (feed *Feed) Parse() error {
+	fp := createParser()
 
 	var reader io.Reader
 	var cleanup func() error
