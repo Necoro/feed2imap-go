@@ -2,7 +2,8 @@ package feed
 
 import (
 	"encoding/base64"
-	"encoding/json"
+	"encoding/json/jsontext"
+	"encoding/json/v2"
 	"fmt"
 	"slices"
 	"strings"
@@ -101,7 +102,6 @@ func (item *Item) messageId() string {
 }
 
 func printItem(item *gofeed.Item) string {
-	// analogous to gofeed.Feed.String
-	json, _ := json.MarshalIndent(item, "", "    ")
+	json, _ := json.Marshal(item, jsontext.Multiline(true))
 	return string(json)
 }
