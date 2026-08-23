@@ -102,8 +102,7 @@ func (cfg *Config) parse(in io.Reader) error {
 	)
 
 	if parsedCfg, err = unmarshal(in, cfg); err != nil {
-		var typeError *yaml.TypeError
-		if errors.As(err, &typeError) {
+		if typeError, ok := errors.AsType[*yaml.TypeError](err); ok {
 			const sep = "\n\t"
 			errMsgs := strings.Join(typeError.Errors, sep)
 			return fmt.Errorf("config is invalid: %s%s", sep, errMsgs)
