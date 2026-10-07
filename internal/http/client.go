@@ -53,11 +53,12 @@ func client(disableTLS bool) *http.Client {
 
 var noop ctxt.CancelFunc = func() {}
 
-func Get(url string, ctx Context) (resp *http.Response, cancel ctxt.CancelFunc, err error) {
+func Get(url string, ctx Context) (*http.Response, ctxt.CancelFunc, error) {
 	prematureExit := true
 	stdCtx, ctxCancel := ctx.StdContext()
+	var resp *http.Response
 
-	cancel = func() {
+	cancel := func() {
 		if resp != nil {
 			_ = resp.Body.Close()
 		}
@@ -78,6 +79,8 @@ func Get(url string, ctx Context) (resp *http.Response, cancel ctxt.CancelFunc, 
 
 	resp, err = client(ctx.DisableTLS).Do(req)
 	if err != nil {
+		// Do has already closed the response body when it returns an error.
+		resp = nil
 		return nil, noop, err
 	}
 
