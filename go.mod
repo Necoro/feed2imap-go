@@ -3,7 +3,7 @@ module github.com/Necoro/feed2imap-go
 go 1.27
 
 require (
-	codeberg.org/readeck/go-readability/v2 v2.1.2
+	codeberg.org/readeck/go-readability/v2 v2.1.3
 	github.com/Necoro/gofeed v1.2.2-0.20250730075239-57e62b97afdd
 	github.com/Necoro/html2text v0.0.0-20250804200300-7bf1ce1c7347
 	github.com/PuerkitoBio/goquery v1.12.0
