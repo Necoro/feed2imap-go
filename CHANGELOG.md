@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 - Switched back to upstream [`gofeed`](https://github.com/mmcdole/gofeed/) v1.5.0. Upstream's v1.4.0 release is a larger change, there might be different results in parsing feeds.
   In particular, as relative URLs in content and links are resolved differently now, some existing items may be detected as new or updated once.
+- Switched from the archived `gopkg.in/yaml.v3` to its maintained successor [`go.yaml.in/yaml/v3`](https://github.com/yaml/go-yaml).
 - Upgrade dependencies
 ### Fixed
 - Authors given as `Name <email>` are now split correctly into name and email (via `gofeed`).
