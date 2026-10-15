@@ -21,6 +21,7 @@ type Feed struct {
 	items  []Item
 	Global config.GlobalOptions
 	extID  FeedID
+	_url   *url.URL
 }
 
 type FeedID interface {
@@ -145,6 +146,13 @@ func (feed *Feed) id() string {
 }
 
 func (feed *Feed) url() *url.URL {
+	if feed._url == nil {
+		feed._url = feed.computeUrl()
+	}
+	return feed._url
+}
+
+func (feed *Feed) computeUrl() *url.URL {
 	var feedUrl *url.URL
 
 	tryUrl := func(content, what string) bool {

@@ -313,12 +313,6 @@ func (item *Item) resolveUrl(otherUrlStr string) string {
 	}
 
 	feed := item.feed
-	feedUrl := feed.url()
-
-	if feedUrl == nil {
-		// no url, just return the original
-		return otherUrlStr
-	}
 
 	otherUrl, err := url.Parse(otherUrlStr)
 	if err != nil {
@@ -331,7 +325,7 @@ func (item *Item) resolveUrl(otherUrlStr string) string {
 		return otherUrlStr
 	}
 
-	return feedUrl.ResolveReference(otherUrl).String()
+	return feed.url().ResolveReference(otherUrl).String()
 }
 
 func (item *Item) downloadImage(src string) string {
