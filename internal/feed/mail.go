@@ -111,7 +111,7 @@ func (item *Item) writeContentPart(w *message.Writer, typ string, tpl template.T
 	}
 	defer partW.Close()
 
-	if err = tpl.Execute(rfc822.Writer(w), item); err != nil {
+	if err = tpl.Execute(rfc822.Writer(partW), item); err != nil {
 		return fmt.Errorf("writing %s part: %w", typ, err)
 	}
 
