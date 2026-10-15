@@ -1,17 +1,17 @@
 #!/usr/bin/env bash
 #
-# Compare the mails (HTML and text part) rendered by the current git index state
+# Compare the mails (HTML and text part) rendered by the current worktree
 # with those rendered by a given git revision.
 #
-# Both versions are exported to a work directory (the repository itself is not touched),
-# get the same downloaded copy of each feed as input, and render every item with the
-# respective templates. Afterwards, the outputs are compared file by file.
+# The revision is exported to a work directory, the worktree is used in place (the repository
+# itself is not touched). Both get the same downloaded copy of each feed as input, and render
+# every item with the respective templates. Afterwards, the outputs are compared file by file.
 #
 # Usage: compare-mails.sh [-f feeds-file] [-o work-dir] [-i] [-q] <revision>
 #
 #   -f feeds-file  File with one feed per line: '<name> <url>' (# starts a comment).
 #                  Defaults to the built-in list below.
-#   -o work-dir    Directory to use for downloads, exported trees, and output.
+#   -o work-dir    Directory to use for downloads, the exported revision, and output.
 #                  Defaults to a fresh temporary directory, which is kept afterwards.
 #   -i             Include images (downloads them). Without, the body HTML is not
 #                  re-serialized, so changes in that processing go unnoticed.
@@ -72,8 +72,8 @@ else
     mkdir -p "$work_dir"
     work_dir=$(realpath "$work_dir")
 fi
-rm -rf "$work_dir"/{feeds,old,new,out-old,out-new}
-mkdir -p "$work_dir"/{feeds,old,new}
+rm -rf "$work_dir"/{feeds,old,out-old,out-new}
+mkdir -p "$work_dir"/{feeds,old}
 
 echo ">>> Work directory: $work_dir"
 
@@ -90,11 +90,9 @@ while read -r name url _; do
 done <<< "$feeds"
 [[ ${#names[@]} -gt 0 ]] || { echo "No feeds fetched." >&2; exit 2; }
 
-# --- Export trees ---
+# --- Export revision ---
 echo ">>> Exporting $rev"
 git -C "$repo" archive "$rev" | tar -x -C "$work_dir/old"
-echo ">>> Exporting index"
-git -C "$repo" checkout-index -a --prefix="$work_dir/new/"
 
 # --- Render ---
 cat > "$work_dir/zz_compare_mails_test.go" <<'EOF'
@@ -158,17 +156,21 @@ func TestCompareMailsRender(t *testing.T) {
 }
 EOF
 
+# the test file is injected via an overlay, so that the worktree can be used in place
 for v in old new; do
     echo ">>> Rendering $v"
-    cp "$work_dir/zz_compare_mails_test.go" "$work_dir/$v/internal/feed/"
+    if [[ $v == old ]]; then tree=$work_dir/old; else tree=$repo; fi
+    printf '{"Replace": {"%s": "%s"}}\n' "$tree/internal/feed/zz_compare_mails_test.go" "$work_dir/zz_compare_mails_test.go" \
+        > "$work_dir/overlay-$v.json"
     F2I_FEEDS="$work_dir/feeds" F2I_OUT="$work_dir/out-$v" F2I_IMAGES=$images \
-        go test -C "$work_dir/$v" -vet=off -count=1 -run '^TestCompareMailsRender$' ./internal/feed/ > "$work_dir/render-$v.log" 2>&1 ||
+        go test -C "$tree" -overlay "$work_dir/overlay-$v.json" -vet=off -count=1 -run '^TestCompareMailsRender$' ./internal/feed/ \
+        > "$work_dir/render-$v.log" 2>&1 ||
         { echo "!!! Rendering $v failed:" >&2; cat "$work_dir/render-$v.log" >&2; exit 2; }
 done
 
 # --- Compare ---
 echo
-echo ">>> Comparing $rev (old) with index (new)"
+echo ">>> Comparing $rev (old) with worktree (new)"
 printf '%-12s %-5s %6s %6s %6s %6s\n' feed part total same ws-only differ
 diffs=()
 for name in "${names[@]}"; do

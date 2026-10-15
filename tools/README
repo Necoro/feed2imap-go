@@ -4,6 +4,6 @@ Tools for feed2imap-go
 Currently included:
 * `print-cache`: Print details about feeds part of the cache and the cached contents.
 * `compare-mails.sh`: Development helper. Renders the mails (HTML and text) of a set of feeds with the
-  current git index state and with a given revision, and compares them. See the script header for usage.
+  current worktree and with a given revision, and compares them. See the script header for usage.
 
 Note to packagers: `print-cache` is mostly a debugging tool, inclusion in packages is optional.
