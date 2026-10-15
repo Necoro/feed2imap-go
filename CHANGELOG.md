@@ -5,9 +5,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
-- Switched back to upstream [`gofeed`](https://github.com/mmcdole/gofeed/). Upstream's v1.4.0 release is a larger change, there might be different results in parsing feeds.
+- Switched back to upstream [`gofeed`](https://github.com/mmcdole/gofeed/) v1.5.0. Upstream's v1.4.0 release is a larger change, there might be different results in parsing feeds.
+  In particular, as relative URLs in content and links are resolved differently now, some existing items may be detected as new or updated once.
 - Upgrade dependencies
 ### Fixed
+- Authors given as `Name <email>` are now split correctly into name and email (via `gofeed`).
 - Fix HTTP request cleanup on errors ([PR #200](https://github.com/Necoro/feed2imap-go/pull/200); @bensynapse)
 
 ## [1.8.0] - 2025-07-30

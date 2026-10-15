@@ -14,7 +14,7 @@ require (
 	github.com/google/go-cmp v0.7.0
 	github.com/google/uuid v1.6.0
 	github.com/mitchellh/mapstructure v1.5.0
-	github.com/mmcdole/gofeed v1.4.0
+	github.com/mmcdole/gofeed v1.5.0
 	github.com/nightlyone/lockfile v1.0.0
 	golang.org/x/net v0.61.0
 	gopkg.in/yaml.v3 v3.0.1
