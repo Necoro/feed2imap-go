@@ -159,6 +159,7 @@ func (img *feedImage) writeImagePart(w *message.Writer, cid string) error {
 func (item *Item) writeToBuffer(b *bytes.Buffer) error {
 	h := item.buildHeader()
 	item.buildBody()
+	defer item.clearImages() // save memory
 
 	writer, err := message.CreateWriter(b, h)
 	if err != nil {
@@ -197,7 +198,6 @@ func (item *Item) writeToBuffer(b *bytes.Buffer) error {
 		}
 	}
 
-	item.clearImages() // safe memory
 	return nil
 }
 
@@ -208,13 +208,11 @@ func (item *Item) message() (msg.Message, error) {
 		return msg.Message{}, err
 	}
 
-	msg := msg.Message{
+	return msg.Message{
 		Content:  b.String(),
 		IsUpdate: item.UpdateOnly,
 		ID:       item.Id(),
-	}
-
-	return msg, nil
+	}, nil
 }
 
 func (feed *Feed) Messages() (msg.Messages, error) {
@@ -303,11 +301,17 @@ func (item *Item) getBody(bodyCfg config.Body) (string, error) {
 	case "fetch":
 		return getFullArticle(item.Link, item.feed.Context())
 	default:
-		return "", fmt.Errorf("Unknown value for Body: %v", bodyCfg)
+		return "", fmt.Errorf("unknown value for Body: %v", bodyCfg)
 	}
 }
 
+// resolveUrl makes a relative URL absolute w.r.t. the feed's URL.
+// Absolute URLs, fragment-only references, and unparsable URLs are returned unchanged.
 func (item *Item) resolveUrl(otherUrlStr string) string {
+	if otherUrlStr == "" || otherUrlStr[0] == '#' {
+		return otherUrlStr
+	}
+
 	feed := item.feed
 	feedUrl := feed.url()
 
@@ -320,7 +324,11 @@ func (item *Item) resolveUrl(otherUrlStr string) string {
 	if err != nil {
 		log.Errorf("Feed %s: Item %s: Error parsing URL '%s' embedded in item: %s",
 			feed.Name, item.Link, otherUrlStr, err)
-		return ""
+		return otherUrlStr
+	}
+
+	if otherUrl.IsAbs() {
+		return otherUrlStr
 	}
 
 	return feedUrl.ResolveReference(otherUrl).String()
@@ -337,7 +345,7 @@ func (item *Item) downloadImage(src string) string {
 			feed.Name, item.Link, err)
 		return ""
 	}
-	if img == nil {
+	if len(img) == 0 {
 		return ""
 	}
 
@@ -395,8 +403,7 @@ func (item *Item) buildBody() {
 			return
 		}
 
-		if src != "" && src[0] == '/' {
-			absUrl := item.resolveUrl(src)
+		if absUrl := item.resolveUrl(src); absUrl != src {
 			selection.SetAttr(attr, absUrl)
 			doneAnything = true
 		}
@@ -408,7 +415,7 @@ func (item *Item) buildBody() {
 		}
 	}
 
-	if !feed.Global.WithPartHtml() || err != nil {
+	if !feed.Global.WithPartHtml() {
 		return
 	}
 

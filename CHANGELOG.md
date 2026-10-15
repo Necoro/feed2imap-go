@@ -14,6 +14,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 - Authors given as `Name <email>` are now split correctly into name and email (via `gofeed`).
 - Fix HTTP request cleanup on errors ([PR #200](https://github.com/Necoro/feed2imap-go/pull/200); @bensynapse)
+- Fixed handling of relative URLs in content and links (found and fixed by Claude)
 
 ## [1.8.0] - 2025-07-30
 - Upgrade dependencies
