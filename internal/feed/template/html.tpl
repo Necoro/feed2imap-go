@@ -1,16 +1,23 @@
 {{- /*gotype:github.com/Necoro/feed2imap-go/internal/feed.Item*/ -}}
-{{define "bottomLine"}}
-  {{if .content}}
+{{define "bottomLineStart"}}
     <tr>
       <td style="text-align: right; padding: 0">
-        <span style="color: #ababab">{{.descr}}</span>&nbsp;&nbsp;
+        <span style="color: #ababab">{{.}}</span>&nbsp;&nbsp;
       </td>
       <td style="padding: 0">
-        <span style="color: #ababab">{{.content}}</span>
+        <span style="color: #ababab">
+{{- end}}
+{{define "bottomLineEnd" -}}
+        </span>
       </td>
     </tr>
-  {{end}}
 {{end}}
+{{define "bottomLine"}}
+  {{if .content}}
+    {{- template "bottomLineStart" .descr}}{{.content}}{{template "bottomLineEnd"}}
+  {{- end}}
+{{end}}
+{{define "link"}}<a style="color: #ababab;" href="{{.url}}">{{.text}}</a>{{end}}
 <table style="border: 2px black groove; background: #ededed; width: 100%; margin-bottom: 5px">
   <tr>
     <td style="text-align: right; padding: 4px"><strong>Feed</strong></td>
@@ -50,9 +57,16 @@
 <hr style="width: 100%"/>
 <table style="width: 100%; border-spacing: 0">
   {{template "bottomLine" (dict "descr" "Date:" "content" .Date)}}
-  {{template "bottomLine" (dict "descr" "Author:" "content" .Creator)}}
+  {{with .AuthorList}}
+    {{- template "bottomLineStart" "Author:"}}
+    {{- range $i, $p := .}}
+      {{- if $i}}, {{end}}
+      {{- if .URL}}{{template "link" (dict "url" .URL "text" (or .Name .URL))}}{{else}}{{.Name}}{{end}}
+    {{- end}}
+    {{- template "bottomLineEnd"}}
+  {{- end}}
   {{template "bottomLine" (dict "descr" "Filed under:" "content" (join ", " .Categories))}}
   {{with .FeedLink}}
-    {{template "bottomLine" (dict "descr" "Feed-Link:" "content" (print "<a style=\"color: #ababab;\" href=\"" . "\">" . "</a>" | html))}}
-  {{end}}
+    {{- template "bottomLineStart" "Feed-Link:"}}{{template "link" (dict "url" . "text" .)}}{{template "bottomLineEnd"}}
+  {{- end}}
 </table>

@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   In particular, as relative URLs in content and links are resolved differently now, some existing items may be detected as new or updated once.
 - Switched from the archived `gopkg.in/yaml.v3` to its maintained successor [`go.yaml.in/yaml/v3`](https://github.com/yaml/go-yaml).
 - Upgrade dependencies
+### Added
+- HTML view: Link authors to their URL, if provided by the feed.
 ### Fixed
 - Authors given as `Name <email>` are now split correctly into name and email (via `gofeed`).
 - Fix HTTP request cleanup on errors ([PR #200](https://github.com/Necoro/feed2imap-go/pull/200); @bensynapse)
