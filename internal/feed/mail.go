@@ -410,6 +410,21 @@ func (item *Item) buildBody() {
 		return
 	}
 
+	// add images from media:content / media:group that are not part of the body
+	for _, u := range item.mediaImageURLs() {
+		found := false
+		doc.Find("img").EachWithBreak(func(_ int, s *goquery.Selection) bool {
+			if src, _ := s.Attr("src"); src == u {
+				found = true
+			}
+			return !found
+		})
+		if !found {
+			doc.Find("body").AppendHtml(`<p><img src="` + html.EscapeString(u) + `"/></p>`)
+			doneAnything = true
+		}
+	}
+
 	if !feed.InclImages {
 		updateBody()
 		return
