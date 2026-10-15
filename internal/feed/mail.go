@@ -28,6 +28,7 @@ import (
 	"github.com/Necoro/feed2imap-go/pkg/config"
 	"github.com/Necoro/feed2imap-go/pkg/log"
 	"github.com/Necoro/feed2imap-go/pkg/rfc822"
+	"github.com/Necoro/feed2imap-go/pkg/util"
 	"github.com/Necoro/feed2imap-go/pkg/version"
 )
 
@@ -243,11 +244,10 @@ func getImage(src string, ctx http.Context) ([]byte, string, error) {
 
 	mimeStr := mimetype.Detect(img).String()
 	if mimeStr == "application/octet-stream" {
-		if u, err := url.Parse(src); err == nil {
-			extMime := mime.TypeByExtension(path.Ext(u.Path))
-			if extMime != "" {
-				mimeStr = extMime
-			}
+		ext := path.Ext(util.CleanPath(src))
+		extMime := mime.TypeByExtension(ext)
+		if extMime != "" {
+			mimeStr = extMime
 		}
 	}
 	return img, mimeStr, nil
@@ -343,15 +343,15 @@ func (item *Item) downloadImage(src string) string {
 
 	if feed.EmbedImages {
 		return "data:" + mime + ";base64," + base64.StdEncoding.EncodeToString(img)
-	} else {
-		name := path.Base(src)
-		if name == "/" || name == "." || name == " " {
-			name = ""
-		}
-
-		idx := item.addImage(img, mime, name)
-		return "cid:" + cidNr(idx)
 	}
+
+	name := path.Base(util.CleanPath(imgUrl))
+	if name == "/" || name == "." {
+		name = ""
+	}
+
+	idx := item.addImage(img, mime, name)
+	return "cid:" + cidNr(idx)
 }
 
 func (item *Item) buildBody() {
