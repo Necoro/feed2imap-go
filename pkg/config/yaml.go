@@ -8,7 +8,7 @@ import (
 	"strings"
 
 	"github.com/mitchellh/mapstructure"
-	"gopkg.in/yaml.v3"
+	"go.yaml.in/yaml/v3"
 
 	"github.com/Necoro/feed2imap-go/pkg/log"
 )

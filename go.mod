@@ -16,8 +16,8 @@ require (
 	github.com/mitchellh/mapstructure v1.5.0
 	github.com/mmcdole/gofeed v1.5.0
 	github.com/nightlyone/lockfile v1.0.0
+	go.yaml.in/yaml/v3 v3.0.5
 	golang.org/x/net v0.61.0
-	gopkg.in/yaml.v3 v3.0.1
 )
 
 require (
