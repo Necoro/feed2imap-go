@@ -61,17 +61,17 @@ func Error(v ...any) {
 	_ = errorLogger.Output(2, fmt.Sprint(v...))
 }
 
-//noinspection GoUnusedExportedFunction
+// noinspection GoUnusedExportedFunction
 func Errorf(format string, a ...any) {
 	_ = errorLogger.Output(2, fmt.Sprintf(format, a...))
 }
 
-//noinspection GoUnusedExportedFunction
+// noinspection GoUnusedExportedFunction
 func Warn(v ...any) {
 	_ = warnLogger.Output(2, fmt.Sprint(v...))
 }
 
-//noinspection GoUnusedExportedFunction
+// noinspection GoUnusedExportedFunction
 func Warnf(format string, a ...any) {
 	_ = warnLogger.Output(2, fmt.Sprintf(format, a...))
 }

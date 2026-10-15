@@ -1,6 +1,6 @@
 // Package rfc822 provides a writer that ensures the intrinsics of RFC 822.
 //
-// Rationale
+// # Rationale
 //
 // Cyrus IMAP really cares about the hard specifics of RFC 822, namely not allowing single \r and \n.
 //
