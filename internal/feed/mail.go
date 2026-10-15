@@ -241,12 +241,14 @@ func getImage(src string, ctx http.Context) ([]byte, string, error) {
 		return nil, "", fmt.Errorf("reading from '%s': %w", src, err)
 	}
 
-	var mimeStr string
-	ext := path.Ext(src)
-	if ext == "" {
-		mimeStr = mimetype.Detect(img).String()
-	} else {
-		mimeStr = mime.TypeByExtension(ext)
+	mimeStr := mimetype.Detect(img).String()
+	if mimeStr == "application/octet-stream" {
+		if u, err := url.Parse(src); err == nil {
+			extMime := mime.TypeByExtension(path.Ext(u.Path))
+			if extMime != "" {
+				mimeStr = extMime
+			}
+		}
 	}
 	return img, mimeStr, nil
 }
