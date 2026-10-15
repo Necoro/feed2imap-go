@@ -1,6 +1,7 @@
 package feed
 
 import (
+	"cmp"
 	"encoding/base64"
 	"encoding/json/jsontext"
 	"encoding/json/v2"
@@ -53,11 +54,22 @@ func (item *Item) Date() string {
 	return item.Updated
 }
 
+// AuthorList returns the authors of the item that have a name or a URL.
+func (item *Item) AuthorList() []*gofeed.Person {
+	var authors []*gofeed.Person
+	for _, p := range item.Authors {
+		if p != nil && (p.Name != "" || p.URL != "") {
+			authors = append(authors, p)
+		}
+	}
+	return authors
+}
+
 // Creator returns the name of the creating authors (comma separated).
 func (item *Item) Creator() string {
-	names := make([]string, len(item.Authors))
-	for i, p := range item.Authors {
-		names[i] = p.Name
+	var names []string
+	for _, p := range item.AuthorList() {
+		names = append(names, cmp.Or(p.Name, p.URL))
 	}
 	return strings.Join(names, ", ")
 }
