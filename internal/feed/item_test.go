@@ -1,14 +1,33 @@
 package feed
 
 import (
+	"slices"
 	"strings"
 	"testing"
 
 	"github.com/google/go-cmp/cmp"
 	"github.com/mmcdole/gofeed"
+	ext "github.com/mmcdole/gofeed/extensions"
 
 	"github.com/Necoro/feed2imap-go/internal/feed/template"
 )
+
+func TestMediaImageURLs(t *testing.T) {
+	mc := func(url, attr, val string) ext.Extension {
+		return ext.Extension{Name: "content", Attrs: map[string]string{"url": url, attr: val}}
+	}
+	item := &Item{Item: &gofeed.Item{Extensions: ext.Extensions{"media": {
+		"content": {mc("http://x/top.jpg", "medium", "image"), mc("http://x/v.mp4", "type", "video/mp4")},
+		"group": {{Name: "group", Children: map[string][]ext.Extension{
+			"content": {mc("http://x/a.jpg", "medium", "image"), mc("http://x/b.jpg", "type", "image/jpeg"), mc("http://x/top.jpg", "medium", "image")},
+		}}},
+	}}}}
+
+	want := []string{"http://x/top.jpg", "http://x/a.jpg", "http://x/b.jpg"}
+	if got := item.mediaImageURLs(); !slices.Equal(got, want) {
+		t.Errorf("got %v, want %v", got, want)
+	}
+}
 
 func TestCreator(t *testing.T) {
 	type p = gofeed.Person

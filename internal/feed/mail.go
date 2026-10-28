@@ -413,6 +413,14 @@ func (item *Item) buildBody() {
 		return
 	}
 
+	// add images from media:content / media:group if the body contains no images
+	if doc.Find("img").Length() == 0 {
+		for _, u := range item.mediaImageURLs() {
+			doc.Find("body").AppendHtml(`<p><img src="` + html.EscapeString(u) + `"/></p>`)
+			doneAnything = true
+		}
+	}
+
 	if !feed.InclImages {
 		updateBody()
 		return

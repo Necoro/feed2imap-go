@@ -12,6 +12,7 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/mmcdole/gofeed"
+	ext "github.com/mmcdole/gofeed/extensions"
 
 	"github.com/Necoro/feed2imap-go/pkg/config"
 )
@@ -116,4 +117,30 @@ func (item *Item) messageId() string {
 func printItem(item *gofeed.Item) string {
 	json, _ := json.Marshal(item, jsontext.Multiline(true))
 	return string(json)
+}
+
+func isMediaImage(e ext.Extension) bool {
+	return e.Attrs["url"] != "" &&
+		(e.Attrs["medium"] == "image" || strings.HasPrefix(e.Attrs["type"], "image/"))
+}
+
+// mediaImageURLs collects the image URLs of top-level and grouped <media:content> elements.
+func (item *Item) mediaImageURLs() []string {
+	media, ok := item.Extensions["media"]
+	if !ok {
+		return nil
+	}
+	var urls []string
+	add := func(list []ext.Extension) {
+		for _, c := range list {
+			if isMediaImage(c) && !slices.Contains(urls, c.Attrs["url"]) {
+				urls = append(urls, c.Attrs["url"])
+			}
+		}
+	}
+	add(media["content"])
+	for _, g := range media["group"] {
+		add(g.Children["content"])
+	}
+	return urls
 }
