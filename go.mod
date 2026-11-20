@@ -5,7 +5,7 @@ go 1.27
 require (
 	codeberg.org/readeck/go-readability/v2 v2.1.3
 	github.com/Necoro/html2text v0.0.0-20250804200300-7bf1ce1c7347
-	github.com/PuerkitoBio/goquery v1.13.0
+	github.com/PuerkitoBio/goquery v1.14.0
 	github.com/emersion/go-imap v1.2.1
 	github.com/emersion/go-imap-uidplus v0.0.0-20200503180755-e75854c361e9
 	github.com/emersion/go-message v0.18.2
@@ -17,7 +17,7 @@ require (
 	github.com/mmcdole/gofeed v1.5.0
 	github.com/nightlyone/lockfile v1.0.0
 	go.yaml.in/yaml/v3 v3.0.5
-	golang.org/x/net v0.61.0
+	golang.org/x/net v0.62.0
 )
 
 require (
